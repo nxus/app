@@ -2,10 +2,8 @@
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 15:06:27
+* @Last Modified time: 2015-07-16 15:31:04
 */
-
-require("babel").transform("code", { optional: ["runtime"] });
 
 var EventEmitter = require('events').EventEmitter
 var _ = require('underscore')
