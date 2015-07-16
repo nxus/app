@@ -18,6 +18,8 @@ var Application = require('@nxus/core')
 var app = new Application(options)
 ```
 
+### Module Loading
+
 By defaul the Application will look for other Nxus modules in the following order:
 
 1. @nxus namespaced npm modules in your `package.json` file.
