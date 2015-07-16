@@ -1,6 +1,6 @@
 {
   "name": "@nxus/core",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "main": "index.js",
   "scripts": {
