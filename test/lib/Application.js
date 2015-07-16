@@ -14,6 +14,11 @@ describe("Application", () => {
     it("should not be null", () => Application.should.not.be.null())
 
     it("should be instantiated", () => (app = new Application()).should.not.be.null())
+
+    it("should use the passed in appDir if present", () => {
+      app = new Application({appDir: 'someValue'})
+      app.config.appDir.should.eql('someValue')
+    })
   })
 
   describe("Events", () => {
