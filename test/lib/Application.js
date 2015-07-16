@@ -34,7 +34,7 @@ describe("Application", () => {
 
   describe("Boot Await", () => {
     beforeEach(() => {
-      app = new Application({awaitStorage: false})
+      app = new Application()
     })
 
     it("should wait until the event has been fired to send the next stage", (done) => {
@@ -49,7 +49,7 @@ describe("Application", () => {
 
   describe("Boot Stages", () => {
     beforeEach(() => {
-      app = new Application({awaitStorage: false})
+      app = new Application()
     })
 
     it("should send the init event", (done) => {
