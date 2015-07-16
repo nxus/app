@@ -1,13 +1,13 @@
 {
   "name": "@nxus/core",
   "version": "1.0.0",
-  "description": "",
+  "description": "A framework for building light-weight, event-driven data processing apps.",
   "main": "index.js",
   "scripts": {
     "test": "mocha --compilers js:babel/register -R spec test/*"
   },
-  "author": "",
-  "license": "none",
+  "author": "info@nxusapp.com",
+  "license": "MIT",
   "dependencies": {
     "async": "^0.9.0",
     "chokidar": "^1.0.1",
