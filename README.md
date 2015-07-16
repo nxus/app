@@ -16,6 +16,8 @@ In your root application, create a new Application instance:
 var Application = require('@nxus/core')
 
 var app = new Application(options)
+
+app.start()
 ```
 
 ### Module Loading
