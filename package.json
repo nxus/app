@@ -1,6 +1,6 @@
 {
   "name": "@nxus/core",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "main": "index.js",
   "scripts": {
@@ -17,11 +17,11 @@
     "merge-descriptors": "0.0.2",
     "moment": "^2.10.3",
     "multimatch": "^2.0.0",
-    "underscore": "*"
+    "underscore": "*",
+    "babel-runtime": "^5.7.0"
   },
   "devDependencies": {
     "babel": "^5.6.23",
-    "babel-runtime": "^5.7.0",
     "mocha": "^2.2.5",
     "should": "^7.0.2"
   }
