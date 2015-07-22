@@ -1,12 +1,12 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 09:24:48
-* @Last Modified 2015-07-16 @Last Modified time: 2015-07-16 09:24:48
+* @Last Modified 2015-07-16
 */
 
 'use strict';
 
-var StorageManager = require('../../lib/StorageManager')
+var StorageManager = require('../../src/StorageManager')
 
 describe("StorageManager", () => {
   describe("Load", () => {

@@ -1,12 +1,12 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 08:47:51
-* @Last Modified 2015-07-16 @Last Modified time: 2015-07-16 08:47:51
+* @Last Modified 2015-07-16
 */
 
 'use strict';
 
-var PluginManager = require('../../lib/PluginManager')
+var PluginManager = require('../../src/PluginManager')
 
 describe("PluginManager", () => {
   describe("Load", () => {

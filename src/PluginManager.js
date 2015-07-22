@@ -2,7 +2,7 @@
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
 * @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 11:54:07
+* @Last Modified time: 2015-07-16 15:50:04
 */
 
 'use strict';
@@ -103,7 +103,6 @@ class PluginManager {
 
   loadCustomPlugins(options, packages) {
     var customDir = options.appDir+'/modules'
-    console.log('customDir', customDir)
     if (!fs.existsSync(customDir)) return
 
     var customPluginDirs = fs.readdirSync(customDir)

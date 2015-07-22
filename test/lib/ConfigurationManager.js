@@ -6,7 +6,7 @@
 
 'use strict';
 
-var ConfigurationManager = require('../../lib/ConfigurationManager')
+var ConfigurationManager = require('../../src/ConfigurationManager')
 
 describe("ConfigurationManager", () => {
   describe("Load", () => {
@@ -15,14 +15,5 @@ describe("ConfigurationManager", () => {
     it("should not be null", () => ConfigurationManager.should.not.be.null())
 
     it("should be instantiated", () => (instance = new ConfigurationManager()).should.not.be.null())
-  })
-
-  describe("Load with opts", () => {
-    var instance;
-
-    it("should use the passed in appDir if present", () => {
-      instance = new ConfigurationManager({appDir: 'someValue'})
-      instance.appDir.should.eql('someValue')
-    })
   })
 })

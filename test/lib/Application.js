@@ -6,7 +6,7 @@
 
 'use strict';
 
-var Application = require('../../lib/Application')
+var Application = require('../../src/Application')
 
 describe("Application", () => {
   var app;

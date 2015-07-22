@@ -6,7 +6,7 @@
 
 'use strict';
 
-var BootStage = require('../../lib/BootStage')
+var BootStage = require('../../src/BootStage')
 var EventEmitter = require('events').EventEmitter
 var app = new EventEmitter()
 

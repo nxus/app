@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 15:31:04
+* @Last Modified 2015-07-22
+* @Last Modified time: 2015-07-22 10:10:38
 */
 
 var EventEmitter = require('events').EventEmitter
@@ -23,10 +23,6 @@ var logBanner = (message) => {
   console.log(' --- ')
   console.log(' --- '+ message)
 }
-
-var startupBanner = () => {
-  logBanner('*** NXUS APP Started at' + new Date() + ' ***')
-} 
 
 var pluginDir = './storage/config'
 var pluginConfig = pluginDir + '/plugins.json'
@@ -57,15 +53,23 @@ class Application extends EventEmitter {
 
     options.appDir = options.appDir || path.dirname(require.main.filename)
 
-    this.log = function(...args) {
-      console.log.apply(this, args)
+    this.config = _.extend(options, new ConfigurationManager(options).getConfig())
+    this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    
+    this.setMaxListeners(100000) // supress node v0.11+ warning
+
+    this.log = (...args) => {
+      if(this.config.debug) console.log.apply(this, args)
     }
 
-    this.log = _.extend(this.log, console)
-
-    this.config = _.extend(options, new ConfigurationManager(options).getConfig())
-    this.config.debug = process.env.NODE_ENV != 'production'
-    this.setMaxListeners(100000) // supress node v0.11+ warning
+    this.log = _.extend(this.log, console, {
+      debug: (...args) => {
+        if(this.config.debug) console.log.apply(this, args)
+      }, 
+      info: (...args) => {
+        if(this.config.debug) console.log.apply(this, args)
+      } 
+    })
 
     this.domain = domain.create()
     
@@ -170,7 +174,7 @@ class Application extends EventEmitter {
   }
 
   start() {
-    startupBanner()
+    this.log('*** NXUS APP Started at' + new Date() + ' ***')
     this.domain.run(() => {
       this.init()   
     })
