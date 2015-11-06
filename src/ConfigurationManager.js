@@ -1,15 +1,15 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 11:51:21
+* @Last Modified 2015-11-05
+* @Last Modified time: 2015-11-05 18:55:08
 */
 
 'use strict';
 
-var fs = require('fs')
-var _ = require('underscore')
-var path = require('path')
+import fs from 'fs'
+import _ from 'underscore'
+import path from 'path'
 
 class ConfigurationManager {
 

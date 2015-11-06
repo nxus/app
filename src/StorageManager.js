@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:06:08
-* @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 10:46:51
+* @Last Modified 2015-11-05
+* @Last Modified time: 2015-11-05 18:55:45
 */
 
 'use strict';
@@ -18,4 +18,4 @@ class StorageManager {
   }
 }
 
-module.exports = StorageManager
+export default StorageManager

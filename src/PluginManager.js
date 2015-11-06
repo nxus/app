@@ -1,17 +1,17 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 15:50:04
+* @Last Modified 2015-11-05
+* @Last Modified time: 2015-11-05 18:57:30
 */
 
 'use strict';
 
-var findup = require('findup-sync')
-var multimatch = require('multimatch')
-var fs = require('fs')
-var path = require('path')
-var _ = require('underscore')
+import findup from 'findup-sync'
+import multimatch from 'multimatch'
+import fs from 'fs'
+import path from 'path'
+import _ from 'underscore'
 
 class PluginManager {
 
@@ -131,4 +131,4 @@ class PluginManager {
   }
 }
 
-module.exports = PluginManager
+export default PluginManager

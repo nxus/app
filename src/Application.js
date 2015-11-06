@@ -1,23 +1,23 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-07-22
-* @Last Modified time: 2015-07-22 10:10:38
+* @Last Modified 2015-11-05
+* @Last Modified time: 2015-11-05 18:54:37
 */
 
-var EventEmitter = require('events').EventEmitter
-var _ = require('underscore')
-var util = require('util')
-var fs = require('fs')
-var async = require('async')
-var domain = require('domain')
-var path = require('path')
+import { EventEmitter } from 'events'
+import _ from 'underscore'
+import util from 'util'
+import fs from 'fs'
+import async from 'async'
+import domain from 'domain'
+import path from 'path'
 
-var PluginManager = require('./PluginManager')
-var BootStage = require('./BootStage')
-var ConfigurationManager = require('./ConfigurationManager')
-var StorageManager = require('./StorageManager')
-var Watcher = require('./Watcher')
+import PluginManager from './PluginManager'
+import BootStage from './BootStage'
+import ConfigurationManager from './ConfigurationManager'
+import StorageManager from './StorageManager'
+import Watcher from './Watcher'
 
 var logBanner = (message) => {
   console.log(' --- ')
@@ -291,4 +291,4 @@ class Application extends EventEmitter {
   }
 }
 
-module.exports = Application
+export default Application

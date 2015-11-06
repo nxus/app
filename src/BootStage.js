@@ -1,13 +1,13 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:51
-* @Last Modified 2015-07-16
-* @Last Modified time: 2015-07-16 08:25:53
+* @Last Modified 2015-11-05
+* @Last Modified time: 2015-11-05 18:54:53
 */
 
 'use strict';
 
-var _ = require('underscore')
+import _ from 'underscore'
 
 class BootStage {
 
@@ -39,4 +39,4 @@ class BootStage {
   }
 }
 
-module.exports = BootStage
+export default BootStage

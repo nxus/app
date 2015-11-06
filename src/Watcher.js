@@ -1,10 +1,10 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2015-07-16
+* @Last Modified 2015-11-05
 */
 
-var moment = require('moment')
+import moment from 'moment'
 
 class Watcher {
   constructor(app, watchPath, watchEvent, ignore) {
@@ -44,4 +44,4 @@ class Watcher {
   }
 }
 
-module.exports = Watcher
+export default Watcher
