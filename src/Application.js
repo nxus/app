@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-11-06
-* @Last Modified time: 2015-11-06 12:54:38
+* @Last Modified 2015-11-16
+* @Last Modified time: 2015-11-16 14:01:29
 */
 
 import _ from 'underscore'
@@ -93,7 +93,7 @@ class Application extends Dispatcher {
     this._loadPlugins()
     
     if (!this.config.script && this.config.NODE_ENV != 'production') {
-      this.appWatcher = new Watcher(this, null, 'change.app', this._getAppIgnorePaths())
+      this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change.app', this._getAppIgnorePaths())
     }
 
     this.boot(cb)
@@ -215,18 +215,15 @@ class Application extends Dispatcher {
   }
 
   _getAppIgnorePaths() {
-    return this._getWatchPaths().concat([
+    var opts = this.config.ignore || [];
+    return opts.concat([
       '**/.git/**',
       '**.ejs'
-    ])
+    ]);
   }
 
   _getWatchPaths() {
-    var _clientScripts = []
-    var _adminScripts = []
-    return _.pluck(_clientScripts, 'path')
-      .concat(_.pluck(_adminScripts, 'path'))
-      .concat([__dirname + '/../lib/'])
+    return this.config.watch || ["**/node_modules/**", "**/modules/**"];
   }
 }
 
