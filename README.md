@@ -5,7 +5,7 @@ The Nxus Core package includes the basic Application framework for building a Nx
 ## Installation
 
 ```
-> npm install @nxus/core
+> npm install @nxus/core --save
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ The Nxus Core package includes the basic Application framework for building a Nx
 In your root application, create a new Application instance:
 
 ```
-var Application = require('@nxus/core')
+var Application = require('@nxus/core').Application
 
 var app = new Application(options)
 

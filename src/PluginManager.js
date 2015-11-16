@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2015-11-05
-* @Last Modified time: 2015-11-05 18:57:30
+* @Last Modified 2015-11-06
+* @Last Modified time: 2015-11-06 12:29:28
 */
 
 'use strict';
@@ -37,7 +37,7 @@ class PluginManager {
   }
 
   getDeps(pkg) {
-    var deps = pkg._packageJson.dependencies || {}
+    var deps = (pkg._packageJson && pkg._packageJson.dependencies) || {}
     return _.filter(Object.keys(deps), function (packageName) {
         return packageName.indexOf("@nxus/") === 0
       }) || []
@@ -52,18 +52,18 @@ class PluginManager {
     return pkg
   }
   
-  loadPackage(name, packages) {
+  loadPackage(name, directory, packages) {
     if (process.env.debug) console.log('loading package ' + name)
-    var directory = './node_modules/' + name
     var pkg
     if (fs.existsSync(directory)) {
       pkg = this.accumulatePackage(packages, directory)
     }
-
+    if(!pkg) return
     var getPackages = (packages, targets, directory) => {
       targets.forEach((t) => {
         var innerDir = path.join(directory, 'node_modules') + '/' + t
         var innerPkg = this.accumulatePackage(packages, innerDir)
+        if(!innerPkg) return
         // recurse through all child packages
         getPackages(
           packages,
@@ -80,6 +80,10 @@ class PluginManager {
       options.pattern
       || ['@nxus/*', '!@nxus/core']
     )
+
+    if(options.appDir)
+      options.config = options.appDir+"/package.json"
+
     var config = options.config || findup('package.json')
     var scope = this.arrayify(
       options.scope
@@ -88,15 +92,16 @@ class PluginManager {
     if (typeof config === 'string') {
       config = require(path.resolve(config))
     }
+    if(!config) return
     var names = scope.reduce((result, prop) => {
       return result.concat(Object.keys(config[prop] || {}))
     }, [])
     // find matched package names
     var matched = multimatch(names, pattern)
-
     matched.forEach((() => {
       return (name) => {
-        this.loadPackage(name, packages)
+        var dir = (options.appDir || ".")+"/node_modules/"+name
+        this.loadPackage(name, dir, packages)
       }
     })())
   }

@@ -1,11 +1,10 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-11-05
-* @Last Modified time: 2015-11-05 18:54:37
+* @Last Modified 2015-11-06
+* @Last Modified time: 2015-11-06 12:54:38
 */
 
-import { EventEmitter } from 'events'
 import _ from 'underscore'
 import util from 'util'
 import fs from 'fs'
@@ -13,6 +12,7 @@ import async from 'async'
 import domain from 'domain'
 import path from 'path'
 
+import Dispatcher from './Dispatcher'
 import PluginManager from './PluginManager'
 import BootStage from './BootStage'
 import ConfigurationManager from './ConfigurationManager'
@@ -27,14 +27,13 @@ var logBanner = (message) => {
 var pluginDir = './storage/config'
 var pluginConfig = pluginDir + '/plugins.json'
 
-class Application extends EventEmitter {
+class Application extends Dispatcher {
   
   constructor(options = {}) {
     super()
     this._availablePlugins = []
     this._plugins = {}
     this._pluginInfo = {}
-    this._events = []
     this.loaded = 0
     this._loadComplete = false
     this._bootAwait = {
@@ -54,7 +53,7 @@ class Application extends EventEmitter {
     options.appDir = options.appDir || path.dirname(require.main.filename)
 
     this.config = _.extend(options, new ConfigurationManager(options).getConfig())
-    this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
     
     this.setMaxListeners(100000) // supress node v0.11+ warning
 
@@ -83,47 +82,6 @@ class Application extends EventEmitter {
       }
     })
   }
-  /*
-    Application overrides EventEmitter's `emit` function to provide simple event
-    handler ordering with `.before` and `.after` suffixes indicating that the 
-    handlers should be called before or after handlers for the event with no 
-    suffix
-    
-    For example, the following prints 1, 2, and 3 in order: 
-    
-    ```
-    app.on('print.before', (n) => { console.log(n) })
-    app.on('print', (n) => { console.log(n+1) })
-    app.on('print.after', (n) => { console.log(n+2) })
-    
-    app.emit('print', 1)
-    ```
-   */
-  emit() {
-    try {
-      if (arguments[0] == "newListener") return super.emit.apply(this, arguments)
-
-      var args = Array.prototype.slice.call(arguments)
-      var beforeArgs = Array.prototype.slice.call(arguments)
-      beforeArgs[0] = beforeArgs[0]+".before"
-      var afterArgs = Array.prototype.slice.call(arguments)
-      afterArgs[0] = afterArgs[0]+".after"
-
-      super.once.apply(this, [beforeArgs[0], ((a) => {
-        return () => {super.emit.apply(this, a)}
-      })(args)])
-
-      super.once.apply(this, [arguments[0], ((a) => {
-        return () => {super.emit.apply(this, a)}
-      })(afterArgs)])
-
-      super.emit.apply(this, beforeArgs)
-    } catch (e) {
-      var logger = console
-      if (this.log && this.log.error) logger = this.log
-      logger.error("Exception processing event: " + arguments[0], e.stack, e)
-    }
-  }
 
   /*
    * Application control methods
@@ -131,11 +89,10 @@ class Application extends EventEmitter {
 
   init(cb) {
     this._initializeDataStorage()
-    this._initializeFileStorage()
     this._initializeEventListeners()
     this._loadPlugins()
     
-    if (this.config.NODE_ENV != 'production') {
+    if (!this.config.script && this.config.NODE_ENV != 'production') {
       this.appWatcher = new Watcher(this, null, 'change.app', this._getAppIgnorePaths())
     }
 
@@ -147,7 +104,7 @@ class Application extends EventEmitter {
     async.eachSeries(
       this._bootEvents,
       (e, callback) => {
-        if (this.config.debug) logBanner(e)
+        if (this.config.debug) logBanner("Stage: "+e)
         var stage = new BootStage(this, e, this._bootAwait[e], callback)
         stage.execute()
       }, (error) => {
@@ -174,7 +131,7 @@ class Application extends EventEmitter {
   }
 
   start() {
-    this.log('*** NXUS APP Started at' + new Date() + ' ***')
+    this.log('*** NXUS APP Started at ' + new Date() + ' ***')
     this.domain.run(() => {
       this.init()   
     })
@@ -227,10 +184,6 @@ class Application extends EventEmitter {
   }
   
   _initializeEventListeners() {
-    this.on('newListener', (event, listener) => {
-      this._events.push(event)
-    })
-
     this.on("app.getPluginInfo", (handler) => {
       handler(this._pluginInfo)
     })
@@ -238,20 +191,6 @@ class Application extends EventEmitter {
   
   _initializeDataStorage() {
     new StorageManager(this)
-  }
-  
-  _initializeFileStorage() {
-    if(!this.config.file_dir)
-      this.config.file_dir = process.cwd()+"/storage/uploads"
-
-    if(!fs.existsSync(this.config.file_dir))
-      this.config.file_dir = process.cwd()+"/storage/uploads"
-
-    if (!fs.existsSync(process.cwd() + '/storage'))
-      fs.mkdirSync(process.cwd() + '/storage')
-
-    if(!fs.existsSync(this.config.file_dir))
-      fs.mkdirSync(this.config.file_dir)
   }
   
   _getPlugins() {
