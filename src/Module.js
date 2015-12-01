@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2015-11-22 @Last Modified time: 2015-11-22 13:06:39
+* @Last Modified 2015-12-01
 */
 
 'use strict';
@@ -15,12 +15,12 @@ export default class Module extends Dispatcher {
     this._name = name
     this._app = app
     this._awaits = {}
-    this._appLoaded = app.on('loaded.after')
+    this._appLoaded = app.on('load.after')
   }
 
   gather(name) {
     return this._appLoaded.then(() => {
-      return this._awaits[name]
+      return this._awaits[name] || []
     })
   }
 
