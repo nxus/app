@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2015-11-06
-* @Last Modified time: 2015-11-06 12:29:28
+* @Last Modified 2015-11-22
+* @Last Modified time: 2015-11-22 16:34:15
 */
 
 'use strict';
@@ -81,7 +81,7 @@ class PluginManager {
       || ['@nxus/*', '!@nxus/core']
     )
 
-    if(options.appDir)
+    if(options.appDir && fs.existsSync(options.appDir+"/package.json"))
       options.config = options.appDir+"/package.json"
 
     var config = options.config || findup('package.json')

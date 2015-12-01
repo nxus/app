@@ -1,12 +1,14 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:51:45
-* @Last Modified 2015-07-16
+* @Last Modified 2015-11-23
 */
 
 'use strict';
 
-var ConfigurationManager = require('../../src/ConfigurationManager')
+var ConfigurationManager = require('../../lib/ConfigurationManager')
+
+var should = require('should')
 
 describe("ConfigurationManager", () => {
   describe("Load", () => {

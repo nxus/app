@@ -1,12 +1,16 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2015-07-16
+* @Last Modified 2015-11-23
 */
 
 'use strict';
 
-var Application = require('../../src/Application')
+var Application = require('../../lib/').Application
+
+var Promise = require('bluebird')
+
+var should = require('should')
 
 describe("Application", () => {
   var app;
@@ -27,23 +31,8 @@ describe("Application", () => {
     })
 
     it("should dispatch events", (done) => {
-      app.on('test', done)
-      app.emit('test')
-    })
-  })
-
-  describe("Boot Await", () => {
-    beforeEach(() => {
-      app = new Application()
-    })
-
-    it("should wait until the event has been fired to send the next stage", (done) => {
-      app.on('app.startup', done)
-      app.on('app.init', () => {
-        app.emit('test.done')
-      })
-      app.await('app.init', 'test.done')
-      app.start()
+      app.on('test').then(done)
+      app.emit('test').with()
     })
   })
 
@@ -53,22 +42,37 @@ describe("Application", () => {
     })
 
     it("should send the init event", (done) => {
-      app.on('app.init', done)
+      app.on('init').then(done)
       app.start()
     })
 
     it("should send the load event", (done) => {
-      app.on('app.load', done)
+      app.on('load').then(done)
       app.start()
     })
 
     it("should send the startup event", (done) => {
-      app.on('app.startup', done)
+      app.on('startup').then(done)
       app.start()
     })
 
     it("should send the launch event", (done) => {
-      app.on('app.launch', done)
+      app.on('launch').then(done)
+      app.start()
+    })
+  })
+
+  describe("Event Await", () => {
+    beforeEach(() => {
+      app = new Application()
+    })
+
+    it("should wait until the promise has been resolved to send the next stage", (done) => {
+      app.on('launch').then(done)
+      var promise = new Promise((resolve, reject) => {
+        setTimeout(resolve, 500);
+      });
+      app.await('init', promise)
       app.start()
     })
   })

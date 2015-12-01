@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2015-11-05
+* @Last Modified 2015-11-23
 */
 
 import moment from 'moment'
@@ -20,21 +20,22 @@ class Watcher {
       ignoreInitial: true,
       persistent: true
     }
+
     var watch = watchPath || process.cwd() + '/node_modules/@nxus'
     this.watch = chokidar.watch(watch,watchOptions)
     this.watch.on('all', (event, path) => {
         console.log('changes for', watchEvent, path) 
-        app.emit(watchEvent || 'change.detected', path)
+        app.emit(watchEvent || 'change.detected').with(path)
       }
     ) 
 
-    app.on('change.app', (path) => {
+    app.on('change').then((path) => {
       this.watch.close();
       var start = moment()
-      app.restart(() => {
+      app.restart().then(() => {
         var end = moment()
         console.log(`Restart took ${end.diff(start, 'seconds')} seconds`)
-        app.emit('app.run.tests', path)
+        app.emit('app.run.tests').with(path)
       })
     })
   }

@@ -1,12 +1,13 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 08:47:51
-* @Last Modified 2015-07-16
+* @Last Modified 2015-11-23
 */
 
 'use strict';
 
-var PluginManager = require('../../src/PluginManager')
+var PluginManager = require('../../lib/').PluginManager
+var should = require('should')
 
 describe("PluginManager", () => {
   describe("Load", () => {

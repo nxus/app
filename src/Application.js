@@ -1,22 +1,20 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-11-16
-* @Last Modified time: 2015-11-16 14:01:29
+* @Last Modified 2015-11-24
+* @Last Modified time: 2015-11-24 08:55:39
 */
 
 import _ from 'underscore'
 import util from 'util'
 import fs from 'fs'
-import async from 'async'
 import domain from 'domain'
 import path from 'path'
 
 import Dispatcher from './Dispatcher'
+import Module from './Module'
 import PluginManager from './PluginManager'
-import BootStage from './BootStage'
 import ConfigurationManager from './ConfigurationManager'
-import StorageManager from './StorageManager'
 import Watcher from './Watcher'
 
 var logBanner = (message) => {
@@ -24,44 +22,34 @@ var logBanner = (message) => {
   console.log(' --- '+ message)
 }
 
-var pluginDir = './storage/config'
-var pluginConfig = pluginDir + '/plugins.json'
+export default class Application extends Dispatcher {
 
-class Application extends Dispatcher {
-  
-  constructor(options = {}) {
+  constructor(opts = {}) {
     super()
-    this._availablePlugins = []
-    this._plugins = {}
+    this._modules = {}
     this._pluginInfo = {}
-    this.loaded = 0
-    this._loadComplete = false
-    this._bootAwait = {
-      'app.init': [],
-      'app.load': [],
-      'app.startup': [],
-      'app.launch': []
-    }
-    
     this._bootEvents = [
-      'app.init',
-      'app.load',
-      'app.startup',
-      'app.launch'
+      'init',
+      'load',
+      'startup',
+      'launch'
     ]
 
-    options.appDir = options.appDir || path.dirname(require.main.filename)
+    this._setupLog()
 
-    this.config = _.extend(options, new ConfigurationManager(options).getConfig())
-    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    opts.appDir = opts.appDir || path.dirname(require.main.filename)
+
+    this.config = Object.assign(opts, new ConfigurationManager(opts).getConfig())
     
-    this.setMaxListeners(100000) // supress node v0.11+ warning
+    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+  }
 
+  _setupLog() {
     this.log = (...args) => {
       if(this.config.debug) console.log.apply(this, args)
     }
 
-    this.log = _.extend(this.log, console, {
+    this.log = Object.assign(this.log, console, {
       debug: (...args) => {
         if(this.config.debug) console.log.apply(this, args)
       }, 
@@ -69,149 +57,72 @@ class Application extends Dispatcher {
         if(this.config.debug) console.log.apply(this, args)
       } 
     })
+  }
 
-    this.domain = domain.create()
-    
-    this.domain.on('error', (err) => {
-      console.log('Uncaught global error', err.toString(), err.stack, err)
-      if (this.log && this.log.error) {
-        this.log.error('Uncaught global error', err.toString(), err.stack, err)
-      }
-      if (this.restart) {
-        this.restart()
-      }
+  _setupPluginManager() {
+    this._modules = new PluginManager(this.config)
+    _.each(this._modules, (plugin) => {
+      this._pluginInfo[plugin._pluginInfo.name] = plugin._pluginInfo
     })
   }
 
-  /*
-   * Application control methods
-   */
+  get(module) {
+    if(!this._modules[module]) this._modules[module] = new Module(this, module)
+    return this._modules[module]
+  }
 
-  init(cb) {
-    this._initializeDataStorage()
-    this._initializeEventListeners()
-    this._loadPlugins()
-    
+  init() {
+    return this._loadPlugins().then(this.boot.bind(this))
     if (!this.config.script && this.config.NODE_ENV != 'production') {
-      this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change.app', this._getAppIgnorePaths())
+      this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
     }
-
-    this.boot(cb)
   }
 
-  boot(cb) {
+  boot() {
     if (this.config.debug) logBanner('Booting Application')
-    async.eachSeries(
-      this._bootEvents,
-      (e, callback) => {
-        if (this.config.debug) logBanner("Stage: "+e)
-        var stage = new BootStage(this, e, this._bootAwait[e], callback)
-        stage.execute()
-      }, (error) => {
-        if(error) {
-          logBanner('Error booting:', error)
-          process.exit()
-        } else {
-          if (cb) cb()
-        }
-      }
-    )
-  }
-
-  await(stage, event) {
-    this._bootAwait[stage].push(event)
+    
+    return new Promise.mapSeries(this._bootEvents, (e) => {
+      logBanner(`Booting Stage: ${e}`)
+      return this.emit(e).with()
+    })
   }
 
   stop() {
     if (this.config.debug) logBanner('Stopping')
-    this.emit("app.stop")
-    this._events.forEach((event) => {
-      this.removeAllListeners(event)
+    return this.emit("stop").then(() => {
+      return Promise.resolve().then(() => {
+        this._events.map((event) => this.removeAllListeners(event))
+      })
     })
   }
 
   start() {
     this.log('*** NXUS APP Started at ' + new Date() + ' ***')
-    this.domain.run(() => {
-      this.init()   
-    })
+    return this.init()
   }
 
-  restart(cb) {
-    console.log()
-    this._invalidatePluginsInRequireCache()
-    this.stop()
-    this.init(cb)
+  restart() {
+    console.log("Restarting App");
+    return this._invalidatePluginsInRequireCache()
+    .then(this.stop)
+    .then(this.init)
   }
 
-  /*
-   * Internal methods
-   */
-  
-  _loadPlugins() {
-    if (this.config.debug) {
-      logBanner('Loading plugins')
-    }
-
-    this._getPlugins()
-    this._bootPlugins((err) => {
-      if (err) {
-        console.log('Error loading plugins:', err)
-        process.exit()
-      }
-    })
-  }
-
-  /*
-
-   This function is called on restart to invalidate the require cache so
-   plugins are loaded freshly on restart- it does expect that plugins that
-   need to have responded to the 'app.stop' event e.g. Mongoose closes
-   its connections
-
-   Allows plugins to be reloaded from disk at runtime
-
-   */
   _invalidatePluginsInRequireCache() {
-    // we only want to reload nxus code
-    var ignore = new RegExp("^(.*node_modules/(?!@nxus).*)")
-    // but we need to always reload mongoose so that models can be rebuilt
-    var mongoose = new RegExp("node_modules/mongoose")
-    _.each(require.cache, (v, k) => {
-      if (ignore.test(k) && !mongoose.test(k)) return
-      delete require.cache[k]
+    return Promise.resolve().then(() => {
+      // we only want to reload nxus code
+      var ignore = new RegExp("^(.*node_modules/(?!@nxus).*)")
+      // but we need to always reload mongoose so that models can be rebuilt
+      var mongoose = new RegExp("node_modules/mongoose")
+      _.each(require.cache, (v, k) => {
+        if (ignore.test(k) && !mongoose.test(k)) return
+        delete require.cache[k]
+      })
     })
   }
-  
-  _initializeEventListeners() {
-    this.on("app.getPluginInfo", (handler) => {
-      handler(this._pluginInfo)
-    })
-  }
-  
-  _initializeDataStorage() {
-    new StorageManager(this)
-  }
-  
-  _getPlugins() {
-    this._availablePlugins = new PluginManager(this.config)
-    _.each(this._availablePlugins, (plugin) => {
-      this._pluginInfo[plugin._pluginInfo.name] = plugin._pluginInfo
-    }, this)
-  }
 
-  _bootPlugins(cb) {
-    async.each(
-      this._availablePlugins,
-      this._bootPlugin.bind(this),
-      cb
-    )
-  }
-
-  _bootPlugin(plugin, cb) {
-    this.loaded += 1
-    // if (this.config.debug) console.log(' ------- ', pluginName)
-    plugin(this, cb)
+  _getWatchPaths() {
+    return this.config.watch || ["**/node_modules/**", "**/modules/**"];
   }
 
   _getAppIgnorePaths() {
@@ -222,9 +133,29 @@ class Application extends Dispatcher {
     ]);
   }
 
-  _getWatchPaths() {
-    return this.config.watch || ["**/node_modules/**", "**/modules/**"];
+  _loadPlugins() {
+    this._setupPluginManager()
+    if (this.config.debug) {
+      logBanner('Loading plugins')
+    }
+
+    return this._bootPlugins().catch((err) => {
+      if (err) {
+        console.log(err)
+        process.exit()
+      }
+    })
+  }
+
+  _bootPlugins() {
+    return Promise.map(
+      this._modules,
+      this._bootPlugin.bind(this)
+    )
+  }
+
+  _bootPlugin(plugin) {
+    //if (this.config.debug) console.log(' ------- ', plugin)
+    return Promise.resolve(new plugin(this))
   }
 }
-
-export default Application
