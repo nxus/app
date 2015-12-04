@@ -1,8 +1,8 @@
 /* 
-* @Author: mike
+* @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-12-02
-* @Last Modified time: 2015-12-02 16:13:54
+* @Last Modified 2015-12-04
+* @Last Modified time: 2015-12-04 10:57:27
 */
 
 import _ from 'underscore'
@@ -23,10 +23,16 @@ var logBanner = (message) => {
 }
 
 /**
- * The Core Applicaiton class.
+ * The Core Application class.
  *
  * @param {Object} opts the configuration options
  * @extends Dispatcher
+ * @example
+ * var App = require('@nxus/core').Application
+ * var app = new App();
+ * app.start()
+ * module.exports = app;
+ * 
  */
 export default class Application extends Dispatcher {
 
