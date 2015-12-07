@@ -66,6 +66,32 @@ describe("Application", () => {
       app.emit('test').with(1);
       app.emit('test').with(2);
     })
+    it("once should wait for events that return a promise", (done) => {
+      var waited = false;
+      app.once('launch').then(() => {
+        waited.should.be.true();
+        done();
+      });
+      var promise = new Promise((resolve, reject) => {
+        setTimeout(() => { waited = true; resolve(); }, 500);
+      });
+      app.once('init', () => { return promise });
+      app.start();
+      
+    });
+    it("on should wait for events that return a promise", (done) => {
+      var waited = false;
+      app.once('launch').then(() => {
+        waited.should.be.true();
+        done();
+      });
+      var promise = new Promise((resolve, reject) => {
+        setTimeout(() => { waited = true; resolve(); }, 500);
+      });
+      app.on('init', () => { return promise });
+      app.start();
+      
+    });
   })
 
   describe("Boot Stages", () => {

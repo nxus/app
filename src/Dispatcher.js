@@ -67,7 +67,9 @@ export default class Dispatcher extends EventEmitter {
         
         if (!fired) {
           fired = true;
-          resolve(listener.apply(this, args));
+          var result = listener.apply(this, args);
+          resolve(result);
+          return result;
         }
       }
       g.listener = listener;
