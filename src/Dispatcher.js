@@ -38,12 +38,40 @@ export default class Dispatcher extends EventEmitter {
   /**
    * Bind to an event
    * @param  {string} event The name of the event to bind to
+   * @param  {callable} listener The handler for the event 
+   */
+  on (event, listener) {
+    if (listener === undefined) {
+      listener = () => {};
+    }
+    return super.on.apply(this, [event, listener]);
+  }
+
+  /**
+   * Bind to an event once
+   * @param  {string} event The name of the event to bind to 
+   * @param  {callable} listener (optional) The handler for the event
    * @return {Promise}       Returns a promise that resolves when the event fires
    */
-  on (event) {
-    let superOn = super.on
+  once (event, listener) {
+    let superOnce = super.once
+    if (listener === undefined) {
+      listener = () => {};
+    }
+
     return new Promise((resolve, reject) => {
-      superOn.apply(this, [event, resolve])
+      var fired = false;
+
+      var g = (...args) => {
+        this.removeListener(event, g);
+        
+        if (!fired) {
+          fired = true;
+          resolve(listener.apply(this, args));
+        }
+      }
+      g.listener = listener;
+      this.on.apply(this, [event, g]);
     })
   }
 

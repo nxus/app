@@ -15,7 +15,7 @@ export default class Module extends Dispatcher {
     this._name = name
     this._app = app
     this._awaits = {}
-    this._appLoaded = app.on('load.after')
+    this._appLoaded = app.once('load.after')
   }
 
   gather(name) {

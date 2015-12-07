@@ -26,13 +26,45 @@ describe("Application", () => {
   })
 
   describe("Events", () => {
+    beforeEach(() => {
+      app = new Application()
+    })
+
     it("should bind to events", () => {
       app.on.should.not.be.null()
+      app.once.should.not.be.null()
     })
 
     it("should dispatch events", (done) => {
-      app.on('test').then(done)
+      app.once('test').then(done)
       app.emit('test').with()
+    })
+    it("once is thenable", (done) => {
+      app.once('test').then(done)
+      app.emit('test').with()
+    })
+    it("on takes a handler", (done) => {
+      app.on('test', done);
+      app.emit('test').with()
+    })
+    it("once takes a handler", (done) => {
+      app.once('test', done);
+      app.emit('test').with()
+    })
+    it("should dispatch events multiple times", (done) => {
+      var count = 0;
+      app.on('test', function(arg) {
+        count++;
+        if(count == 1) {
+          arg.should.equal(1)
+        }
+        if(count >= 2) {
+          arg.should.equal(2)
+          done()
+        }
+      })
+      app.emit('test').with(1);
+      app.emit('test').with(2);
     })
   })
 
@@ -42,38 +74,42 @@ describe("Application", () => {
     })
 
     it("should send the init event", (done) => {
-      app.on('init').then(done)
+      app.once('init').then(done)
       app.start()
     })
 
     it("should send the load event", (done) => {
-      app.on('load').then(done)
+      app.once('load').then(done)
       app.start()
     })
 
     it("should send the startup event", (done) => {
-      app.on('startup').then(done)
+      app.once('startup').then(done)
       app.start()
     })
 
     it("should send the launch event", (done) => {
-      app.on('launch').then(done)
+      app.once('launch').then(done)
       app.start()
     })
   })
 
-  describe("Event Await", () => {
+  describe("Event Awaits", () => {
     beforeEach(() => {
       app = new Application()
     })
 
     it("should wait until the promise has been resolved to send the next stage", (done) => {
-      app.on('launch').then(done)
-      var promise = new Promise((resolve, reject) => {
-        setTimeout(resolve, 500);
+      var waited = false;
+      app.once('launch').then(() => {
+        waited.should.be.true();
+        done();
       });
-      app.await('init', promise)
-      app.start()
-    })
+      var promise = new Promise((resolve, reject) => {
+        setTimeout(() => { waited = true; resolve(); }, 500);
+      });
+      app.once('init').then(() => {app.await('startup', promise)});
+      app.start();
+    });
   })
 })
