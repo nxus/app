@@ -112,4 +112,16 @@ describe("Application", () => {
       app.start();
     });
   })
+  describe("Get Module", () => {
+    beforeEach(() => {
+      app = new Application()
+    })
+
+    it("should return a Module", (done) => {
+      app.get('something').on.should.be.Function()
+      app.get('something').gather.should.be.Function()
+      app.get('something').send.should.be.Function()
+      done();
+    });
+  });
 })
