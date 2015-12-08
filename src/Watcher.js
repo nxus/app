@@ -29,7 +29,7 @@ class Watcher {
       }
     ) 
 
-    app.on('change').then((path) => {
+    app.on('change', (path) => {
       this.watch.close();
       var start = moment()
       app.restart().then(() => {

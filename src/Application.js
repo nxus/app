@@ -107,10 +107,11 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   init() {
-    return this._loadPlugins().then(this.boot.bind(this))
-    if (!this.config.script && this.config.NODE_ENV != 'production') {
-      this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
-    }
+    return this._loadPlugins().then(this.boot.bind(this)).then(() => {
+      if (!this.config.script && this.config.NODE_ENV != 'production') {
+        this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
+      }
+    });
   }
 
   /**
