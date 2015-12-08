@@ -30,6 +30,12 @@ class TestApp extends Dispatcher {
 
   }
 
+  launch() {
+    return new Promise.mapSeries(['init', 'load', 'startup', 'launch'], (e) => {
+      return this.emit(e).with();
+    })
+  }
+
 }
 
 export default TestApp;
