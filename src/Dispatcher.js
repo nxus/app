@@ -22,7 +22,18 @@ import { EventEmitter } from 'events'
 export default class Dispatcher extends EventEmitter {
   constructor() {
     super()
-    this._awaits = []
+  }
+
+  /**
+   * Bind to an event
+   * @param  {string} event The name of the event to bind to
+   * @param  {callable} listener The handler for the event 
+   */
+  on (event, listener) {
+    if (listener === undefined) {
+      listener = () => {};
+    }
+    return super.on.apply(this, [event, listener]);
   }
   
   /**
@@ -58,18 +69,17 @@ export default class Dispatcher extends EventEmitter {
   /**
    * Emits an event, calling all registered handlers.
    * @param  {string} event The name of the event to emit.
-   * @return {Promise}       Returns a promise that resolves when all handlers and awaiting promises have completed.
+   * @return {Promise}       Returns a promise that resolves when all handlers have completed.
    */
   emit (event) {
     var cb = (...args) => {
 
       let _handlers = [].concat(super.listeners(event+".before")).concat(super.listeners(event)).concat(super.listeners(event+".after"));
-      let _awaits = [].concat(this._awaits[event+".before"]).concat(this._awaits[event]).concat(this._awaits[event+".after"]);
 
       return Promise.all(_handlers.map((handler) => {
         let ret = handler(...args)
         return Promise.resolve(ret)
-      }).concat(_awaits));
+      }))
     }
 
     return {
