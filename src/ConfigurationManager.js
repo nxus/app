@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2015-11-05
-* @Last Modified time: 2015-11-05 18:55:08
+* @Last Modified 2015-12-08
+* @Last Modified time: 2015-12-08 17:24:21
 */
 
 'use strict';
@@ -14,7 +14,7 @@ import path from 'path'
 class ConfigurationManager {
 
   constructor(opts = {}) {
-    
+    this.opts = opts
   }
 
   getNodeEnv() {
@@ -23,12 +23,16 @@ class ConfigurationManager {
 
   getPackageJSONConfig() {
     var config = {};
-    var jsonPath = path.resolve(this.appDir + '/package.json')
+    var jsonPath = path.resolve(this.opts.appDir + '/package.json')
     if(fs.existsSync(jsonPath)) {
       try {
         var jsonParsed = JSON.parse(fs.readFileSync(jsonPath))
-        if(jsonParsed.config)
-          config = jsonParsed.config[this.getNodeEnv()]
+        if(jsonParsed.config) {
+          if(jsonParsed.config[this.getNodeEnv()])
+            config = jsonParsed.config[this.getNodeEnv()]
+          else
+            config = jsonParsed.config
+        }
       } catch(e) {
         console.log('Warning: error parsing config file', jsonPath, e)
       }
