@@ -17,16 +17,21 @@ class TestApp extends Dispatcher {
 
     this._gather = sinon.createStubInstance(Promise);
     this._send_with = sinon.createStubInstance(Promise);
+    this._emit_with = sinon.createStubInstance(Promise);
     this._get_on = sinon.spy();
     this._get_once = sinon.spy();
+    this._get_emit = {
+      with: sinon.stub().returns(this._emit_with)
+    }
     this._send = {
       with: sinon.stub().returns(this._send_with)
     }
     this._get = {
       gather: sinon.stub().returns(this._gather),
       send: sinon.stub().returns(this._send),
-      on: sinon.stub().returns(this._get_on)
-      once: sinon.stub().returns(this._get_once)
+      on: sinon.stub().returns(this._get_on),
+      once: sinon.stub().returns(this._get_once),
+      emit: sinon.stub().returns(this._get_emit)
     };
     this.get = sinon.stub().returns(this._get);
 
