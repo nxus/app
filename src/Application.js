@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2015-12-08
-* @Last Modified time: 2015-12-08 18:06:21
+* @Last Modified time: 2015-12-08 19:08:42
 */
 
 import _ from 'underscore'
@@ -52,7 +52,6 @@ export default class Application extends Dispatcher {
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
 
     this.config = Object.assign(opts, new ConfigurationManager(opts).getConfig())
-    
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -125,7 +124,7 @@ export default class Application extends Dispatcher {
     if (this.config.debug) logBanner('Booting Application')
     
     return new Promise.mapSeries(this._bootEvents, (e) => {
-      logBanner(`Booting Stage: ${e}`)
+      if (this.config.debug) logBanner(`Booting Stage: ${e}`)
       return this.emit(e).with()
     })
   }
