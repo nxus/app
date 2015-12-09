@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 07:44:02
-* @Last Modified 2015-12-04
+* @Last Modified 2015-12-08
 */
 
 'use strict';
@@ -24,29 +24,7 @@ export default class Dispatcher extends EventEmitter {
     super()
     this._awaits = []
   }
-
-  /**
-   * Ensures `event` doesn't fire until the passed promise returns
-   * @param  {string} event   the name of the event to hold on
-   * @param  {Promise} promise the Promise to await resolution
-   */
-  await (event, promise) {
-    if(!this._awaits[event]) this._awaits[event] = []
-    this._awaits[event].push(Promise.resolve(promise)); 
-  }
-
-  /**
-   * Bind to an event
-   * @param  {string} event The name of the event to bind to
-   * @param  {callable} listener The handler for the event 
-   */
-  on (event, listener) {
-    if (listener === undefined) {
-      listener = () => {};
-    }
-    return super.on.apply(this, [event, listener]);
-  }
-
+  
   /**
    * Bind to an event once
    * @param  {string} event The name of the event to bind to 

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2015-11-23
+* @Last Modified 2015-12-08
 */
 
 import moment from 'moment'
@@ -24,7 +24,7 @@ class Watcher {
     var watch = watchPath || process.cwd() + '/node_modules/@nxus'
     this.watch = chokidar.watch(watch,watchOptions)
     this.watch.on('all', (event, path) => {
-        console.log('changes for', watchEvent, path) 
+        console.log(watchEvent, path) 
         app.emit(watchEvent || 'change.detected').with(path)
       }
     ) 

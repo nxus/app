@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2015-11-23
+* @Last Modified 2015-12-08
 */
 
 'use strict';
@@ -120,24 +120,6 @@ describe("Application", () => {
     })
   })
 
-  describe("Event Awaits", () => {
-    beforeEach(() => {
-      app = new Application()
-    })
-
-    it("should wait until the promise has been resolved to send the next stage", (done) => {
-      var waited = false;
-      app.once('launch').then(() => {
-        waited.should.be.true();
-        done();
-      });
-      var promise = new Promise((resolve, reject) => {
-        setTimeout(() => { waited = true; resolve(); }, 500);
-      });
-      app.once('init').then(() => {app.await('startup', promise)});
-      app.start();
-    });
-  })
   describe("Get Module", () => {
     beforeEach(() => {
       app = new Application()
