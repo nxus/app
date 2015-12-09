@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-12-04
-* @Last Modified time: 2015-12-04 10:57:27
+* @Last Modified 2015-12-08
+* @Last Modified time: 2015-12-08 18:06:21
 */
 
 import _ from 'underscore'
@@ -137,9 +137,9 @@ export default class Application extends Dispatcher {
    */
   stop() {
     if (this.config.debug) logBanner('Stopping')
-    return this.emit("stop").then(() => {
+    return this.emit("stop").with().then(() => {
       return Promise.resolve().then(() => {
-        this._events.map((event) => this.removeAllListeners(event))
+        Object.keys(this._events).map((event) =>  this.removeAllListeners(event) );
       })
     })
   }
@@ -162,8 +162,8 @@ export default class Application extends Dispatcher {
   restart() {
     console.log("Restarting App");
     return this._invalidatePluginsInRequireCache()
-    .then(this.stop)
-    .then(this.init)
+    .then(this.stop.bind(this))
+    .then(this.start.bind(this))
   }
 
   /**
