@@ -4,7 +4,7 @@
   "version": "2.0.1",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "scripts": {
-    "test": "npm run compile && NODE_ENV=test mocha -R spec test/*",
+    "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/*",
     "compile": "babel --optional runtime -d lib/ src/",
     "prepublish": "npm run compile",
     "docs": "./node_modules/documentation/bin/documentation.js ./src/index.js -f html -o ./docs"
