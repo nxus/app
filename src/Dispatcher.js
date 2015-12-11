@@ -60,8 +60,11 @@ export default class Dispatcher extends EventEmitter {
    * @return {Promise}       Returns a promise that resolves when all handlers have completed.
    */
   emit (event) {
+
     let waterfaller = (prev, curr) => {
-      return curr(prev) || prev;
+      // Need to resolve internally so that we can allow observing-only handlers
+      //  that don't return anything, even from their promise.
+      return Promise.resolve(curr(prev)).then((_args) => { return _args || prev });
     }
 
     var cb = (...args) => {

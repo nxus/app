@@ -94,11 +94,11 @@ describe("Application", () => {
     });
     it("on: before > handlers > after", (done) => {
       var waited = false;
-      app.on('init.before', (...args) => {
+      app.on('init.before', () => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             waited.should.be.false();
-            resolve(...args);
+            resolve();
           }, 500);
         })
       });
