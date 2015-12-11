@@ -60,14 +60,21 @@ export default class Dispatcher extends EventEmitter {
    * @return {Promise}       Returns a promise that resolves when all handlers have completed.
    */
   emit (event) {
+    let waterfaller = (prev, curr) => {
+      return curr(prev) || prev;
+    }
+
     var cb = (...args) => {
-
-      let _handlers = [].concat(super.listeners(event+".before")).concat(super.listeners(event)).concat(super.listeners(event+".after"));
-
-      return Promise.all(_handlers.map((handler) => {
-        let ret = handler(...args)
-        return Promise.resolve(ret)
-      }))
+      return Promise.reduce(super.listeners(event+".before"), waterfaller, args)
+        .then((newArgs) => {
+          return Promise.all(super.listeners(event).map((handler) => {
+            let ret = handler(...newArgs)
+            return Promise.resolve(ret)
+          }));
+        })
+        .then((results) => {
+          return Promise.reduce(super.listeners(event+".after"), waterfaller, results);
+        })
     }
 
     return {
