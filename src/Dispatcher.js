@@ -23,18 +23,6 @@ export default class Dispatcher extends EventEmitter {
   constructor() {
     super()
   }
-
-  /**
-   * Bind to an event
-   * @param  {string} event The name of the event to bind to
-   * @param  {callable} listener The handler for the event 
-   */
-  on (event, listener) {
-    if (listener === undefined) {
-      listener = () => {};
-    }
-    return super.on.apply(this, [event, listener]);
-  }
   
   /**
    * Bind to an event once
