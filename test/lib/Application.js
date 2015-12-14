@@ -92,6 +92,59 @@ describe("Application", () => {
       app.start();
       
     });
+    it("on: before > handlers > after", (done) => {
+      var waited = false;
+      app.on('init.before', () => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            waited.should.be.false();
+            resolve();
+          }, 500);
+        })
+      });
+      app.on('init.after', () => {
+        waited.should.be.true();
+        done();
+      });
+
+      app.on('init', () => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => { waited = true; resolve(); }, 200);
+        });
+      });
+      app.start();
+      
+    });
+    it("on: before modifies args", (done) => {
+      app.on('tester.before', (args) => {
+        args[0].should.equal(1);
+        return new Promise((resolve, reject) => {
+          resolve([2]);
+        });
+      });
+      app.on('tester', (i) => {
+        i.should.equal(2)
+        done();
+      });
+      app.emit('tester').with(1)
+      
+    });
+    it("on: after modifies results", (done) => {
+      app.on('tester.after', (results) => {
+        results[0].should.equal("test");
+        return new Promise((resolve, reject) => {
+          resolve(["best"]);
+        });
+      });
+      app.on('tester', (i) => {
+        return "test"
+      });
+      app.emit('tester').with(1).then(([result]) => {
+        result.should.equal("best");
+        done();
+      })
+      
+    });
   })
 
   describe("Boot Stages", () => {
