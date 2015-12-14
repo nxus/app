@@ -19,24 +19,19 @@ class TestApp extends Dispatcher {
     this.onceBefore = sinon.spy(this.onceBefore);
     this.onceAfter = sinon.spy(this.onceAfter);
 
-    this._gather = sinon.createStubInstance(Promise);
-    this._provide_with = sinon.createStubInstance(Promise);
-    this._request_with = sinon.createStubInstance(Promise);
-    this._respond_with = sinon.createStubInstance(Promise);
+    this._provide = sinon.createStubInstance(Promise);
+    this._respond = sinon.createStubInstance(Promise);
+
     this._get_on = sinon.spy();
     this._get_once = sinon.spy();
-    this._get_request = {
-      with: sinon.stub().returns(this._request_with)
-    }
-    this._get_respond = {
-      with: sinon.stub().returns(this._respond_with)
-    }
-    this._provide = {
-      with: sinon.stub().returns(this._provide_with)
-    }
+    this._get_gather = sinon.spy();
+    this._get_respond = sinon.spy();
+    this._get_request = sinon.stub().returns(this._respond);
+    this._get_provide = sinon.stub().returns(this._provide)
+
     this._get = {
-      gather: sinon.stub().returns(this._gather),
-      provide: sinon.stub().returns(this._send),
+      gather: sinon.stub().returns(this._get_gather),
+      provide: sinon.stub().returns(this._get_provide),
       on: sinon.stub().returns(this._get_on),
       once: sinon.stub().returns(this._get_once),
       request: sinon.stub().returns(this._get_request),
