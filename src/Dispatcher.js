@@ -27,7 +27,7 @@ export default class Dispatcher extends EventEmitter {
   /**
    * Bind to an event once
    * @param  {string} event The name of the event to bind to 
-   * @param  {callable} listener (optional) The handler for the event
+   * @param  {callable} [listener] The handler for the event
    * @return {Promise}       Returns a promise that resolves when the event fires
    */
   once (event, listener) {
@@ -55,11 +55,54 @@ export default class Dispatcher extends EventEmitter {
   }
 
   /**
+   * Bind to before an event. Receives the event arguments, should return 
+   *  modified arguments or nothing.
+   * @param  {string} event The name of the event to bind to 
+   * @param  {callable} listener The before handler for the event
+   */
+  before (event, listener) {
+    return this.on(event+".before", listener);
+  }
+
+  /**
+   * Bind to after an event. Receives the event handlers results, should return 
+   *  modified results or nothing.
+   * @param  {string} event The name of the event to bind to 
+   * @param  {callable} listener The after handler for the event
+   */
+  after (event, listener) {
+    return this.on(event+".after", listener);
+  }
+
+  /**
+   * Bind once to before an event. Receives the event arguments, should return 
+   *  modified arguments or nothing.
+   * @param  {string} event The name of the event to bind to 
+   * @param  {callable} listener The before handler for the event
+   * @return {Promise}       Returns a promise that resolves when the event fires
+   */
+  onceBefore (event, listener) {
+    return this.once(event+".before", listener);
+  }
+
+  /**
+   * Bind once to after an event. Receives the event handlers results, should return 
+   *  modified results or nothing.
+   * @param  {string} event The name of the event to bind to 
+   * @param  {callable} listener The after handler for the event
+   * @return {Promise}       Returns a promise that resolves when the event fires
+   */
+  onceAfter (event, listener) {
+    return this.once(event+".after", listener);
+  }
+  
+  /**
    * Emits an event, calling all registered handlers.
    * @param  {string} event The name of the event to emit.
-   * @return {Promise}       Returns a promise that resolves when all handlers have completed.
+   * @param  {...*}   args  Arguments to the event handlers
+   * @return {Promise}       Returns a promise that resolves when all handlers have completed, with any returned results as an array.
    */
-  emit (event) {
+  emit (event, ...args) {
 
     let waterfaller = (prev, curr) => {
       // Need to resolve internally so that we can allow observing-only handlers
@@ -67,21 +110,15 @@ export default class Dispatcher extends EventEmitter {
       return Promise.resolve(curr(prev)).then((_args) => { return _args || prev });
     }
 
-    var cb = (...args) => {
-      return Promise.reduce(super.listeners(event+".before"), waterfaller, args)
-        .then((newArgs) => {
-          return Promise.all(super.listeners(event).map((handler) => {
-            let ret = handler(...newArgs)
-            return Promise.resolve(ret)
-          }));
-        })
-        .then((results) => {
-          return Promise.reduce(super.listeners(event+".after"), waterfaller, results);
-        })
-    }
-
-    return {
-      with: cb
-    }
+    return Promise.reduce(super.listeners(event+".before"), waterfaller, args)
+      .then((newArgs) => {
+        return Promise.all(super.listeners(event).map((handler) => {
+          let ret = handler(...newArgs)
+          return Promise.resolve(ret)
+        }));
+      })
+      .then((results) => {
+        return Promise.reduce(super.listeners(event+".after"), waterfaller, results);
+      });
   }
 } 

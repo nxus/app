@@ -125,7 +125,7 @@ export default class Application extends Dispatcher {
     
     return new Promise.mapSeries(this._bootEvents, (e) => {
       if (this.config.debug) logBanner(`Booting Stage: ${e}`)
-      return this.emit(e).with()
+      return this.emit(e)
     })
   }
 
@@ -136,7 +136,7 @@ export default class Application extends Dispatcher {
    */
   stop() {
     if (this.config.debug) logBanner('Stopping')
-    return this.emit("stop").with().then(() => {
+    return this.emit("stop").then(() => {
       return Promise.resolve().then(() => {
         Object.keys(this._events).map((event) =>  this.removeAllListeners(event) );
       })
