@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 07:44:02
-* @Last Modified 2015-12-08
+* @Last Modified 2015-12-14
 */
 
 'use strict';
@@ -22,6 +22,7 @@ import { EventEmitter } from 'events'
 export default class Dispatcher extends EventEmitter {
   constructor() {
     super()
+    this.setMaxListeners(1000)
   }
   
   /**
