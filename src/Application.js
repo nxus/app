@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-12-08
-* @Last Modified time: 2015-12-08 19:08:42
+* @Last Modified 2015-12-15
+* @Last Modified time: 2015-12-15 08:44:15
 */
 
 import _ from 'underscore'
@@ -239,7 +239,10 @@ export default class Application extends Dispatcher {
     return Promise.map(
       this._modules,
       this._bootPlugin.bind(this)
-    )
+    ).catch((e) => {
+      console.log('Error booting plugin')
+      console.trace(e);
+    })
   }
 
   /**
@@ -251,6 +254,12 @@ export default class Application extends Dispatcher {
    */
   _bootPlugin(plugin) {
     //if (this.config.debug) console.log(' ------- ', plugin)
-    return Promise.resolve(new plugin(this))
+    try {
+      var plugin = new plugin(this);
+    } catch(e) {
+      console.log(e.stack)
+      process.exit();
+    }
+    return Promise.resolve(plugin)
   }
 }
