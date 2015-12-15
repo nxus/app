@@ -37,19 +37,19 @@ describe("Application", () => {
 
     it("should dispatch events", (done) => {
       app.once('test').then(done)
-      app.emit('test').with()
+      app.emit('test')
     })
     it("once is thenable", (done) => {
       app.once('test').then(done)
-      app.emit('test').with()
+      app.emit('test')
     })
     it("on takes a handler", (done) => {
       app.on('test', done);
-      app.emit('test').with()
+      app.emit('test')
     })
     it("once takes a handler", (done) => {
       app.once('test', done);
-      app.emit('test').with()
+      app.emit('test')
     })
     it("should dispatch events multiple times", (done) => {
       var count = 0;
@@ -63,8 +63,8 @@ describe("Application", () => {
           done()
         }
       })
-      app.emit('test').with(1);
-      app.emit('test').with(2);
+      app.emit('test', 1)
+      app.emit('test', 2)
     })
     it("once should wait for events that return a promise", (done) => {
       var waited = false;
@@ -92,9 +92,9 @@ describe("Application", () => {
       app.start();
       
     });
-    it("on: before > handlers > after", (done) => {
+    it("before > handlers > after", (done) => {
       var waited = false;
-      app.on('init.before', () => {
+      app.before('init', () => {
         return new Promise((resolve, reject) => {
           setTimeout(() => {
             waited.should.be.false();
@@ -102,7 +102,7 @@ describe("Application", () => {
           }, 500);
         })
       });
-      app.on('init.after', () => {
+      app.after('init', () => {
         waited.should.be.true();
         done();
       });
@@ -115,8 +115,8 @@ describe("Application", () => {
       app.start();
       
     });
-    it("on: before modifies args", (done) => {
-      app.on('tester.before', (args) => {
+    it("before modifies args", (done) => {
+      app.before('tester', (args) => {
         args[0].should.equal(1);
         return new Promise((resolve, reject) => {
           resolve([2]);
@@ -126,11 +126,11 @@ describe("Application", () => {
         i.should.equal(2)
         done();
       });
-      app.emit('tester').with(1)
+      app.emit('tester', 1)
       
     });
-    it("on: after modifies results", (done) => {
-      app.on('tester.after', (results) => {
+    it("after modifies results", (done) => {
+      app.after('tester', (results) => {
         results[0].should.equal("test");
         return new Promise((resolve, reject) => {
           resolve(["best"]);
@@ -139,7 +139,7 @@ describe("Application", () => {
       app.on('tester', (i) => {
         return "test"
       });
-      app.emit('tester').with(1).then(([result]) => {
+      app.emit('tester', 1).then(([result]) => {
         result.should.equal("best");
         done();
       })
@@ -181,7 +181,7 @@ describe("Application", () => {
     it("should return a Module", (done) => {
       app.get('something').on.should.be.Function()
       app.get('something').gather.should.be.Function()
-      app.get('something').send.should.be.Function()
+      app.get('something').provide.should.be.Function()
       done();
     });
   });

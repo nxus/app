@@ -12,29 +12,58 @@ export default class Module extends Dispatcher {
 
   constructor(app, name) {
     super()
-    this._name = name
-    this._app = app
-    this._awaits = {}
-    this._appLoaded = app.once('load.after')
-    app.on('stop', () => {
-      this._awaits = {}
-      Object.keys(this._events).map((event) => {this.removeAllListeners(event)} )
-    })
+    this._app = app;
+    this._name = name;
+    app.on('stop', this.removeAllListeners.bind(this));
   }
 
-  gather(name) {
-    return this._appLoaded.then(() => {
-      return this._awaits[name] || []
-    })
+  /**
+   * Provide arguments to a delayed gather() call.
+   *  
+   * @param  {string} name The name of the gather event
+   * @param  {...*}   args Arguments to provide to the gather event
+   * @return {Promise} Resolves when the event is eventually handled
+   */  
+  provide(name, ...args) {
+    return this._app.onceAfter('load').then(() => {
+      return this.emit(name, ...args);
+    });
+  }
+  
+  /**
+   * Receive arguments provided to a delayed gather() call.
+   *  
+   * @param  {string}   name The name of the gather event
+   * @param  {callable} handler The handler for each provided value
+   */  
+  gather(name, handler) {
+    return this.on(name, handler);
   }
 
-  send(name) { 
-    var cb = (...args) => {
-      if(!this._awaits[name]) this._awaits[name] = []
-      this._awaits[name].push(args);
-    }
-    return {
-      with: cb
-    }
+  /**
+   * Request the result of processing a named event
+   *  
+   * @param  {string}   name The name of the request event
+   * @param  {...*}   args Arguments to provide to the responder
+   * @return {Promise} Resolves to the result of the event's handler
+   */  
+  request(name, ...args) {
+    return this.emit(name, ...args);
+  }
+
+  /**
+   * Respond to a named event
+   *  
+   * @param  {string}   name The name of the request event
+   * @param  {callable} handler The handler for the request
+   */  
+  respond(name, handler) {
+    this.after(name, (results) => {
+      if (results.length == 1) {
+        return results[0]
+      }
+      return results;
+    });
+    return this.on(name, handler);
   }
 }

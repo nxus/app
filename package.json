@@ -1,10 +1,10 @@
 {
   "name": "@nxus/core",
   "main": "lib/index.js",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "scripts": {
-    "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/*",
+    "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/lib/*",
     "compile": "babel --optional runtime -d lib/ src/ && babel --optional runtime -d lib/test/support/ test/support/",
     "prepublish": "npm run compile",
     "docs": "./node_modules/documentation/bin/documentation.js ./src/index.js -f html -o ./docs"
