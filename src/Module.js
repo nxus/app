@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2015-12-08
+* @Last Modified 2015-12-15
 */
 
 'use strict';
@@ -25,7 +25,7 @@ export default class Module extends Dispatcher {
    * @return {Promise} Resolves when the event is eventually handled
    */  
   provide(name, ...args) {
-    return this._app.onceAfter('load').then(() => {
+    return this._app.onceBefore('load').then(() => {
       return this.emit(name, ...args);
     });
   }
