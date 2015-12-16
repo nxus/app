@@ -14,7 +14,11 @@ export default class Module extends Dispatcher {
     super()
     this._app = app;
     this._name = name;
+    this.loaded = false
     app.on('stop', this.removeAllListeners.bind(this));
+    this._app.onceBefore('load').then(() => {
+      this.loaded = true
+    })
   }
 
   /**
@@ -25,9 +29,12 @@ export default class Module extends Dispatcher {
    * @return {Promise} Resolves when the event is eventually handled
    */  
   provide(name, ...args) {
-    return this._app.onceBefore('load').then(() => {
+    if(!this.loaded)
+      return this._app.onceBefore('load').then(() => {
+        return this.emit(name, ...args);
+      });
+    else
       return this.emit(name, ...args);
-    });
   }
   
   /**
