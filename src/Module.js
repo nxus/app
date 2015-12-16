@@ -14,7 +14,27 @@ export default class Module extends Dispatcher {
     super()
     this._app = app;
     this._name = name;
+    this.loaded = false
     app.on('stop', this.removeAllListeners.bind(this));
+    this._app.onceBefore('load').then(() => {
+      this.loaded = true
+    })
+  }
+
+  /**
+   * Provide arguments to a delayed gather() call, but do it before the other provide() calls.
+   *  
+   * @param  {string} name The name of the gather event
+   * @param  {...*}   args Arguments to provide to the gather event
+   * @return {Promise} Resolves when the event is eventually handled
+   */  
+  provideBefore(name, ...args) {
+    if(!this.loaded)
+      return this._app.onceAfter('init').then(() => {
+        return this.emit(name, ...args);
+      });
+    else
+      return this.emit(name, ...args);
   }
 
   /**
@@ -25,10 +45,30 @@ export default class Module extends Dispatcher {
    * @return {Promise} Resolves when the event is eventually handled
    */  
   provide(name, ...args) {
-    return this._app.onceBefore('load').then(() => {
+    if(!this.loaded)
+      return this._app.onceBefore('load').then(() => {
+        return this.emit(name, ...args);
+      });
+    else
       return this.emit(name, ...args);
-    });
   }
+
+    /**
+   * Provide arguments to a delayed gather() call, after the main provide() calls.
+   *  
+   * @param  {string} name The name of the gather event
+   * @param  {...*}   args Arguments to provide to the gather event
+   * @return {Promise} Resolves when the event is eventually handled
+   */  
+  provideAfter(name, ...args) {
+    if(!this.loaded)
+      return this._app.onceAfter('load').then(() => {
+        return this.emit(name, ...args);
+      });
+    else
+      return this.emit(name, ...args);
+  }
+  
   
   /**
    * Receive arguments provided to a delayed gather() call.
