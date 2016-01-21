@@ -1,13 +1,23 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2015-12-15
+* @Last Modified 2016-01-20
 */
 
 'use strict';
 
 import Dispatcher from './Dispatcher'
 
+/**
+ * The core Module class. This provides a messaging proxy layer between modules and calling code.
+ * The main advantage of this proxy class is that missing modules won't cause exceptions in the code.
+ *
+ * Modules are accessed through the Application.get() method
+ *
+ * @example
+ * let router = app.get('router')
+ * 
+ */
 export default class Module extends Dispatcher {
 
   constructor(app, name) {

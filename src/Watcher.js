@@ -1,12 +1,17 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2015-12-08
+* @Last Modified 2016-01-20
 */
 
 import moment from 'moment'
 
-class Watcher {
+/**
+ * The Watcher class monitors the project directory and restarts the application whenever 
+ * there is a change in files detected. Useful for development.
+ */
+
+export default class Watcher {
   constructor(app, watchPath, watchEvent, ignore) {
     var chokidar = require('chokidar')
     
@@ -45,4 +50,3 @@ class Watcher {
   }
 }
 
-export default Watcher

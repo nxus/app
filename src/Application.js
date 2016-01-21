@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2015-12-16
-* @Last Modified time: 2015-12-16 06:28:09
+* @Last Modified 2016-01-20
+* @Last Modified time: 2016-01-20 20:12:27
 */
 
 import _ from 'underscore'
@@ -28,10 +28,10 @@ var logBanner = (message) => {
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
- * var App = require('@nxus/core').Application
- * var app = new App();
+ * import {Application} from '@nxus/core'
+ * let app = new Application(options)
  * app.start()
- * module.exports = app;
+ * export default app
  * 
  */
 export default class Application extends Dispatcher {
