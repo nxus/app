@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-01-20
-* @Last Modified time: 2016-01-20 20:31:35
+* @Last Modified 2016-01-24
+* @Last Modified time: 2016-01-24 09:39:23
 */
 
 'use strict';
@@ -125,7 +125,7 @@ class PluginManager {
       return n
     })
 
-    pattern = _.unique(pattern.concat(['@nxus/*', '!@nxus/core']))
+    pattern = _.unique(pattern.concat(['@nxus/*', 'nxus-*', '!@nxus/core']))
 
     if(options.appDir && fs.existsSync(options.appDir+"/package.json"))
       options.config = options.appDir+"/package.json"
