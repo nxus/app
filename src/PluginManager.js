@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-01-24
-* @Last Modified time: 2016-01-24 09:39:23
+* @Last Modified 2016-02-04
+* @Last Modified time: 2016-02-04 18:00:12
 */
 
 'use strict';
@@ -164,6 +164,7 @@ class PluginManager {
     var customPluginDirs = fs.readdirSync(customDir)
     
     customPluginDirs.forEach((name) => {
+      if(name && name[0] == ".") return
       var pkg = require(path.resolve(customDir + "/" + name))
       pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
       pkg._pluginInfo = {}
