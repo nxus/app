@@ -8,6 +8,10 @@
 
 import Dispatcher from './Dispatcher'
 
+// Old-style proxy lib, rather than requiring node --harmony_proxies
+import Proxy from 'node-proxy'
+
+
 /**
  * The core Module class. This provides a messaging proxy layer between modules and calling code.
  * The main advantage of this proxy class is that missing modules won't cause exceptions in the code.
@@ -18,7 +22,7 @@ import Dispatcher from './Dispatcher'
  * let router = app.get('router')
  * 
  */
-export default class Module extends Dispatcher {
+class Module extends Dispatcher {
 
   constructor(app, name) {
     super()
@@ -87,6 +91,12 @@ export default class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
+    this.after(name, (results) => {
+      if (results.length == 1) {
+        return results[0]
+      }
+      return results;
+    });
     return this.on(name, handler);
   }
 
@@ -98,7 +108,7 @@ export default class Module extends Dispatcher {
    * @return {Promise} Resolves to the result of the event's handler
    */  
   request(name, ...args) {
-    return this.emit(name, ...args);
+    return this.provide(name, ...args);
   }
 
   /**
@@ -108,12 +118,24 @@ export default class Module extends Dispatcher {
    * @param  {callable} handler The handler for the request
    */  
   respond(name, handler) {
-    this.after(name, (results) => {
-      if (results.length == 1) {
-        return results[0]
-      }
-      return results;
-    });
-    return this.on(name, handler);
+    return this.gather(name, handler);
   }
+}
+
+export default function(...args) {
+  let module = new Module(...args)
+  let handlers = {
+    get: function(receiver, property) {
+      if (module[property] !== undefined) {
+        return module[property]
+      } else {
+        return (...innerArgs) => {
+          return module.provide(property, ...innerArgs)
+        }
+      }
+    }
+  }
+  return Proxy.createFunction(handlers, function() {
+    return module.apply(this, arguments)
+  })
 }
