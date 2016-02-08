@@ -18,6 +18,56 @@ describe("Module", () => {
     });
   });
 
+  describe("Use module", () => {
+    var inst, other
+
+    before((done) => {
+      other = new Module(app, 'other')
+      class TestModule {
+        constructor() {
+          other.use(this)
+          this.respond('testEvent')
+          this.respond('namedEvent', this._handler.bind(this))
+        }
+        _handler (a) {
+          return 1
+        }
+        testEvent (a, b) {
+          return a + b
+        }
+      }
+      inst = new TestModule()
+      done()
+    })
+    
+    it("should have method", () => {
+      module.use.should.be.Function();
+    })
+    it("should add its methods to user", (done) => {
+
+      inst.on.should.be.Function();
+      inst.emit.should.be.Function();
+      inst.provide.should.be.Function();
+      inst.gather.should.be.Function();
+      inst.request.should.be.Function();
+      inst.respond.should.be.Function();
+      done()
+    })
+    it("should bind to event-named methods", (done) => {
+      other.request("testEvent", 1, 2).then((arg) => {
+        arg.should.equal(3)
+        done()
+      })
+    })
+    it("should respond normally", (done) => {
+      other.request("namedEvent").then((arg) => {
+        arg.should.equal(1)
+        done()
+      })
+    })
+  });
+
+  
   describe("Provide and Gather", () => {
     it("should have methods", () => {
       module.provide.should.be.Function();
