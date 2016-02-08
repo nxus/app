@@ -3,7 +3,7 @@
 import sinon from 'sinon'
 import Promise from 'bluebird'
 
-import { Dispatcher } from '../../'
+import { Dispatcher, Module } from '../../'
 
 class TestApp extends Dispatcher {
   constructor() {
@@ -35,10 +35,13 @@ class TestApp extends Dispatcher {
       on: sinon.stub().returns(this._get_on),
       once: sinon.stub().returns(this._get_once),
       request: sinon.stub().returns(this._get_request),
-      respond: sinon.stub().returns(this._get_respond)
+      respond: sinon.stub().returns(this._get_respond),
+      use: (i) => {
+        let m = new Module(this)
+        return m.use.call(this._get, i)
+      }
     };
     this.get = sinon.stub().returns(this._get);
-
   }
 
   launch() {

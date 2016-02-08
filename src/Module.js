@@ -39,15 +39,17 @@ export default class Module extends Dispatcher {
   use(instance) {
     let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter']
     let handler_names = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
-    for (let name in names) {
-      instance[names[name]] = this[names[name]].bind(this)
+    for (let name of names) {
+      if (this[name] === undefined) continue
+      instance[name] = this[name].bind(this)
     }
-    for (let name in handler_names) {
-      instance[handler_names[name]] = (event, handler) => {
+    for (let name of handler_names) {
+      if (this[name] === undefined) continue
+      instance[name] = (event, handler) => {
         if (handler === undefined) {
           handler = instance[event]
         }
-        return this[handler_names[name]](event, handler)
+        return this[name](event, handler)
       }
     }
   }

@@ -10,6 +10,7 @@ require('babel-runtime/core-js/promise').default = require('bluebird');
 module.exports = {
   Application: require('./Application'),
   Dispatcher: require('./Dispatcher'),
+  Module: require('./Module'),
   ConfigurationManager: require('./ConfigurationManager'),
   PluginManager: require('./PluginManager')
 };

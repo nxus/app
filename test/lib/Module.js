@@ -19,10 +19,11 @@ describe("Module", () => {
   });
 
   describe("Use module", () => {
-    var inst, other
+    var inst, other, other_app
 
     before((done) => {
-      other = new Module(app, 'other')
+      other_app = new TestApp()
+      other = new Module(other_app, 'other')
       class TestModule {
         constructor() {
           other.use(this)
@@ -37,6 +38,7 @@ describe("Module", () => {
         }
       }
       inst = new TestModule()
+      other_app.emit('load');
       done()
     })
     
