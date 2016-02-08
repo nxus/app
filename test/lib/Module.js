@@ -65,4 +65,17 @@ describe("Module", () => {
       });
     })
   });
+  describe("Proxy to provide", () => {
+    it("should support events as method names", (done) => {
+      module.testMethod(1).then((result) => {
+        result.should.equal("one");
+        done();
+      });
+      module.respond('testMethod', (arg) => {
+        arg.should.equal(1);
+        return "one";
+      });
+    })
+  });
+
 });  
