@@ -87,6 +87,12 @@ export default class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
+    this.after(name, (results) => {
+      if (results.length == 1) {
+        return results[0]
+      }
+      return results;
+    });
     return this.on(name, handler);
   }
 
@@ -98,7 +104,7 @@ export default class Module extends Dispatcher {
    * @return {Promise} Resolves to the result of the event's handler
    */  
   request(name, ...args) {
-    return this.emit(name, ...args);
+    return this.provide(name, ...args);
   }
 
   /**
@@ -108,12 +114,6 @@ export default class Module extends Dispatcher {
    * @param  {callable} handler The handler for the request
    */  
   respond(name, handler) {
-    this.after(name, (results) => {
-      if (results.length == 1) {
-        return results[0]
-      }
-      return results;
-    });
-    return this.on(name, handler);
+    return this.gather(name, handler);
   }
 }

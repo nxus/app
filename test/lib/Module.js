@@ -36,6 +36,16 @@ describe("Module", () => {
       })
       app.emit('load');
     })
+    it("should gather with a single result", (done) => {
+      module.gather('testGather2', (arg) => {
+        arg.should.equal(1);
+        return "one";
+      });
+      module.provide('testGather2', 1).then((result) => {
+        result.should.equal("one");
+        done();
+      });
+    })
   });
 
   describe("Request and Respond", () => {
