@@ -2,6 +2,8 @@
 
 The Nxus Core package includes the basic Application framework for building a Nxus app.
 
+[![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
+
 ## Introduction
 
 You'll probably find the following resources useful background and help in building Nxus applcations.
