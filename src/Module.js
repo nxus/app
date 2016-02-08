@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-01-20
+* @Last Modified 2016-02-08
 */
 
 'use strict';
@@ -110,7 +110,8 @@ export default class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
-    return this.on(name, handler);
+    this.on(name, handler);
+    return this;
   }
 
   /**
@@ -137,6 +138,7 @@ export default class Module extends Dispatcher {
       }
       return results;
     });
-    return this.on(name, handler);
+    this.on(name, handler);
+    return this;
   }
 }
