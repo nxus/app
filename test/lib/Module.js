@@ -3,8 +3,6 @@
 var Module = require('../../lib/Module');
 var TestApp = require('../support/TestApp');
 
-var should = require('should')
-
 describe("Module", () => {
   var module;
   var app = new TestApp();
@@ -18,6 +16,63 @@ describe("Module", () => {
     });
   });
 
+  describe("Use module", () => {
+    var inst, other, other_app
+
+    before((done) => {
+      other_app = new TestApp()
+      other = new Module(other_app, 'other')
+      class TestModule {
+        constructor() {
+          this.x = 1
+          other.use(this)
+          this.respond('testEvent')
+          this.respond('namedEvent', this._handler.bind(this))
+        }
+        _handler (a) {
+          return 1
+        }
+        testEvent (a, b) {
+          return this.x + a + b
+        }
+      }
+      inst = new TestModule()
+      other_app.emit('load');
+      done()
+    })
+    
+    it("should have method", () => {
+      module.use.should.be.Function();
+    })
+    it("should add its methods to user", (done) => {
+
+      inst.on.should.be.Function();
+      inst.emit.should.be.Function();
+      inst.provide.should.be.Function();
+      inst.gather.should.be.Function();
+      inst.request.should.be.Function();
+      inst.respond.should.be.Function();
+      done()
+    })
+    it("should bind to event-named methods", (done) => {
+      other.request("testEvent", 1, 2).then((arg) => {
+        arg.should.equal(4)
+        done()
+      })
+    })
+    it("should respond normally", (done) => {
+      other.request("namedEvent").then((arg) => {
+        arg.should.equal(1)
+        done()
+      })
+    })
+    it("should error for missing event handlers", (done) => {
+      expect(inst.respond, 'missingHandler').to.throw();
+      done();
+    })
+  });
+
+  
   describe("Provide and Gather", () => {
     it("should have methods", () => {
       module.provide.should.be.Function();

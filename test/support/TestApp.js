@@ -1,9 +1,10 @@
 'use strict';
 
+import _ from 'underscore'
 import sinon from 'sinon'
 import Promise from 'bluebird'
 
-import { Dispatcher } from '../../'
+import { Dispatcher, Module } from '../../'
 
 class TestApp extends Dispatcher {
   constructor() {
@@ -24,21 +25,34 @@ class TestApp extends Dispatcher {
 
     this._get_on = sinon.spy();
     this._get_once = sinon.spy();
-    this._get_gather = sinon.spy();
-    this._get_respond = sinon.spy();
     this._get_request = sinon.stub().returns(this._respond);
-    this._get_provide = sinon.stub().returns(this._provide)
+    this._get_provide = sinon.stub().returns(this._provide);
+    this._get_gather = sinon.stub().returnsThis();
+    this._get_respond = sinon.stub().returnsThis();
 
+    let handler = function(next) {
+      return function(name, h) {
+        if (h == undefined) {
+          throw "Handler does not exist for "+name
+        }
+        return next(name, h)
+      }
+    }
+    
     this._get = {
-      gather: sinon.stub().returns(this._get_gather),
-      provide: sinon.stub().returns(this._get_provide),
+      gather: this._get_gather,
+      respond: this._get_respond,
       on: sinon.stub().returns(this._get_on),
       once: sinon.stub().returns(this._get_once),
       request: sinon.stub().returns(this._get_request),
-      respond: sinon.stub().returns(this._get_respond)
+      provide: sinon.stub().returns(this._get_provide),
+      use: (i) => {
+        let m = new Module(this)
+        let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
+        return m.use.call(useme, i)
+      }
     };
     this.get = sinon.stub().returns(this._get);
-
   }
 
   launch() {

@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-01-20
+* @Last Modified 2016-02-08
 */
 
 'use strict';
@@ -33,6 +33,31 @@ class Module extends Dispatcher {
     this._app.onceBefore('load').then(() => {
       this.loaded = true
     })
+  }
+
+  /**
+   * Let another instance use this module's events to reduce boilerplate calls
+   * @ params {object} instance The instance to copy methods to
+   */
+
+  use(instance) {
+    let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter']
+    let handler_names = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
+    for (let name of names) {
+      if (this[name] === undefined) continue
+      instance[name] = this[name].bind(this)
+    }
+    for (let name of handler_names) {
+      if (this[name] === undefined) continue
+      instance[name] = (event, handler) => {
+        if (handler === undefined) {
+          handler = instance[event].bind(instance)
+        }
+        this[name](event, handler)
+        return instance
+      }
+    }
+    return instance
   }
 
   /**
@@ -97,7 +122,8 @@ class Module extends Dispatcher {
       }
       return results;
     });
-    return this.on(name, handler);
+    this.on(name, handler);
+    return this;
   }
 
   /**
