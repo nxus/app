@@ -51,7 +51,7 @@ class Module extends Dispatcher {
       if (this[name] === undefined) continue
       instance[name] = (event, handler) => {
         if (handler === undefined) {
-          handler = instance[event]
+          handler = instance[event].bind(instance)
         }
         this[name](event, handler)
         return instance

@@ -24,6 +24,7 @@ describe("Module", () => {
       other = new Module(other_app, 'other')
       class TestModule {
         constructor() {
+          this.x = 1
           other.use(this)
           this.respond('testEvent')
           this.respond('namedEvent', this._handler.bind(this))
@@ -32,7 +33,7 @@ describe("Module", () => {
           return 1
         }
         testEvent (a, b) {
-          return a + b
+          return this.x + a + b
         }
       }
       inst = new TestModule()
@@ -55,7 +56,7 @@ describe("Module", () => {
     })
     it("should bind to event-named methods", (done) => {
       other.request("testEvent", 1, 2).then((arg) => {
-        arg.should.equal(3)
+        arg.should.equal(4)
         done()
       })
     })
