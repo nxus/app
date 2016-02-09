@@ -24,18 +24,16 @@ class TestApp extends Dispatcher {
 
     this._get_on = sinon.spy();
     this._get_once = sinon.spy();
-    this._get_gather = sinon.spy();
-    this._get_respond = sinon.spy();
     this._get_request = sinon.stub().returns(this._respond);
-    this._get_provide = sinon.stub().returns(this._provide)
+    this._get_provide = sinon.stub().returns(this._provide);
 
     this._get = {
-      gather: sinon.stub().returns(this._get_gather),
-      provide: sinon.stub().returns(this._get_provide),
+      gather: sinon.stub().returnsThis(),
+      respond: sinon.stub().returnsThis(),
       on: sinon.stub().returns(this._get_on),
       once: sinon.stub().returns(this._get_once),
       request: sinon.stub().returns(this._get_request),
-      respond: sinon.stub().returns(this._get_respond),
+      provide: sinon.stub().returns(this._get_provide),
       use: (i) => {
         let m = new Module(this)
         return m.use.call(this._get, i)

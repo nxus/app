@@ -56,6 +56,7 @@ class Module extends Dispatcher {
         return this[name](event, handler)
       }
     }
+    return this
   }
 
   /**
