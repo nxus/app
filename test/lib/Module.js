@@ -66,6 +66,12 @@ describe("Module", () => {
         done()
       })
     })
+    it("should respond normally to proxy method", (done) => {
+      other.namedEvent().then((arg) => {
+        arg.should.equal(1)
+        done()
+      })
+    })
     it("should error for missing event handlers", (done) => {
       expect(inst.respond, 'missingHandler').to.throw();
       done();

@@ -11,6 +11,7 @@ module.exports = {
   Application: require('./Application'),
   Dispatcher: require('./Dispatcher'),
   Module: require('./Module'),
+  ProxyMethods: require('./ProxyMethods'),
   ConfigurationManager: require('./ConfigurationManager'),
   PluginManager: require('./PluginManager')
 };
