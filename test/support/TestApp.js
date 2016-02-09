@@ -4,7 +4,7 @@ import _ from 'underscore'
 import sinon from 'sinon'
 import Promise from 'bluebird'
 
-import { Dispatcher, Module } from '../../'
+import { Dispatcher, Module, ProxyMethods } from '../../'
 
 class TestApp extends Dispatcher {
   constructor() {
@@ -39,7 +39,7 @@ class TestApp extends Dispatcher {
       }
     }
     
-    this._get = {
+    this._get = ProxyMethods(() => { return {
       gather: this._get_gather,
       respond: this._get_respond,
       on: sinon.stub().returns(this._get_on),
@@ -51,7 +51,7 @@ class TestApp extends Dispatcher {
         let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
         return m.use.call(useme, i)
       }
-    };
+    }})();
     this.get = sinon.stub().returns(this._get);
   }
 

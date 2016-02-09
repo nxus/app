@@ -8,9 +8,7 @@
 
 import Dispatcher from './Dispatcher'
 
-// Old-style proxy lib, rather than requiring node --harmony_proxies
-import Proxy from 'node-proxy'
-
+import ProxyMethods from './ProxyMethods'
 
 /**
  * The core Module class. This provides a messaging proxy layer between modules and calling code.
@@ -148,20 +146,4 @@ class Module extends Dispatcher {
   }
 }
 
-export default function(...args) {
-  let module = new Module(...args)
-  let handlers = {
-    get: function(receiver, property) {
-      if (module[property] !== undefined) {
-        return module[property]
-      } else {
-        return (...innerArgs) => {
-          return module.provide(property, ...innerArgs)
-        }
-      }
-    }
-  }
-  return Proxy.createFunction(handlers, function() {
-    return module.apply(this, arguments)
-  })
-}
+export default ProxyMethods((...args) => {return new Module(...args)})
