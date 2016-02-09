@@ -3,8 +3,6 @@
 var Module = require('../../lib/Module');
 var TestApp = require('../support/TestApp');
 
-var should = require('should')
-
 describe("Module", () => {
   var module;
   var app = new TestApp();
@@ -66,6 +64,10 @@ describe("Module", () => {
         arg.should.equal(1)
         done()
       })
+    })
+    it("should error for missing event handlers", (done) => {
+      expect(inst.respond, 'missingHandler').to.throw();
+      done();
     })
   });
 

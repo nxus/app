@@ -53,10 +53,11 @@ class Module extends Dispatcher {
         if (handler === undefined) {
           handler = instance[event]
         }
-        return this[name](event, handler)
+        this[name](event, handler)
+        return instance
       }
     }
-    return this
+    return instance
   }
 
   /**
