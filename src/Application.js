@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 16:21:09
+* @Last Modified time: 2016-02-09 16:36:52
 */
 
 import _ from 'underscore'
@@ -111,6 +111,7 @@ export default class Application extends Dispatcher {
   init() {
     return this._loadPlugins().then(this.boot.bind(this)).then(() => {
       if (!this.config.script && this.config.NODE_ENV != 'production') {
+        this.log.debug('Setting up App watcher')
         this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
       }
     });
@@ -221,11 +222,8 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   _loadPlugins() {
+    this.log.info('Loading modules')
     this._setupPluginManager()
-    if (this.config.debug) {
-      this.log.info('Loading plugins')
-    }
-
     return this._bootPlugins().catch((err) => {
       if (err) {
         console.log(err)
@@ -245,7 +243,7 @@ export default class Application extends Dispatcher {
       this._modules,
       this._bootPlugin.bind(this)
     ).catch((e) => {
-      this.log.error('Error booting plugin', e)
+      this.log.error('Error booting module', e)
       console.trace(e);
     })
   }
@@ -260,6 +258,7 @@ export default class Application extends Dispatcher {
   _bootPlugin(plugin) {
     //if (this.config.debug) console.log(' ------- ', plugin)
     try {
+      this.log.debug('Booting Module', plugin.name)
       if(plugin.default)
         plugin = plugin.default
       plugin = new plugin(this);

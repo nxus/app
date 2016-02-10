@@ -2,7 +2,7 @@
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
 * @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 16:16:11
+* @Last Modified time: 2016-02-09 16:45:01
 */
 
 'use strict';
@@ -74,7 +74,6 @@ class PluginManager {
    * @return {object}           the package, as returned by `require`
    */
   accumulatePackage(packages, directory) {
-    this.app.log.debug('requiring package', directory)
     var pkg = require(fs.realpathSync(directory))
     pkg._packageJson = this.getPluginPackageJson(directory)
     pkg._pluginInfo = {}
@@ -90,16 +89,14 @@ class PluginManager {
    * @param  {array} packages  An array of the currently loaded packages
    */
   loadPackage(name, directory, packages) {
-    this.app.log.debug('loading package ' + name)
+    this.app.log.debug('Loading node module ' + name)
     var pkg
     if (fs.existsSync(directory)) {
       pkg = this.accumulatePackage(packages, directory)
     }
     if(!pkg) return
     var getPackages = (packages, targets, directory) => {
-      this.app.log.debug('getting packages for', directory, targets)
       targets.forEach((t) => {
-        this.app.log.debug('crawling target', t)
         var innerDir = path.join(directory, 'node_modules') + '/' + t
         var innerPkg = this.accumulatePackage(packages, innerDir)
         if(!innerPkg) return
@@ -168,6 +165,7 @@ class PluginManager {
     var customPluginDirs = fs.readdirSync(customDir)
     
     customPluginDirs.forEach((name) => {
+      this.app.log.debug('Loading app module', name)
       if(name && name[0] == ".") return
       var pkg = require(path.resolve(customDir + "/" + name))
       pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
@@ -187,6 +185,7 @@ class PluginManager {
     var customPluginDirs = options.modules || []
     
     customPluginDirs.forEach((modulePath) => {
+      this.app.log.debug('Loading custom module', modulePath)
       var pkg = require(modulePath)
       pkg._packageJson = this.getPluginPackageJson(modulePath)
       pkg._pluginInfo = {}
