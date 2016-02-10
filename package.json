@@ -1,7 +1,7 @@
 {
   "name": "@nxus/core",
   "main": "lib/index.js",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "scripts": {
     "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/lib/*",
@@ -29,7 +29,8 @@
     "moment": "^2.10.3",
     "multimatch": "^2.0.0",
     "node-proxy": "^1.0.0",
-    "underscore": "*"
+    "underscore": "*",
+    "winston": "^2.1.1"
   },
   "devDependencies": {
     "babel": "^5.6.23",

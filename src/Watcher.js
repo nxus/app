@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2016-01-20
+* @Last Modified 2016-02-09
 */
 
 import moment from 'moment'
@@ -27,6 +27,7 @@ export default class Watcher {
     }
 
     var watch = watchPath || process.cwd() + '/node_modules/@nxus'
+    
     this.watch = chokidar.watch(watch,watchOptions)
     this.watch.on('all', (event, path) => {
         console.log(watchEvent, path) 
@@ -37,6 +38,7 @@ export default class Watcher {
     app.on('change', (path) => {
       this.watch.close();
       var start = moment()
+      if(app._currentStage != app._bootEvents[app._bootEvents.length - 1]) return
       app.restart().then(() => {
         var end = moment()
         console.log(`Restart took ${end.diff(start, 'seconds')} seconds`)
