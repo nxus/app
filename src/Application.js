@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 19:09:53
+* @Last Modified 2016-02-10
+* @Last Modified time: 2016-02-10 06:38:07
 */
 
 import _ from 'underscore'
@@ -251,7 +251,7 @@ export default class Application extends Dispatcher {
       this._modules,
       this._bootPlugin.bind(this)
     ).catch((e) => {
-      this.log.error('Error booting module', e)
+      this.log.warn('Error booting module', e)
       console.trace(e);
     })
   }
@@ -271,8 +271,7 @@ export default class Application extends Dispatcher {
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
-      this.log.error(e.stack)
-      process.exit();
+      this.log.warn(e.stack)
     }
     return Promise.resolve(plugin)
   }
