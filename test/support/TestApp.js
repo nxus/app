@@ -38,8 +38,7 @@ class TestApp extends Dispatcher {
         return next(name, h)
       }
     }
-    
-    this._get = ProxyMethods(() => { return {
+    this._get = {
       gather: this._get_gather,
       respond: this._get_respond,
       on: sinon.stub().returns(this._get_on),
@@ -51,8 +50,8 @@ class TestApp extends Dispatcher {
         let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
         return m.use.call(useme, i)
       }
-    }})();
-    this.get = sinon.stub().returns(this._get);
+    }
+    this.get = sinon.stub().returns(ProxyMethods(() => {return this._get})());
   }
 
   launch() {
