@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-01-20
-* @Last Modified time: 2016-01-20 20:12:27
+* @Last Modified 2016-02-09
+* @Last Modified time: 2016-02-09 16:01:47
 */
 
 import _ from 'underscore'
@@ -16,10 +16,18 @@ import Module from './Module'
 import PluginManager from './PluginManager'
 import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
+import Logger from './Logger'
 
-var logBanner = (message) => {
-  console.log(' --- ')
-  console.log(' --- '+ message)
+var startupBanner = () => {
+  console.log(" \n"+
+" _______ _______ __    _ __   __ __   __ _______ __  \n"+
+"|       |       |  |  | |  |_|  |  | |  |       |  | \n"+
+"|    ___|   _   |   |_| |       |  | |  |  _____|  | \n"+
+"|   | __|  | |  |       |       |  |_|  | |_____|  | \n"+
+"|   ||  |  |_|  |  _    ||     ||       |_____  |__| \n"+
+"|   |_| |       | | |   |   _   |       |_____| |__  \n"+
+"|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
+)
 }
 
 /**
@@ -46,6 +54,7 @@ export default class Application extends Dispatcher {
       'startup',
       'launch'
     ]
+    this._currentStage = null
 
     this._setupLog()
 
@@ -61,18 +70,12 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupLog() {
+    var logger = Logger()
     this.log = (...args) => {
-      if(this.config.debug) console.log.apply(this, args)
+      if(this.config.debug) logger.debug.apply(this, args)
     }
 
-    this.log = Object.assign(this.log, console, {
-      debug: (...args) => {
-        if(this.config.debug) console.log.apply(this, args)
-      }, 
-      info: (...args) => {
-        if(this.config.debug) console.log.apply(this, args)
-      } 
-    })
+    this.log = Object.assign(this.log, logger)
   }
 
   /**
@@ -121,10 +124,10 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   boot() {
-    if (this.config.debug) logBanner('Booting Application')
-    
+    if (this.config.debug) this.log.info('Booting Application')
     return new Promise.mapSeries(this._bootEvents, (e) => {
-      if (this.config.debug) logBanner(`Booting Stage: ${e}`)
+      this._currentStage = e
+      if (this.config.debug) this.log.info(`Booting Stage: ${e}`)
       return this.emit(e)
     })
   }
@@ -135,7 +138,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   stop() {
-    if (this.config.debug) logBanner('Stopping')
+    if (this.config.debug) this.log.info('Stopping')
     return this.emit("stop").then(() => {
       return Promise.resolve().then(() => {
         Object.keys(this._events).map((event) =>  this.removeAllListeners(event) );
@@ -149,7 +152,8 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   start() {
-    this.log('*** NXUS APP Started at ' + new Date() + ' ***')
+    startupBanner()
+    this.log.info('NXUS APP Starting')
     return this.init()
   }
 
@@ -159,6 +163,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   restart() {
+    this._currentStage = 'restarting'
     console.log("Restarting App");
     return this._invalidatePluginsInRequireCache()
     .then(this.stop.bind(this))
@@ -218,7 +223,7 @@ export default class Application extends Dispatcher {
   _loadPlugins() {
     this._setupPluginManager()
     if (this.config.debug) {
-      logBanner('Loading plugins')
+      this.log.info('Loading plugins')
     }
 
     return this._bootPlugins().catch((err) => {
@@ -240,7 +245,7 @@ export default class Application extends Dispatcher {
       this._modules,
       this._bootPlugin.bind(this)
     ).catch((e) => {
-      console.log('Error booting plugin')
+      this.log.error('Error booting plugin', e)
       console.trace(e);
     })
   }
@@ -259,7 +264,7 @@ export default class Application extends Dispatcher {
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
-      console.log(e.stack)
+      this.log.error(e.stack)
       process.exit();
     }
     return Promise.resolve(plugin)
