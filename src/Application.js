@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-01-20
-* @Last Modified time: 2016-01-20 20:12:27
+* @Last Modified 2016-02-09
+* @Last Modified time: 2016-02-09 16:09:03
 */
 
 import _ from 'underscore'
@@ -81,7 +81,7 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupPluginManager() {
-    this._modules = new PluginManager(this.config)
+    this._modules = new PluginManager(this, this.config)
     _.each(this._modules, (plugin) => {
       this._pluginInfo[plugin._pluginInfo.name] = plugin._pluginInfo
     })

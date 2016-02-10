@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-02-04
-* @Last Modified time: 2016-02-04 18:00:12
+* @Last Modified 2016-02-09
+* @Last Modified time: 2016-02-09 16:16:11
 */
 
 'use strict';
@@ -22,7 +22,8 @@ import _ from 'underscore'
  */
 class PluginManager {
 
-  constructor(options) {
+  constructor(app, options) {
+    this.app = app
     options = options || {}
 
     var packages = []
@@ -73,6 +74,7 @@ class PluginManager {
    * @return {object}           the package, as returned by `require`
    */
   accumulatePackage(packages, directory) {
+    this.app.log.debug('requiring package', directory)
     var pkg = require(fs.realpathSync(directory))
     pkg._packageJson = this.getPluginPackageJson(directory)
     pkg._pluginInfo = {}
@@ -88,14 +90,16 @@ class PluginManager {
    * @param  {array} packages  An array of the currently loaded packages
    */
   loadPackage(name, directory, packages) {
-    if (process.env.debug) console.log('loading package ' + name)
+    this.app.log.debug('loading package ' + name)
     var pkg
     if (fs.existsSync(directory)) {
       pkg = this.accumulatePackage(packages, directory)
     }
     if(!pkg) return
     var getPackages = (packages, targets, directory) => {
+      this.app.log.debug('getting packages for', directory, targets)
       targets.forEach((t) => {
+        this.app.log.debug('crawling target', t)
         var innerDir = path.join(directory, 'node_modules') + '/' + t
         var innerPkg = this.accumulatePackage(packages, innerDir)
         if(!innerPkg) return
