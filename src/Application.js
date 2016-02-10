@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 16:36:52
+* @Last Modified time: 2016-02-09 16:48:36
 */
 
 import _ from 'underscore'
@@ -72,7 +72,7 @@ export default class Application extends Dispatcher {
   _setupLog() {
     var logger = Logger()
     this.log = (...args) => {
-      if(this.config.debug) logger.debug.apply(this, args)
+      logger.debug.apply(this, args)
     }
 
     this.log = Object.assign(this.log, logger)
