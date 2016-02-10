@@ -2,7 +2,7 @@
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
 * @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 16:45:01
+* @Last Modified time: 2016-02-09 20:05:55
 */
 
 'use strict';
@@ -167,12 +167,17 @@ class PluginManager {
     customPluginDirs.forEach((name) => {
       this.app.log.debug('Loading app module', name)
       if(name && name[0] == ".") return
-      var pkg = require(path.resolve(customDir + "/" + name))
-      pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
-      pkg._pluginInfo = {}
-      if(pkg._packageJson)
-        pkg._pluginInfo.name = pkg._packageJson.name || null
-      packages.push(pkg)
+      try {
+        var pkg = require(path.resolve(customDir + "/" + name))
+        pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
+        pkg._pluginInfo = {}
+        if(pkg._packageJson)
+          pkg._pluginInfo.name = pkg._packageJson.name || null
+        packages.push(pkg)
+      } catch (e) {
+        this.app.log.warn('Error loading module', name)
+        this.app.log.debug(e)
+      }
     })
   }
 

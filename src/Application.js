@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 16:48:36
+* @Last Modified time: 2016-02-09 19:09:53
 */
 
 import _ from 'underscore'
@@ -56,12 +56,11 @@ export default class Application extends Dispatcher {
     ]
     this._currentStage = null
 
-    this._setupLog()
-
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
 
     this.config = Object.assign(opts, new ConfigurationManager(opts).getConfig())
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    this._setupLog()
   }
 
   /**
@@ -70,12 +69,21 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupLog() {
-    var logger = Logger()
-    this.log = (...args) => {
-      logger.debug.apply(this, args)
+    if(this.config.silent) {
+      this.log = function() {}
+      Object.assign(this.log, {
+        debug: () => {},
+        info: () => {},
+        warn: () => {},
+        error: () => {}
+      })
+    } else {
+      var logger = Logger(this)
+      this.log = (...args) => {
+        logger.debug.apply(this, args)
+      }
+      this.log = Object.assign(this.log, logger)
     }
-
-    this.log = Object.assign(this.log, logger)
   }
 
   /**
@@ -153,7 +161,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   start() {
-    startupBanner()
+    if(!this.config.silent) startupBanner()
     this.log.info('NXUS APP Starting')
     return this.init()
   }
