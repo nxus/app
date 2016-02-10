@@ -29,7 +29,8 @@
     "moment": "^2.10.3",
     "multimatch": "^2.0.0",
     "node-proxy": "^1.0.0",
-    "underscore": "*"
+    "underscore": "*",
+    "winston": "^2.1.1"
   },
   "devDependencies": {
     "babel": "^5.6.23",
