@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2015-12-08
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -27,7 +27,7 @@ describe("Application", () => {
 
   describe("Events", () => {
     beforeEach(() => {
-      app = new Application()
+      app = new Application({silent: true})
     })
 
     it("should bind to events", () => {
@@ -149,7 +149,7 @@ describe("Application", () => {
 
   describe("Boot Stages", () => {
     beforeEach(() => {
-      app = new Application()
+      app = new Application({silent: true})
     })
 
     it("should send the init event", (done) => {

@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-10
-* @Last Modified time: 2016-02-10 06:38:07
+* @Last Modified 2016-02-12
+* @Last Modified time: 2016-02-12 11:57:01
 */
 
 import _ from 'underscore'
@@ -266,7 +266,7 @@ export default class Application extends Dispatcher {
   _bootPlugin(plugin) {
     //if (this.config.debug) console.log(' ------- ', plugin)
     try {
-      this.log.debug('Booting Module', plugin.name)
+      this.log.debug('Booting Module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
       if(plugin.default)
         plugin = plugin.default
       plugin = new plugin(this);

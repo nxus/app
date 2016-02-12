@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-02-09
-* @Last Modified time: 2016-02-09 20:05:55
+* @Last Modified 2016-02-12
+* @Last Modified time: 2016-02-12 12:00:55
 */
 
 'use strict';
@@ -26,12 +26,13 @@ class PluginManager {
     this.app = app
     options = options || {}
 
+    this._loaded = []
+
     var packages = []
 
     this.loadPackages(options, packages)
     this.loadCustomPlugins(options, packages)
     this.loadPassedPlugins(options, packages)
-
     return packages
   }
 
@@ -63,7 +64,7 @@ class PluginManager {
   getDeps(pkg) {
     var deps = (pkg._packageJson && pkg._packageJson.dependencies) || {}
     return _.filter(Object.keys(deps), function (packageName) {
-        return packageName.indexOf("@nxus/") === 0
+        return packageName.indexOf("@nxus/") === 0 || packageName.indexOf("nxus-") === 0
       }) || []
   }
   
@@ -89,14 +90,22 @@ class PluginManager {
    * @param  {array} packages  An array of the currently loaded packages
    */
   loadPackage(name, directory, packages) {
+    if(_.contains(this._loaded, name)) return
+    if(name.indexOf("@nxus/") < 0 && name.indexOf("nxus-") < 0) return
     this.app.log.debug('Loading node module ' + name)
     var pkg
+    this._loaded.push(name)
     if (fs.existsSync(directory)) {
       pkg = this.accumulatePackage(packages, directory)
     }
     if(!pkg) return
+    var peerDeps = (pkg._packageJson && pkg._packageJson.peerDependencies) || {}
+    for(let dep in peerDeps) {
+      this.loadPackage(dep, fs.realpathSync(directory+"/../..")+"/"+dep, packages)
+    }
     var getPackages = (packages, targets, directory) => {
       targets.forEach((t) => {
+        if(t.indexOf("@nxus/") < 0 && t.indexOf("nxus-") < 0) return
         var innerDir = path.join(directory, 'node_modules') + '/' + t
         var innerPkg = this.accumulatePackage(packages, innerDir)
         if(!innerPkg) return
@@ -165,8 +174,8 @@ class PluginManager {
     var customPluginDirs = fs.readdirSync(customDir)
     
     customPluginDirs.forEach((name) => {
-      this.app.log.debug('Loading app module', name)
       if(name && name[0] == ".") return
+      this.app.log.debug('Loading app module', name)
       try {
         var pkg = require(path.resolve(customDir + "/" + name))
         pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
