@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 11:57:01
+* @Last Modified time: 2016-02-12 12:08:06
 */
 
 import _ from 'underscore'
@@ -271,6 +271,7 @@ export default class Application extends Dispatcher {
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
+      this.log.warn('Error booting module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
       this.log.warn(e.stack)
     }
     return Promise.resolve(plugin)

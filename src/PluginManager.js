@@ -2,7 +2,7 @@
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
 * @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 12:00:55
+* @Last Modified time: 2016-02-12 12:19:23
 */
 
 'use strict';
@@ -24,7 +24,7 @@ class PluginManager {
 
   constructor(app, options) {
     this.app = app
-    options = options || {}
+    this.options = options = options || {}
 
     this._loaded = []
 
@@ -91,7 +91,8 @@ class PluginManager {
    */
   loadPackage(name, directory, packages) {
     if(_.contains(this._loaded, name)) return
-    if(name.indexOf("@nxus/") < 0 && name.indexOf("nxus-") < 0) return
+    if(name.indexOf("@nxus/") == -1 && name.indexOf("nxus-") == -1) return
+    if(name.indexOf("@nxus/core") > -1) return
     this.app.log.debug('Loading node module ' + name)
     var pkg
     this._loaded.push(name)
@@ -101,11 +102,12 @@ class PluginManager {
     if(!pkg) return
     var peerDeps = (pkg._packageJson && pkg._packageJson.peerDependencies) || {}
     for(let dep in peerDeps) {
-      this.loadPackage(dep, fs.realpathSync(directory+"/../..")+"/"+dep, packages)
+      this.loadPackage(dep, this.options.appDir+"/node_modules/"+dep, packages)
     }
     var getPackages = (packages, targets, directory) => {
       targets.forEach((t) => {
         if(t.indexOf("@nxus/") < 0 && t.indexOf("nxus-") < 0) return
+        if(t.indexOf("@nxus/core") > -1) return
         var innerDir = path.join(directory, 'node_modules') + '/' + t
         var innerPkg = this.accumulatePackage(packages, innerDir)
         if(!innerPkg) return
