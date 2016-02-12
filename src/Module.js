@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-02-08
+* @Last Modified 2016-02-12
 */
 
 'use strict';
@@ -28,7 +28,7 @@ class Module extends Dispatcher {
     this._name = name;
     this.loaded = false
     app.on('stop', this.removeAllListeners.bind(this));
-    this._app.onceBefore('load').then(() => {
+    this._app.on('load.before', () => {
       this.loaded = true
     })
   }
@@ -83,11 +83,13 @@ class Module extends Dispatcher {
    */  
   provide(name, ...args) {
     if(!this.loaded)
-      return this._app.onceBefore('load').then(() => {
+      return this._app.onceAfter('load').then(() => {
         return this.emit(name, ...args);
       });
-    else
+    else {
       return this.emit(name, ...args);
+    }
+      
   }
 
     /**
