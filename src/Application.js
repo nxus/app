@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 12:08:06
+* @Last Modified time: 2016-02-12 16:20:08
 */
 
 import _ from 'underscore'
@@ -206,7 +206,8 @@ export default class Application extends Dispatcher {
    * @return {Array}
    */
   _getWatchPaths() {
-    return this.config.watch || ["**/node_modules/**", "**/modules/**"];
+    let watch = ["**/node_modules/**", "**/modules/**"]
+    return this.config.watch = watch.concat(this.config.watch || [])
   }
 
   /**
