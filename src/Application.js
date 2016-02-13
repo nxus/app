@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 16:20:08
+* @Last Modified time: 2016-02-12 16:30:43
 */
 
 import _ from 'underscore'
@@ -58,7 +58,7 @@ export default class Application extends Dispatcher {
 
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
 
-    this.config = Object.assign(opts, new ConfigurationManager(opts).getConfig())
+    this.config = _.extend(opts, new ConfigurationManager(opts).getConfig())
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
     this._setupLog()
   }
@@ -207,7 +207,8 @@ export default class Application extends Dispatcher {
    */
   _getWatchPaths() {
     let watch = ["**/node_modules/**", "**/modules/**"]
-    return this.config.watch = watch.concat(this.config.watch || [])
+    if(_.isString(this.config.watch)) this.config.watch = [this.config.watch]
+    return watch.concat(this.config.watch || [])
   }
 
   /**
