@@ -14,6 +14,10 @@ You'll probably find the following resources useful background and help in build
 -   [Recipes](<>) (TODO)
 -   [Developing a ](<>) (TODO)
 
+## Documentation
+
+The full set of Nxus docs is available at [http://docs.gonxus.org](http://docs.gonxus.org).
+
 ## Installation
 
     > npm install @nxus/core --save
