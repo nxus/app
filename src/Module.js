@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-13
 */
 
 'use strict';
@@ -83,13 +83,12 @@ class Module extends Dispatcher {
    */  
   provide(name, ...args) {
     if(!this.loaded)
-      return this._app.onceAfter('load').then(() => {
+      return this._app.once('load').then(() => {
         return this.emit(name, ...args);
       });
     else {
       return this.emit(name, ...args);
     }
-      
   }
 
     /**
