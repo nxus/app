@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 16:30:43
+* @Last Modified 2016-02-13
+* @Last Modified time: 2016-02-13 08:55:12
 */
 
 import _ from 'underscore'
@@ -173,7 +173,7 @@ export default class Application extends Dispatcher {
    */
   restart() {
     this._currentStage = 'restarting'
-    console.log("Restarting App");
+    this.log.info("Restarting App");
     return this._invalidatePluginsInRequireCache()
     .then(this.stop.bind(this))
     .then(this.start.bind(this))
@@ -236,8 +236,7 @@ export default class Application extends Dispatcher {
     this._setupPluginManager()
     return this._bootPlugins().catch((err) => {
       if (err) {
-        console.log(err)
-        process.exit()
+        this.log.error(err)
       }
     })
   }
@@ -254,7 +253,7 @@ export default class Application extends Dispatcher {
       this._bootPlugin.bind(this)
     ).catch((e) => {
       this.log.warn('Error booting module', e)
-      console.trace(e);
+      this.log.warn(e);
     })
   }
 
