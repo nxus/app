@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2016-02-12
+* @Last Modified 2016-02-20
 */
 
 'use strict';
@@ -22,6 +22,13 @@ describe("Application", () => {
     it("should use the passed in appDir if present", () => {
       app = new Application({appDir: 'someValue'})
       app.config.appDir.should.eql('someValue')
+    })
+
+    it("should have the default config vars", () => {
+      app = new Application()
+      app.config.should.not.be.null()
+      app.config.baseUrl.should.not.be.null()
+      app.config.siteName.should.not.be.null()
     })
   })
 

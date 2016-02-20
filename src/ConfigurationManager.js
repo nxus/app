@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2016-01-20
-* @Last Modified time: 2016-01-20 20:17:19
+* @Last Modified 2016-02-20
+* @Last Modified time: 2016-02-20 12:24:29
 */
 
 'use strict';
@@ -21,6 +21,10 @@ class ConfigurationManager {
 
   constructor(opts = {}) {
     this.opts = opts
+    this._defaultConfig = {
+      siteName: 'Nxus',
+      baseUrl: 'localhost:3000'
+    }
   }
 
   /**
@@ -81,7 +85,9 @@ class ConfigurationManager {
       // Environment variables take precedence
       this.getEnvironmentVariables(),
       // but NODE_ENV must be present so, ensure it
-      {NODE_ENV: this.getNodeEnv()}
+      {NODE_ENV: this.getNodeEnv()},
+      // default Config
+      this._defaultConfig
     )
   }
 }
