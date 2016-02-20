@@ -2,7 +2,7 @@
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
 * @Last Modified 2016-02-20
-* @Last Modified time: 2016-02-20 12:24:29
+* @Last Modified time: 2016-02-20 12:37:15
 */
 
 'use strict';
@@ -80,14 +80,14 @@ class ConfigurationManager {
    */
   getConfig() {
     return _.extend(
+      this._defaultConfig,
       // Read the config in the app's package.json
       this.getPackageJSONConfig() || {},
       // Environment variables take precedence
       this.getEnvironmentVariables(),
       // but NODE_ENV must be present so, ensure it
-      {NODE_ENV: this.getNodeEnv()},
+      {NODE_ENV: this.getNodeEnv()}
       // default Config
-      this._defaultConfig
     )
   }
 }
