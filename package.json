@@ -7,7 +7,9 @@
     "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/lib/*",
     "compile": "babel --optional runtime -d lib/ src/ && babel --optional runtime -d lib/test/support/ test/support/",
     "prepublish": "npm run compile",
-    "docs": "./node_modules/documentation/bin/documentation.js ./src/index.js -f html -o ./docs"
+    "postpublish": "npm run docs-readme && npm run commit-update-docs",
+    "docs-readme": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/*.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
+    "commit-update-docs": "git add ./README.md && git commit -m 'Updated README API Docs' && git push"
   },
   "author": "info@nxusapp.com",
   "license": "MIT",
@@ -34,7 +36,7 @@
   },
   "devDependencies": {
     "babel": "^5.6.23",
-    "documentation": "^3.0.4",
+    "documentation": "^4.0.0-beta",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "mocha": "^2.2.5",
