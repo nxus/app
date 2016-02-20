@@ -1,7 +1,5 @@
 # @nxus/core
 
-## \_
-
 [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
 
 The Nxus Core package includes the basic Application framework for building a Nxus app.
