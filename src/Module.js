@@ -16,9 +16,30 @@ import ProxyMethods from './ProxyMethods'
  *
  * Modules are accessed through the Application.get() method
  *
- * @example
- * let router = app.get('router')
+ * @example let router = app.get('router')
+ *
+ * Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
+ * @example app.get('router').use(this).gather('route')
+ * @example app.get('templater').use(this).respond('template')
+ *
+ * Consumer modules should get the module they need to use and call provide or request
+ * @example app.get('router').provide('route', ...)
+ * @example app.get('templater').request('render', ...)
+ *
+ * Modules proxy event names as methods to provide/request, so these are synomymous with above: 
+ * @example app.get('router').route(...)
+ * @example app.get('templater').render(...)
  * 
+ * Default implementations should be indicated by using default() to occur before provide()
+ * Overriding another implementation can use replace() to occur after provide()
+ * 
+ * @example app.get('router').default('route', GET', '/', ...)
+ * @example app.get('router').replace('route', GET', '/', ...)
+ *
+ * Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
+ * @example app.get('router').default().route('GET', '/', ...)
+ * @example app.get('router').replace().route('GET', '/', ...)
+ *
  */
 class Module extends Dispatcher {
 
@@ -39,7 +60,7 @@ class Module extends Dispatcher {
    */
 
   use(instance) {
-    let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter']
+    let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter', 'default', 'replace']
     let handler_names = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
     for (let name of names) {
       if (this[name] === undefined) continue
@@ -58,21 +79,33 @@ class Module extends Dispatcher {
     return instance
   }
 
-  /**
-   * Provide arguments to a delayed gather() call, but do it before the other provide() calls.
-   *  
-   * @param  {string} name The name of the gather event
-   * @param  {...*}   args Arguments to provide to the gather event
-   * @return {Promise} Resolves when the event is eventually handled
-   */  
-  provideBefore(name, ...args) {
+  _provide(myself, when, name, ...args) {
+    if (name === undefined) {
+      return ProxyMethods(() => { return this}, myself)()
+    }
     if(!this.loaded)
-      return this._app.onceAfter('init').then(() => {
+      return this._app[when]('load').then(() => {
         return this.emit(name, ...args);
       });
     else
       return this.emit(name, ...args);
   }
+
+  /**
+   * Provide default arguments to a delayed gather() call, before other provides
+   *  
+   * @param  {string} name The name of the gather event
+   * @param  {...*}   args Arguments to provide to the gather event
+   * @return {Promise} Resolves when the event is eventually handled
+   */  
+  default(name, ...args) {
+    return this._provide('default', 'onceBefore', name, ...args)
+  }
+
+  provideBefore(name, ...args) {
+    return this.default(name, ...args)
+  }
+  
 
   /**
    * Provide arguments to a delayed gather() call.
@@ -82,29 +115,22 @@ class Module extends Dispatcher {
    * @return {Promise} Resolves when the event is eventually handled
    */  
   provide(name, ...args) {
-    if(!this.loaded)
-      return this._app.once('load').then(() => {
-        return this.emit(name, ...args);
-      });
-    else {
-      return this.emit(name, ...args);
-    }
+    return this._provide('provide', 'once', name, ...args)
   }
 
     /**
-   * Provide arguments to a delayed gather() call, after the main provide() calls.
+   * Provide a replacement for a delayed gather() call (after others are provided)
    *  
    * @param  {string} name The name of the gather event
    * @param  {...*}   args Arguments to provide to the gather event
    * @return {Promise} Resolves when the event is eventually handled
    */  
+  replace(name, ...args) {
+    return this._provide('replace', 'onceAfter', name, ...args)
+  }
+
   provideAfter(name, ...args) {
-    if(!this.loaded)
-      return this._app.onceAfter('load').then(() => {
-        return this.emit(name, ...args);
-      });
-    else
-      return this.emit(name, ...args);
+    return this.replace(name, ...args)
   }
   
   
