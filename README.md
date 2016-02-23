@@ -1,5 +1,7 @@
 # @nxus/core
 
+## \_
+
 [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
 
 The Nxus Core package includes the basic Application framework for building a Nxus app.
@@ -349,7 +351,69 @@ Modules are accessed through the Application.get() method
 
 ```javascript
 let router = app.get('router')
+
+Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
 ```
+
+```javascript
+app.get('router').use(this).gather('route')
+```
+
+```javascript
+app.get('templater').use(this).respond('template')
+
+Consumer modules should get the module they need to use and call provide or request
+```
+
+```javascript
+app.get('router').provide('route', ...)
+```
+
+```javascript
+app.get('templater').request('render', ...)
+
+Modules proxy event names as methods to provide/request, so these are synomymous with above:
+```
+
+```javascript
+app.get('router').route(...)
+```
+
+```javascript
+app.get('templater').render(...)
+
+Default implementations should be indicated by using default() to occur before provide()
+Overriding another implementation can use replace() to occur after provide()
+```
+
+```javascript
+app.get('router').default('route', GET', '/', ...)
+```
+
+```javascript
+app.get('router').replace('route', GET', '/', ...)
+
+Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
+```
+
+```javascript
+app.get('router').default().route('GET', '/', ...)
+```
+
+```javascript
+app.get('router').replace().route('GET', '/', ...)
+```
+
+### default
+
+Provide default arguments to a delayed gather() call, before other provides
+
+**Parameters**
+
+-   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
+-   `args` **...Any** Arguments to provide to the gather event
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
 
 ### gather
 
@@ -371,20 +435,9 @@ Provide arguments to a delayed gather() call.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
 
-### provideAfter
+### replace
 
-Provide arguments to a delayed gather() call, after the main provide() calls.
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `args` **...Any** Arguments to provide to the gather event
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
-
-### provideBefore
-
-Provide arguments to a delayed gather() call, but do it before the other provide() calls.
+Provide a replacement for a delayed gather() call (after others are provided)
 
 **Parameters**
 

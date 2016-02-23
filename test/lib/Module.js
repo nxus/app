@@ -49,6 +49,8 @@ describe("Module", () => {
       inst.on.should.be.Function();
       inst.emit.should.be.Function();
       inst.provide.should.be.Function();
+      inst.default.should.be.Function();
+      inst.replace.should.be.Function();
       inst.gather.should.be.Function();
       inst.request.should.be.Function();
       inst.respond.should.be.Function();
@@ -107,8 +109,61 @@ describe("Module", () => {
         done();
       });
     })
+    it("should return proxy for argument-less", (done) => {
+      module.gather('testGather3', (arg) => {
+        arg.should.equal(1);
+        return "one";
+      });
+      module.provide().testGather3(1).then((result) => {
+        result.should.equal("one");
+        done()
+      });
+    })
   });
 
+  describe("Default and Replace", () => {
+    before(() => {
+      module = new Module(app, 'test')
+    })
+    it("should have methods", () => {
+      module.original.should.be.Function();
+      module.replace.should.be.Function();
+    })
+    it("should gather after load", (done) => {
+      var waited = false;
+      var original = false;
+      module.gather('testDefault', (arg) => {
+        if (arg == 1) {
+          waited.should.be.false
+          original = arg
+        } else {
+          original.should.equal(1)
+          waited = true;
+          done();
+        }
+      });
+      module.replace('testDefault', 2)
+      module.default('testDefault', 1)
+      app.on('load', () => {
+        waited.should.be.false;
+      })
+      app.emit('load');
+    })
+    it("should return proxy for argument-less", (done) => {
+      module.gather('testDefault2', (arg) => {
+        arg.should.equal(1);
+        return "one";
+      });
+      module.default().testDefault2(1).then((result) => {
+        result.should.equal("one");
+      });
+      module.replace().testDefault2(1).then((result) => {
+        result.should.equal("one");
+        done()
+      });
+    })
+  });
+  
   describe("Request and Respond", () => {
     it("should have methods", () => {
       module.request.should.be.Function();
