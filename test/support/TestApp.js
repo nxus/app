@@ -6,10 +6,12 @@ import Promise from 'bluebird'
 
 import { Dispatcher, Module, ProxyMethods } from '../../'
 
+const stubPromise = sinon.createStubInstance(Promise)
+
 class TestApp extends Dispatcher {
   constructor() {
     super()
-    
+
     this.log = sinon.spy();
     this.log.debug = sinon.spy();
     this.log.info = sinon.spy();
@@ -23,10 +25,10 @@ class TestApp extends Dispatcher {
     this.onceBefore = sinon.spy(this.onceBefore);
     this.onceAfter = sinon.spy(this.onceAfter);
 
-    this._provide = sinon.createStubInstance(Promise);
-    this._provideAfter = sinon.createStubInstance(Promise);
-    this._provideBefore = sinon.createStubInstance(Promise);
-    this._request = sinon.createStubInstance(Promise);
+    this._provide = stubPromise
+    this._provideAfter = stubPromise
+    this._provideBefore = stubPromise
+    this._request = stubPromise
 
     this._get_on = sinon.spy();
     this._get_emit = sinon.spy();
