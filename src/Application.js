@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-20
-* @Last Modified time: 2016-02-20 15:38:13
+* @Last Modified 2016-02-25
+* @Last Modified time: 2016-02-25 10:57:49
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -262,7 +262,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   _invalidatePluginsInRequireCache() {
-    return Promise.resolve().then(() => {
+    return new Promise((resolve) => {
       // we only want to reload nxus code
       var ignore = new RegExp("^(.*node_modules/(?!@nxus).*)")
       // but we need to always reload mongoose so that models can be rebuilt
@@ -271,6 +271,7 @@ export default class Application extends Dispatcher {
         if (ignore.test(k) && !mongoose.test(k)) return
         delete require.cache[k]
       })
+      resolve()
     })
   }
 
