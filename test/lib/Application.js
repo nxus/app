@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2016-02-20
+* @Last Modified 2016-02-25
 */
 
 'use strict';
@@ -138,19 +138,41 @@ describe("Application", () => {
     });
     it("after modifies results", (done) => {
       app.after('tester', (results) => {
-        results[0].should.equal("test");
+        results.should.equal("test");
         return new Promise((resolve, reject) => {
-          resolve(["best"]);
+          resolve("best");
         });
       });
       app.on('tester', (i) => {
         return "test"
       });
-      app.emit('tester', 1).then(([result]) => {
+      app.emit('tester', 1).then((result) => {
         result.should.equal("best");
         done();
       })
-      
+    });
+
+    it("after modifies multiple results", (done) => {
+      app.after('tester', (results) => {
+        results.should.equal("test");
+        return new Promise((resolve, reject) => {
+          resolve("best");
+        });
+      });
+      app.after('tester', (results) => {
+        results.should.equal("best");
+        return new Promise((resolve, reject) => {
+          resolve(["best", "nest"]);
+        });
+      });
+      app.on('tester', (i) => {
+        return "test"
+      });
+      app.emit('tester', 1).then(([result1, result2]) => {
+        result1.should.equal("best");
+        result2.should.equal("nest");
+        done();
+      })
     });
   })
 
