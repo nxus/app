@@ -1,12 +1,13 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 07:44:02
-* @Last Modified 2015-12-14
+* @Last Modified 2016-02-25
 */
 
 'use strict';
 
 import { EventEmitter } from 'events'
+import _ from 'underscore'
 
 /**
  * The core Dispatcher class, which implements promisified 
@@ -119,7 +120,16 @@ export default class Dispatcher extends EventEmitter {
         }));
       })
       .then((results) => {
-        return Promise.reduce(super.listeners(event+".after"), waterfaller, results);
+        return Promise.reduce(super.listeners(event+".after"), waterfaller, results).then((results) => {
+          if(_.isArray(results)) {
+            results = _.compact(results)
+            if(results.length < 1) return undefined
+            else if (results.length == 1) return results[0]
+            else return results
+          } else {
+            return results
+          }
+        });
       });
   }
 } 
