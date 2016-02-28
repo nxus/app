@@ -116,23 +116,13 @@ export default class Dispatcher extends EventEmitter {
       .then((newArgs) => {
         return Promise.all(super.listeners(event).map((handler) => {
           let ret = handler(...newArgs)
-          return Promise.resolve(ret)
+          return [Promise.resolve(ret), newArgs]
         }))
-      }).then(this._handleArrayReturn.bind(this))
+      })
       .then((results) => {
-        if(!results) results = [] //hack to get the reducer to work when results are undefined and after listeners.length == 1
+      .spread((results, newArgs) => {
+        if (results) results.arguments = newArgs
         return Promise.reduce(super.listeners(event+".after"), waterfaller, results)
       }).then(this._handleArrayReturn.bind(this));
-  }
-
-  _handleArrayReturn (results) {
-    if(_.isArray(results)) {
-      results = _.compact(results)
-      if(results.length < 1) return undefined
-      else if (results.length == 1) return results[0]
-      else return results
-    } else {
-      return results
-    }
   }
 } 

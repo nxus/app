@@ -80,6 +80,7 @@ class Module extends Dispatcher {
   }
 
   _provide(myself, when, name, ...args) {
+    console.log("myself", name)
     if (name === undefined) {
       return ProxyMethods(() => { return this}, myself)()
     }
@@ -142,8 +143,14 @@ class Module extends Dispatcher {
    */  
   gather(name, handler) {
     this.after(name, (results) => {
-      if (results.length == 1) {
-        return results[0]
+      if(_.isArray(results)) {
+        results = _.compact(results)
+        if(results.length < 1) {
+          return undefined
+        }
+        if (results.length == 1) {
+          return results[0]
+        }
       }
       return results;
     });
