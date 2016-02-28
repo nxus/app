@@ -3,6 +3,9 @@
   "main": "lib/index.js",
   "version": "2.4.0-1",
   "description": "A framework for building light-weight, event-driven data processing apps.",
+  "bin" : { 
+    "gonxus" : "./bin/start.js" 
+  },
   "scripts": {
     "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/lib/*",
     "compile": "babel --optional runtime -d lib/ src/ && babel --optional runtime -d lib/test/support/ test/support/",
