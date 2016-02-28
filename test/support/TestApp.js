@@ -35,6 +35,8 @@ class TestApp extends Dispatcher {
     this._get_once = sinon.spy();
     this._get_gather = sinon.stub().returnsThis();
     this._get_respond = sinon.stub().returnsThis();
+    this._get_default = sinon.stub().returnsThis();
+    this._get_replace = sinon.stub().returnsThis();
 
     let handler = function(next) {
       return function(name, h) {
@@ -47,6 +49,8 @@ class TestApp extends Dispatcher {
     this._get = {
       gather: this._get_gather,
       respond: this._get_respond,
+      default: this._get_default,
+      replace: this._get_replace,
       on: sinon.stub().returns(this._get_on),
       emit: sinon.stub().returns(this._get_emit),
       once: sinon.stub().returns(this._get_once),
