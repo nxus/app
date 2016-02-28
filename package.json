@@ -1,10 +1,10 @@
 {
   "name": "@nxus/core",
   "main": "lib/index.js",
-  "version": "2.4.0-1",
+  "version": "2.4.0-2",
   "description": "A framework for building light-weight, event-driven data processing apps.",
-  "bin" : { 
-    "gonxus" : "./bin/start.js" 
+  "bin": {
+    "gonxus": "./bin/start.js"
   },
   "scripts": {
     "test": "npm run compile && NODE_ENV=test mocha --compilers js:babel/register -R spec test/lib/*",
