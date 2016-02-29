@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-25
-* @Last Modified time: 2016-02-25 10:57:49
+* @Last Modified 2016-02-28
+* @Last Modified time: 2016-02-28 10:28:51
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -122,6 +122,7 @@ export default class Application extends Dispatcher {
 
   constructor(opts = {}) {
     super()
+    this._opts = opts
     this._modules = {}
     this._pluginInfo = {}
     this._bootEvents = [
@@ -133,10 +134,18 @@ export default class Application extends Dispatcher {
     this._currentStage = null
 
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
-
-    this.config = _.extend(opts, new ConfigurationManager(opts).getConfig())
-    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    this._setupConfig()
     this._setupLog()
+  }
+
+  /**
+   * Sets up the internal config
+   *
+   * @private
+   */
+  _setupConfig() {
+    this.config = _.extend(this._opts, new ConfigurationManager(this._opts).getConfig())
+    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
   /**
@@ -252,6 +261,7 @@ export default class Application extends Dispatcher {
     this.log.info("Restarting App");
     return this._invalidatePluginsInRequireCache()
     .then(this.stop.bind(this))
+    .then(this._setupConfig.bind(this))
     .then(this.start.bind(this))
   }
 
