@@ -106,23 +106,38 @@ export default class Dispatcher extends EventEmitter {
    */
   emit (event, ...args) {
 
-    let waterfaller = (prev, curr) => {
-      // Need to resolve internally so that we can allow observing-only handlers
-      //  that don't return anything, even from their promise.
-      return Promise.resolve(curr(prev)).then((_args) => { return _args || prev });
+    let waterfaller = (newArgs) => {
+      return (prev, curr) => {
+        // Need to resolve internally so that we can allow observing-only handlers
+        //  that don't return anything, even from their promise.
+        return Promise.resolve(curr(prev, newArgs)).then((_args) => { return _args || prev });
+      }      
     }
 
-    return Promise.reduce(super.listeners(event+".before"), waterfaller, args)
+    return Promise.reduce(super.listeners(event+".before"), waterfaller(), args)
       .then((newArgs) => {
         return Promise.all(super.listeners(event).map((handler) => {
           let ret = handler(...newArgs)
-          return [Promise.resolve(ret), newArgs]
-        }))
+          return Promise.resolve(ret)
+        })).then((results) => {
+          return [results, newArgs]
+        })
       })
-      .then((results) => {
       .spread((results, newArgs) => {
-        if (results) results.arguments = newArgs
-        return Promise.reduce(super.listeners(event+".after"), waterfaller, results)
-      }).then(this._handleArrayReturn.bind(this));
+        results = this._squashArrayResults(results)
+        if (!results) {
+          results = []
+        }
+        return this._squashArrayResults(Promise.reduce(super.listeners(event+".after"), waterfaller(newArgs), results));
+      });
+  }
+
+  _squashArrayResults(results) {
+    if(_.isArray(results)) {
+      results = _.compact(results)
+      if(results.length < 1) return undefined
+      else if (results.length == 1) return results[0]
+    }
+    return results
   }
 } 
