@@ -25,10 +25,10 @@ class TestApp extends Dispatcher {
     this.onceBefore = sinon.spy(this.onceBefore);
     this.onceAfter = sinon.spy(this.onceAfter);
 
-    this._provide = stubPromise
-    this._provideAfter = stubPromise
-    this._provideBefore = stubPromise
-    this._request = stubPromise
+    this._request = sinon.stub().returns(stubPromise)
+    this._provide = sinon.stub().returns(stubPromise)
+    this._replace = sinon.stub().returns(stubPromise)
+    this._default = sinon.stub().returns(stubPromise)
 
     this._get_on = sinon.spy();
     this._get_emit = sinon.spy();
@@ -49,15 +49,15 @@ class TestApp extends Dispatcher {
     this._get = {
       gather: this._get_gather,
       respond: this._get_respond,
-      default: this._get_default,
-      replace: this._get_replace,
       on: sinon.stub().returns(this._get_on),
       emit: sinon.stub().returns(this._get_emit),
       once: sinon.stub().returns(this._get_once),
-      request: sinon.stub().returns(this._request),
-      provide: sinon.stub().returns(this._provide),
-      provideAfter: sinon.stub().returns(this._provideAfter),
-      provideBefore: sinon.stub().returns(this._provideBefore),
+      request: this._request,
+      provide: this._replace,
+      provideAfter: this._replace,
+      provideBefore: this._default,
+      default: this._default,
+      replace: this._replace,
       use: (i) => {
         let m = new Module(this)
         let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
@@ -65,6 +65,11 @@ class TestApp extends Dispatcher {
       }
     }
     this.get = sinon.stub().returns(ProxyMethods(() => {return this._get})());
+    this._request.withArgs().returns(this.get())
+    this._provide.withArgs().returns(this.get())
+    this._default.withArgs().returns(this.get())
+    this._replace.withArgs().returns(this.get())
+
   }
 
   launch() {
