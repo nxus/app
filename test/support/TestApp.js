@@ -31,7 +31,7 @@ class TestApp extends Dispatcher {
     this._default = sinon.stub().returns(stubPromise)
 
     this._get_on = sinon.spy();
-    this._get_emit = sinon.spy();
+    this._get_emit = sinon.spy(function(event, ...args) {return Promise.resolve(...args)})
     this._get_once = sinon.spy();
     this._get_gather = sinon.stub().returnsThis();
     this._get_respond = sinon.stub().returnsThis();
@@ -50,7 +50,7 @@ class TestApp extends Dispatcher {
       gather: this._get_gather,
       respond: this._get_respond,
       on: sinon.stub().returns(this._get_on),
-      emit: sinon.stub().returns(this._get_emit),
+      emit: this._get_emit,
       once: sinon.stub().returns(this._get_once),
       request: this._request,
       provide: this._replace,
