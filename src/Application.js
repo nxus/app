@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-02-28
-* @Last Modified time: 2016-02-28 10:28:51
+* @Last Modified 2016-03-05
+* @Last Modified time: 2016-03-05 14:07:17
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -94,6 +94,21 @@ import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
 import Logger from './Logger'
 
+var _defaultConfig = {
+  siteName: 'Nxus App',
+  host: 'localhost',
+  baseUrl: 'localhost:3000'
+}
+
+_.deepClone = function(obj) {
+    return (!obj || (typeof obj !== 'object'))?obj:
+        (_.isString(obj))?String.prototype.slice.call(obj):
+        (_.isDate(obj))?new Date(obj.valueOf()):
+        (_.isFunction(obj.clone))?obj.clone():
+        (_.isArray(obj)) ? _.map(obj, function(t){return _.deepClone(t)}):
+        _.mapObject(obj, function(val, key) {return _.deepClone(val)});
+};
+
 var startupBanner = () => {
   console.log(" \n"+
 " _______ _______ __    _ __   __ __   __ _______ __  \n"+
@@ -131,11 +146,19 @@ export default class Application extends Dispatcher {
       'startup',
       'launch'
     ]
+
+    this._defaultConfig = {};
+
     this._currentStage = null
 
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
     this._setupConfig()
     this._setupLog()
+    this.writeDefaultConfig(null, _defaultConfig)
+
+    this.after('launch', () => {
+      this._writeConfig()
+    })
   }
 
   /**
@@ -263,6 +286,32 @@ export default class Application extends Dispatcher {
     .then(this.stop.bind(this))
     .then(this._setupConfig.bind(this))
     .then(this.start.bind(this))
+  }
+
+  writeDefaultConfig(name, opts) {
+    if(name && name != "") {
+      this._defaultConfig[name] = _.deepClone(opts)
+      if(!this.config[name]) this.config[name] = opts
+    } else {
+      Object.assign(this._defaultConfig, opts)
+      Object.assign(this.config, opts)
+    }
+  }
+
+  _writeConfig() {
+    var conf = require(this.config.appDir+"/package.json")
+    conf.config = conf.config || {}
+    var env = process.env.NODE_ENV || 'dev'
+    if(conf.config[env]) 
+      var config = conf.config[env]
+    else
+      var config = conf.config
+    _.each(this._defaultConfig, (value, key) => {
+      if(!conf.config[key]) {
+        conf.config[key] = value
+      }
+    })
+    fs.writeFileSync(this.config.appDir+"/package.json", JSON.stringify(conf, null, 2));
   }
 
   /**
