@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-03-05
-* @Last Modified time: 2016-03-05 14:07:17
+* @Last Modified time: 2016-03-05 14:32:49
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -299,6 +299,7 @@ export default class Application extends Dispatcher {
   }
 
   _writeConfig() {
+    if(!fs.existsSync(this.config.appDir+"/package.json")) return
     var conf = require(this.config.appDir+"/package.json")
     conf.config = conf.config || {}
     var env = process.env.NODE_ENV || 'dev'
