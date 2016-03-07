@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2016-02-20
-* @Last Modified time: 2016-02-20 12:37:15
+* @Last Modified 2016-03-05
+* @Last Modified time: 2016-03-05 12:39:06
 */
 
 'use strict';
@@ -21,10 +21,6 @@ class ConfigurationManager {
 
   constructor(opts = {}) {
     this.opts = opts
-    this._defaultConfig = {
-      siteName: 'Nxus',
-      baseUrl: 'localhost:3000'
-    }
   }
 
   /**
@@ -80,7 +76,6 @@ class ConfigurationManager {
    */
   getConfig() {
     return _.extend(
-      this._defaultConfig,
       // Read the config in the app's package.json
       this.getPackageJSONConfig() || {},
       // Environment variables take precedence
