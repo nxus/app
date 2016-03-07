@@ -6,6 +6,8 @@
 
 'use strict';
 
+import _ from 'underscore'
+
 import Dispatcher from './Dispatcher'
 
 import ProxyMethods from './ProxyMethods'
@@ -141,12 +143,6 @@ class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
-    this.after(name, (results) => {
-      if (results.length == 1) {
-        return results[0]
-      }
-      return results;
-    });
     this.on(name, handler);
     return this;
   }
