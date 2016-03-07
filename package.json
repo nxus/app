@@ -35,6 +35,7 @@
     "multimatch": "^2.0.0",
     "node-proxy": "^1.0.0",
     "underscore": "*",
+    "underscore.deep": "^0.5.1",
     "winston": "^2.1.1"
   },
   "devDependencies": {

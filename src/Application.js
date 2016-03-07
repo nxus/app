@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-03-05
-* @Last Modified time: 2016-03-05 14:32:49
+* @Last Modified 2016-03-07
+* @Last Modified time: 2016-03-07 08:07:46
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -100,14 +100,7 @@ var _defaultConfig = {
   baseUrl: 'localhost:3000'
 }
 
-_.deepClone = function(obj) {
-    return (!obj || (typeof obj !== 'object'))?obj:
-        (_.isString(obj))?String.prototype.slice.call(obj):
-        (_.isDate(obj))?new Date(obj.valueOf()):
-        (_.isFunction(obj.clone))?obj.clone():
-        (_.isArray(obj)) ? _.map(obj, function(t){return _.deepClone(t)}):
-        _.mapObject(obj, function(val, key) {return _.deepClone(val)});
-};
+_.mixin(require('underscore.deep'))
 
 var startupBanner = () => {
   console.log(" \n"+
