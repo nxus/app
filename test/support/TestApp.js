@@ -17,6 +17,7 @@ class TestApp extends Dispatcher {
     this.log.info = sinon.spy();
     this.log.error = sinon.spy();
     this.config = {};
+    this.writeDefaultConfig = sinon.spy();
 
     this.on = sinon.spy(this.on);
     this.once = sinon.spy(this.once);
