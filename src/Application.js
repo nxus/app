@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-03-07
-* @Last Modified time: 2016-03-07 08:07:46
+* @Last Modified 2016-03-14
+* @Last Modified time: 2016-03-14 08:41:54
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -301,8 +301,8 @@ export default class Application extends Dispatcher {
     else
       var config = conf.config
     _.each(this._defaultConfig, (value, key) => {
-      if(!conf.config[key]) {
-        conf.config[key] = value
+      if(!config[key]) {
+        config[key] = value
       }
     })
     fs.writeFileSync(this.config.appDir+"/package.json", JSON.stringify(conf, null, 2));
