@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-03-14
-* @Last Modified time: 2016-03-14 08:41:54
+* @Last Modified 2016-03-30
+* @Last Modified time: 2016-03-30 07:51:12
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -141,13 +141,14 @@ export default class Application extends Dispatcher {
     ]
 
     this._defaultConfig = {};
+    this.config = {};
 
     this._currentStage = null
 
     opts.appDir = opts.appDir || path.dirname(require.main.filename)
+    this.writeDefaultConfig(null, _defaultConfig)
     this._setupConfig()
     this._setupLog()
-    this.writeDefaultConfig(null, _defaultConfig)
 
     this.after('launch', () => {
       this._writeConfig()
