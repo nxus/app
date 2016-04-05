@@ -194,4 +194,22 @@ describe("Module", () => {
     })
   });
 
+  describe("Warns for unregistered events", () => {
+    let m, a
+    before((done) => {
+      a = new TestApp()
+      m = new Module(a, 'test')
+      done()
+    })
+    it("warns after launch", (done) => {
+      m.respond('someSuchEvent', () => {})
+      m.request('noSuchEvent', 1)
+      a.launch().then(() => {
+        a.log.warn.called.should.be.true()
+        a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
+        done()
+      })
+    })
+  })
+
 });  
