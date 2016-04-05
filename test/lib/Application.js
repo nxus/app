@@ -26,9 +26,9 @@ describe("Application", () => {
 
     it("should have the default config vars", () => {
       app = new Application()
-      app.config.should.not.be.null()
-      app.config.baseUrl.should.not.be.null()
-      app.config.siteName.should.not.be.null()
+      app.should.have.property('config')
+      app.config.should.have.property('baseUrl')
+      app.config.should.have.property('siteName')
     })
   })
 

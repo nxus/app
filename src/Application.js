@@ -161,7 +161,7 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupConfig() {
-    this.config = _.extend(this._opts, new ConfigurationManager(this._opts).getConfig())
+    this.config = _.extend(this.config, this._opts, new ConfigurationManager(this._opts).getConfig())
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
