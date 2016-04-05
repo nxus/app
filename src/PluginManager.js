@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-02-12
-* @Last Modified time: 2016-02-12 12:19:23
+* @Last Modified 2016-04-05
+* @Last Modified time: 2016-04-05 09:24:45
 */
 
 'use strict';
@@ -186,8 +186,9 @@ class PluginManager {
           pkg._pluginInfo.name = pkg._packageJson.name || null
         packages.push(pkg)
       } catch (e) {
-        this.app.log.warn('Error loading module', name)
-        this.app.log.debug(e)
+        this.app.log.error('Error loading module', name)
+        this.app.log.error(e)
+        process.kill(process.pid, 'SIGTERM')
       }
     })
   }

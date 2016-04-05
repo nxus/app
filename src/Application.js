@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-03-30
-* @Last Modified time: 2016-03-30 07:51:12
+* @Last Modified 2016-04-05
+* @Last Modified time: 2016-04-05 09:16:01
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -383,8 +383,8 @@ export default class Application extends Dispatcher {
       this._modules,
       this._bootPlugin.bind(this)
     ).catch((e) => {
-      this.log.warn('Error booting module', e)
-      this.log.warn(e);
+      this.log.error('Error booting module', e)
+      this.log.error(e.stack);
     })
   }
 
@@ -403,8 +403,8 @@ export default class Application extends Dispatcher {
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
-      this.log.warn('Error booting module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
-      this.log.warn(e.stack)
+      this.log.error('Error booting module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
+      this.log.error(e.stack)
     }
     return Promise.resolve(plugin)
   }
