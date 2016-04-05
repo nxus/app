@@ -85,9 +85,15 @@ class Module extends Dispatcher {
   }
 
   _checkMissingEvents() {
-    let diff = _.difference(_.keys(this._requestedEvents), _.keys(this._registeredEvents))
+    let registered = _.keys(this._registeredEvents)
+    if (registered.length == 0) {
+      this._app.log.warn("Application.get called with", this._name, "but only knows of:", _.keys(this._app.registeredModules).join(' '))
+      return
+    }
+    
+    let diff = _.difference(_.keys(this._requestedEvents), registered)
     if (diff.length) {
-      this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", _.keys(this._registeredEvents).join(' '))
+      this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", registered.join(' '))
     }
   }
 
@@ -154,6 +160,9 @@ class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
+    if (_.isEmpty(this._registeredEvents)) {
+      this._app.emit('registeredModule', this._name)
+    }
     this._registeredEvents[name] = true
     this.on(name, handler);
     return this;

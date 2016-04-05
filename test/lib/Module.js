@@ -196,17 +196,25 @@ describe("Module", () => {
 
   describe("Warns for unregistered events", () => {
     let m, a
-    before((done) => {
+    beforeEach((done) => {
       a = new TestApp()
       m = new Module(a, 'test')
       done()
     })
-    it("warns after launch", (done) => {
+    it("warns for events after launch", (done) => {
       m.respond('someSuchEvent', () => {})
       m.request('noSuchEvent', 1)
       a.launch().then(() => {
         a.log.warn.called.should.be.true()
         a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
+        done()
+      })
+    })
+    it("warns for module after launch", (done) => {
+      m.request('noSuchEvent', 1)
+      a.launch().then(() => {
+        a.log.warn.called.should.be.true()
+        a.log.warn.calledWith('Application.get called with', 'test', 'but only knows of:').should.be.true()
         done()
       })
     })
