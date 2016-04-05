@@ -83,14 +83,15 @@ class Module extends Dispatcher {
 
   _provide(myself, when, name, ...args) {
     if (name === undefined) {
-      return ProxyMethods(() => { return this}, myself)()
+      return ProxyMethods(() => { return this.__proxyLess }, myself)()
     }
-    if(!this.loaded)
+    if(!this.loaded) {
       return this._app[when]('load').then(() => {
         return this.emit(name, ...args);
       });
-    else
+    } else {
       return this.emit(name, ...args);
+    }
   }
 
   /**

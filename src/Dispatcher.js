@@ -129,7 +129,7 @@ export default class Dispatcher extends EventEmitter {
           results = []
         }
         return this._squashArrayResults(Promise.reduce(super.listeners(event+".after"), waterfaller(newArgs), results));
-      });
+      })
   }
 
   _squashArrayResults(results) {
