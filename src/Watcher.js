@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2016-02-09
+* @Last Modified 2016-04-10
 */
 
 import moment from 'moment'
@@ -21,12 +21,12 @@ export default class Watcher {
     }
     
     var watchOptions = {
-      ignored: ignore ? ignore.concat([new RegExp("^(.*node_modules/(?!@nxus).*)")]) : new RegExp("^(.*node_modules/(?!@nxus).*)"),
+      ignored: ignore ? ignore.concat([new RegExp("^(.*node_modules/(?!(@nxus|nxus-)).*)")]) : new RegExp("^(.*node_modules/(?!(@nxus|nxus-)).*)"),
       ignoreInitial: true,
       persistent: true
     }
 
-    var watch = watchPath || process.cwd() + '/node_modules/@nxus'
+    var watch = watchPath || process.cwd() + '/.'
     
     this.watch = chokidar.watch(watch,watchOptions)
     this.watch.on('all', (event, path) => {
