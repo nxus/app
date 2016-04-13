@@ -6,11 +6,10 @@
 
 'use strict';
 
-var Application = require('../../lib/').Application
+import {Application} from '../../lib'
 
-var Promise = require('bluebird')
+import Promise from 'bluebird'
 
-var should = require('should')
 
 describe("Application", () => {
   var app;

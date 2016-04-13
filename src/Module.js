@@ -51,9 +51,12 @@ class Module extends Dispatcher {
     this._name = name;
     this.loaded = false
     app.on('stop', this.removeAllListeners.bind(this));
-    this._app.on('load.before', () => {
+    app.on('load.before', () => {
       this.loaded = true
     })
+    this._requestedEvents = {}
+    this._registeredEvents = {}
+    app.after('launch', this._checkMissingEvents.bind(this))
   }
 
   /**
@@ -81,10 +84,24 @@ class Module extends Dispatcher {
     return instance
   }
 
+  _checkMissingEvents() {
+    let registered = _.keys(this._registeredEvents)
+    if (registered.length == 0) {
+      this._app.log.warn("Application.get called with", this._name, "but only knows of:", _.keys(this._app.registeredModules).join(' '))
+      return
+    }
+    
+    let diff = _.difference(_.keys(this._requestedEvents), registered)
+    if (diff.length) {
+      this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", registered.join(' '))
+    }
+  }
+
   _provide(myself, when, name, ...args) {
     if (name === undefined) {
       return ProxyMethods(() => { return this}, myself)()
     }
+    this._requestedEvents[name] = true
     if(!this.loaded)
       return this._app[when]('load').then(() => {
         return this.emit(name, ...args);
@@ -143,6 +160,10 @@ class Module extends Dispatcher {
    * @param  {callable} handler The handler for each provided value
    */  
   gather(name, handler) {
+    if (_.isEmpty(this._registeredEvents)) {
+      this._app.emit('registeredModule', this._name)
+    }
+    this._registeredEvents[name] = true
     this.on(name, handler);
     return this;
   }

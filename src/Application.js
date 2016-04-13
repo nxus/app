@@ -153,6 +153,11 @@ export default class Application extends Dispatcher {
     this.after('launch', () => {
       this._writeConfig()
     })
+
+    this.registeredModules = {}
+    this.on('registeredModule', (name) => {
+      this.registeredModules[name] = true
+    })
   }
 
   /**
