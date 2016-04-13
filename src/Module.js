@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-02-13
+* @Last Modified 2016-04-13
 */
 
 'use strict';
@@ -99,15 +99,16 @@ class Module extends Dispatcher {
 
   _provide(myself, when, name, ...args) {
     if (name === undefined) {
-      return ProxyMethods(() => { return this}, myself)()
+      return ProxyMethods(() => { return this.__proxyLess }, myself)()
     }
     this._requestedEvents[name] = true
-    if(!this.loaded)
+    if(!this.loaded) {
       return this._app[when]('load').then(() => {
         return this.emit(name, ...args);
       });
-    else
+    } else {
       return this.emit(name, ...args);
+    }
   }
 
   /**
