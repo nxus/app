@@ -122,8 +122,11 @@ describe("Module", () => {
   });
 
   describe("Default and Replace", () => {
-    before(() => {
-      module = new Module(app, 'test')
+    var other_app = null
+    
+    beforeEach(() => {
+      other_app = new TestApp()
+      module = new Module(other_app, 'test')
     })
     it("should have methods", () => {
       module.original.should.be.Function();
@@ -144,23 +147,34 @@ describe("Module", () => {
       });
       module.replace('testDefault', 2)
       module.default('testDefault', 1)
-      app.on('load', () => {
+      other_app.on('load', () => {
         waited.should.be.false;
       })
-      app.emit('load');
+      other_app.emit('load');
     })
     it("should return proxy for argument-less", (done) => {
+      let result = 0;
       module.gather('testDefault2', (arg) => {
-        arg.should.equal(1);
-        return "one";
+        arg.should.equal(result+1)
+        result = arg
       });
-      module.default().testDefault2(1).then((result) => {
-        result.should.equal("one");
-      });
-      module.replace().testDefault2(1).then((result) => {
-        result.should.equal("one");
+      return Promise.all([
+        module.replace().testDefault2(3).then(() => {
+          result.should.equal(3);
+        }),
+        module.default().testDefault2(1).then(() => {
+          result.should.equal(1);
+        }),
+        module.testDefault2(2).then(() => {
+          result.should.equal(2);
+        }),
+        other_app.emit('load')
+      ]).then(() => {
+        result.should.equal(3)
         done()
-      });
+      }).catch((e) => {
+        done(e)
+      })
     })
   });
   

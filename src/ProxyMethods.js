@@ -3,7 +3,6 @@ import Proxy from 'node-proxy'
 
 
 export default function(constructor, proxyTo='provide') {
-  
   return function(...args) {
     let module = constructor(...args)
     let handlers = {
@@ -17,8 +16,10 @@ export default function(constructor, proxyTo='provide') {
         }
       }
     }
-    return Proxy.createFunction(handlers, function() {
+    let prox = Proxy.createFunction(handlers, function() {
       return module.apply(this, arguments)
     })
+    module.__proxyLess = module
+    return prox
   }
 }
