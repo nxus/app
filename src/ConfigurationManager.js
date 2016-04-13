@@ -28,7 +28,7 @@ class ConfigurationManager {
    * @return {string} the current NODE_ENV
    */
   getNodeEnv() {
-    return process.env.NODE_ENV || 'dev'
+    return this.opts.env || process.env.NODE_ENV || 'dev'
   }
 
   /**
@@ -42,10 +42,11 @@ class ConfigurationManager {
       try {
         var jsonParsed = JSON.parse(fs.readFileSync(jsonPath))
         if(jsonParsed.config) {
-          if(jsonParsed.config[this.getNodeEnv()])
-            config = jsonParsed.config[this.getNodeEnv()]
-          else
-            config = jsonParsed.config
+          config = jsonParsed.config
+          
+          if(jsonParsed.config[this.getNodeEnv()]) {
+            config = _.extend(config, jsonParsed.config[this.getNodeEnv()])
+          }
         }
       } catch(e) {
         console.log('Warning: error parsing config file', jsonPath, e)
