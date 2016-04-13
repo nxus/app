@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:51:45
-* @Last Modified 2016-03-05
+* @Last Modified 2016-04-13
 */
 
 'use strict';
@@ -37,7 +37,7 @@ describe("ConfigurationManager", () => {
   
   describe("Package Config", () => {
     before((done) => {
-      instance = new ConfigurationManager({appDir: __dirname+"/testApp", env: 'test'})
+      instance = new ConfigurationManager({appDir: __dirname+"/../testApp", env: 'test'})
       done()
     })
     it("should read package.json config", (done) => {
