@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-04-05
-* @Last Modified time: 2016-04-05 09:24:45
+* @Last Modified 2016-05-09
+* @Last Modified time: 2016-05-09 17:05:41
 */
 
 'use strict';
@@ -170,14 +170,14 @@ class PluginManager {
    * @param  {packages} packages the array of packages currently loaded by Nxus
    */
   loadCustomPlugins(options, packages) {
-    var customDir = options.appDir+'/modules'
+    var customDir = options.modulesDir || options.appDir+'/modules'
     if (!fs.existsSync(customDir)) return
 
     var customPluginDirs = fs.readdirSync(customDir)
     
     customPluginDirs.forEach((name) => {
       if(name && name[0] == ".") return
-      this.app.log.debug('Loading app module', name)
+      this.app.log.debug('Loading app module', customDir + "/" + name)
       try {
         var pkg = require(path.resolve(customDir + "/" + name))
         pkg._packageJson = this.getPluginPackageJson(customDir + "/" + name)
