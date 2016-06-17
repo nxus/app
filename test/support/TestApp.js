@@ -9,7 +9,7 @@ import { Dispatcher, Module, ProxyMethods } from '../../'
 const stubPromise = sinon.createStubInstance(Promise)
 
 class TestApp extends Dispatcher {
-  constructor() {
+  constructor(opts = {}) {
     super()
 
     this.log = sinon.spy();
@@ -17,8 +17,7 @@ class TestApp extends Dispatcher {
     this.log.info = sinon.spy();
     this.log.warn = sinon.spy();
     this.log.error = sinon.spy();
-    this.config = {};
-    this.writeDefaultConfig = sinon.spy();
+    this.config = opts;
 
     this.on = sinon.spy(this.on);
     this.once = sinon.spy(this.once);
@@ -72,6 +71,10 @@ class TestApp extends Dispatcher {
     this._default.withArgs().returns(this.get())
     this._replace.withArgs().returns(this.get())
 
+  }
+
+  writeDefaultConfig(key, value) {
+    if(typeof this.config[key] == 'undefined') this.config[key] = value
   }
 
   launch() {

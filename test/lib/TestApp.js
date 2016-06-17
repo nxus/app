@@ -1,6 +1,6 @@
 'use strict';
 
-var TestApp = require('../support/TestApp');
+var TestApp = require('../../lib/test/support/TestApp').default;
 
 describe("TestApp", () => {
   var app = new TestApp();

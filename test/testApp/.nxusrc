@@ -1,0 +1,6 @@
+{
+  "siteName": "test-nxus-app",
+  "customConfig": "default",
+  "host": "localhost",
+  "baseUrl": "localhost:3001"
+}

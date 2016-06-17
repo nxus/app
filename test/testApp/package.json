@@ -1,9 +1,0 @@
-{
-  "config": {
-    "siteName": "test-nxus-app",
-    "customConfig": "default",
-    "dev": {
-      "customConfig": "dev-default"
-    }
-  }
-}

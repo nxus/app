@@ -1,4 +1,4 @@
-# @nxus/core
+# nxus-core
 
 ## \_
 

@@ -1,7 +1,7 @@
 'use strict';
 
-var Module = require('../../lib/Module');
-var TestApp = require('../support/TestApp');
+import {Module} from '../../lib'
+import TestApp from '../../lib/test/support/TestApp'
 
 describe("Module", () => {
   var module;

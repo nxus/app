@@ -1,17 +1,17 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 16:56:47
-* @Last Modified 2016-02-20
-* @Last Modified time: 2016-02-20 15:37:07
+* @Last Modified 2016-05-20
+* @Last Modified time: 2016-05-20 07:21:22
 */
 
-require('babel-runtime/core-js/promise').default = require('bluebird');
+global.Promise = require('bluebird');
 
-module.exports = {
-  Application: require('./Application'),
-  Dispatcher: require('./Dispatcher'),
-  Module: require('./Module'),
-  ProxyMethods: require('./ProxyMethods'),
-  ConfigurationManager: require('./ConfigurationManager'),
-  PluginManager: require('./PluginManager')
-};
+import Application from './Application'
+import Dispatcher from './Dispatcher'
+import Module from './Module'
+import ProxyMethods from './ProxyMethods'
+import ConfigurationManager from './ConfigurationManager'
+import PluginManager from './PluginManager'
+
+export {Application, Dispatcher, Module, ProxyMethods, ConfigurationManager, PluginManager}

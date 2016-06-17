@@ -1,13 +1,13 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 08:47:51
-* @Last Modified 2015-11-23
+* @Last Modified 2016-05-20
 */
 
 'use strict';
 
-var PluginManager = require('../../lib/').PluginManager
-var should = require('should')
+import {PluginManager} from '../../lib/'
+import should from 'should'
 
 describe("PluginManager", () => {
   describe("Load", () => {

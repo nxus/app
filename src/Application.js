@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-04-05
-* @Last Modified time: 2016-04-05 09:16:01
+* @Last Modified 2016-05-20
+* @Last Modified time: 2016-05-20 07:43:31
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -97,22 +97,18 @@ import Logger from './Logger'
 var _defaultConfig = {
   siteName: 'Nxus App',
   host: 'localhost',
-  baseUrl: 'localhost:3000'
+  baseUrl: 'localhost:3001'
 }
 
 _.mixin(require('underscore.deep'))
 
-var startupBanner = () => {
-  console.log(" \n"+
-" _______ _______ __    _ __   __ __   __ _______ __  \n"+
-"|       |       |  |  | |  |_|  |  | |  |       |  | \n"+
-"|    ___|   _   |   |_| |       |  | |  |  _____|  | \n"+
-"|   | __|  | |  |       |       |  |_|  | |_____|  | \n"+
-"|   ||  |  |_|  |  _    ||     ||       |_____  |__| \n"+
-"|   |_| |       | | |   |   _   |       |_____| |__  \n"+
-"|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
-)
-}
+var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
+    "|       |       |  |  | |  |_|  |  | |  |       |  | \n"+
+    "|    ___|   _   |   |_| |       |  | |  |  _____|  | \n"+
+    "|   | __|  | |  |       |       |  |_|  | |_____|  | \n"+
+    "|   ||  |  |_|  |  _    ||     ||       |_____  |__| \n"+
+    "|   |_| |       | | |   |   _   |       |_____| |__  \n"+
+    "|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
 
 /**
  * The Core Application class.
@@ -133,6 +129,11 @@ export default class Application extends Dispatcher {
     this._opts = opts
     this._modules = {}
     this._pluginInfo = {}
+    this._currentStage = null
+    this._banner = opts.banner || startupBanner
+    this._defaultConfig = {};
+    this.config = {};
+    
     this._bootEvents = [
       'init',
       'load',
@@ -140,13 +141,6 @@ export default class Application extends Dispatcher {
       'launch'
     ]
 
-    this._defaultConfig = {};
-    this.config = {};
-
-    this._currentStage = null
-
-    opts.appDir = opts.appDir || path.dirname(require.main.filename)
-    this.writeDefaultConfig(null, _defaultConfig)
     this._setupConfig()
     this._setupLog()
 
@@ -160,13 +154,23 @@ export default class Application extends Dispatcher {
     })
   }
 
+  _showBanner() {
+      console.log(" \n"+this._banner)
+  }
+
   /**
    * Sets up the internal config
    *
    * @private
    */
-  _setupConfig() {
-    this.config = _.extend(this.config, this._opts, new ConfigurationManager(this._opts).getConfig())
+  _setupConfig() {    
+    this._opts.appName = this._opts.appName || "NXUS App"
+    this._opts.namespace = this._opts.namespace || "nxus"
+    this._opts.appDir = this._opts.appDir || process.cwd()
+
+    this.writeDefaultConfig(null, _defaultConfig)
+        
+    this.config = Object.assign(this.config, this._opts, new ConfigurationManager(this._opts).getConfig())
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -268,8 +272,8 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   start() {
-    if(!this.config.silent) startupBanner()
-    this.log.info('NXUS APP Starting')
+    if(!this.config.silent) this._showBanner()
+    this.log.info(this.name+' Starting')
     return this.init()
   }
 
@@ -298,20 +302,16 @@ export default class Application extends Dispatcher {
   }
 
   _writeConfig() {
-    if(!fs.existsSync(this.config.appDir+"/package.json")) return
-    var conf = require(this.config.appDir+"/package.json")
-    conf.config = conf.config || {}
-    var env = process.env.NODE_ENV || 'dev'
-    if(conf.config[env]) 
-      var config = conf.config[env]
-    else
-      var config = conf.config
+    if(!this.config.config) return
+    var configFile = this.config.config
+    var config = {}
+    if(fs.existsSync(configFile)) config = JSON.parse(fs.readFileSync(configFile))
     _.each(this._defaultConfig, (value, key) => {
       if(!config[key]) {
         config[key] = value
       }
     })
-    fs.writeFileSync(this.config.appDir+"/package.json", JSON.stringify(conf, null, 2));
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   }
 
   /**
@@ -403,12 +403,12 @@ export default class Application extends Dispatcher {
   _bootPlugin(plugin) {
     //if (this.config.debug) console.log(' ------- ', plugin)
     try {
-      this.log.debug('Booting Module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
+      this.log.debug('Booting Module', plugin._pluginInfo.name)
       if(plugin.default)
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
-      this.log.error('Error booting module', (plugin._packageJson ? plugin._packageJson.name : plugin.name))
+      this.log.error('Error booting module', plugin._pluginInfo.name)
       this.log.error(e.stack)
     }
     return Promise.resolve(plugin)

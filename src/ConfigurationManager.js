@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2016-03-05
-* @Last Modified time: 2016-03-05 12:39:06
+* @Last Modified 2016-05-20
+* @Last Modified time: 2016-05-20 07:44:23
 */
 
 'use strict';
@@ -10,6 +10,7 @@
 import fs from 'fs'
 import _ from 'underscore'
 import path from 'path'
+import rc from 'rc'
 
 /**
  * ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
@@ -35,24 +36,8 @@ class ConfigurationManager {
    * Gets the local package.json file and tries to find an internal `config` key
    * @return {object} the intenral `config` object or an empty object if it isn't defined.
    */
-  getPackageJSONConfig() {
-    var config = {};
-    var jsonPath = path.resolve(this.opts.appDir + '/package.json')
-    if(fs.existsSync(jsonPath)) {
-      try {
-        var jsonParsed = JSON.parse(fs.readFileSync(jsonPath))
-        if(jsonParsed.config) {
-          config = jsonParsed.config
-          
-          if(jsonParsed.config[this.getNodeEnv()]) {
-            config = _.extend(config, jsonParsed.config[this.getNodeEnv()])
-          }
-        }
-      } catch(e) {
-        console.log('Warning: error parsing config file', jsonPath, e)
-      }
-    }
-    return config
+  _rcConfig() {
+    return rc(this.opts.namespace, {})
   }
 
   /**
@@ -60,14 +45,6 @@ class ConfigurationManager {
    * @return {object} A hash of the current environment variables
    */
   getEnvironmentVariables() {
-    // alias the MONGO_URI variable as `db`
-    if (process.env.MONGO_URI) {
-      process.env.db = process.env.MONGO_URI
-    }
-    // default port for HTTP
-    if (!process.env.PORT) {
-      process.env.PORT = 3000
-    }
     return process.env
   }
 
@@ -76,14 +53,13 @@ class ConfigurationManager {
    * @return {object} the final composed configuration object.
    */
   getConfig() {
-    return _.extend(
+    return Object.assign(
       // Read the config in the app's package.json
-      this.getPackageJSONConfig() || {},
+      this._rcConfig(),
       // Environment variables take precedence
       this.getEnvironmentVariables(),
       // but NODE_ENV must be present so, ensure it
       {NODE_ENV: this.getNodeEnv()}
-      // default Config
     )
   }
 }
