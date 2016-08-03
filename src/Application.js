@@ -427,14 +427,15 @@ export default class Application extends Dispatcher {
    * @return {[type]}
    */
   _bootPlugin(plugin) {
+    let name = plugin._pluginInfo.name
     //if (this.config.debug) console.log(' ------- ', plugin)
     try {
-      this.log.debug('Booting Module', plugin._pluginInfo.name)
+      this.log.debug('Booting Module', name)
       if(plugin.default)
         plugin = plugin.default
       plugin = new plugin(this);
     } catch(e) {
-      this.log.error('Error booting module', plugin._pluginInfo.name)
+      this.log.error('Error booting module', name)
       this.log.error(e.stack)
     }
     return Promise.resolve(plugin)
