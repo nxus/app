@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-05-19
-* @Last Modified time: 2016-05-19 20:34:22
+* @Last Modified 2016-07-28
+* @Last Modified time: 2016-07-28 07:44:36
 */
 
 'use strict';
@@ -37,11 +37,12 @@ class PluginManager {
   }
 
   /**
+   * @private
    * Helper method to ensure a passed variable is an array. Wraps the value in an array if it isn't already.
    * @param  {anything} el the item to ensure is an array
    * @return {Array}    either a new empty array, or el as is if its an array, or el wrapped in an array.
    */
-  arrayify(el) {
+  _arrayify(el) {
     if(!el) return []
     return Array.isArray(el) ? el : [el]
   }
@@ -54,7 +55,7 @@ class PluginManager {
   loadNxusModules(options) {
     var nxusCorePath = (options.nxusModulesDir || process.cwd())+"/node_modules"
 
-    var pattern = _.unique(this.arrayify(options.namespace).concat(['nxus-*', '!nxus-core']))
+    var pattern = _.unique(this._arrayify(options.namespace).concat(['nxus-*', '!nxus-core']))
 
     this._loadModulesFromDirectory(nxusCorePath, pattern)
   }
@@ -73,6 +74,13 @@ class PluginManager {
     })
   }
 
+  /**
+   * @private
+   * [_loadModulesFromDirectory description]
+   * @param  {[type]} dir     [description]
+   * @param  {[type]} matches [description]
+   * @return {[type]}         [description]
+   */
   _loadModulesFromDirectory(dir, matches) {
     if (!fs.existsSync(dir)) return
 
@@ -95,94 +103,6 @@ class PluginManager {
       }
     })
   }
-  
-  /**
-   * Loads a package
-   * @param  {string} name      The name of the package
-   * @param  {string} directory A path to the package
-   * @param  {array} packages  An array of the currently loaded packages
-   */
-  // loadPackage(name, directory, packages) {
-  //   if(_.contains(this._loaded, name)) return
-  //   if(name.indexOf("@nxus/") == -1 && name.indexOf("nxus-") == -1) return
-  //   if(name.indexOf("@nxus/core") > -1) return
-  //   this.app.log.debug('Loading node module ' + name)
-  //   var pkg
-  //   this._loaded.push(name)
-  //   if (fs.existsSync(directory)) {
-  //     pkg = this.accumulatePackage(packages, directory)
-  //   }
-  //   if(!pkg) return
-  //   var peerDeps = (pkg._packageJson && pkg._packageJson.peerDependencies) || {}
-  //   for(let dep in peerDeps) {
-  //     this.loadPackage(dep, this.options.nodeModulesDir+"/node_modules/"+dep, packages)
-  //   }
-  //   var getPackages = (packages, targets, directory) => {
-  //     targets.forEach((t) => {
-  //       if(t.indexOf("@nxus/") < 0 && t.indexOf("nxus-") < 0) return
-  //       if(t.indexOf("@nxus/core") > -1) return
-  //       var innerDir = path.join(directory, 'node_modules') + '/' + t
-  //       var innerPkg = this.accumulatePackage(packages, innerDir)
-  //       if(!innerPkg) return
-  //       // recurse through all child packages
-  //       getPackages(
-  //         packages,
-  //         this.getDeps(innerPkg),
-  //         innerDir
-  //       )
-  //     })
-  //   }
-  //   getPackages(packages, this.getDeps(pkg), directory)
-  // }
-
-  /**
-   * Loads all Nxus pacakges for an application
-   * @param  {object} options  options to use to load the packages
-   * @param  {packages} packages the array of packages currently loaded by Nxus
-   */
-  // loadPackages(options, packages) {
-  //   var pattern = this.arrayify(
-  //     options.namespace
-  //   )
-
-  //   options.namespace = _.map(options.namespace, (n) => {
-  //     if(n.indexOf('@') == -1) n = n+"-*"
-  //     return n
-  //   })
-
-  //   pattern = _.unique(pattern.concat(['@nxus/*', 'nxus-*', '!@nxus/core']))
-
-  //   if(options.nodeModulesDir && fs.existsSync(options.nodeModulesDir+"/package.json"))
-  //     options.config = options.nodeModulesDir+"/package.json"
-
-  //   var config = options.config || findup('package.json')
-  //   var scope = this.arrayify(
-  //     options.scope
-  //     || ['dependencies', 'devDependencies', 'peerDependencies']
-  //   )
-  //   if (typeof config === 'string') {
-  //     config = require(path.resolve(config))
-  //   }
-  //   if(!config) return
-  //   var names = scope.reduce((result, prop) => {
-  //     return result.concat(Object.keys(config[prop] || {}))
-  //   }, [])
-  //   // find matched package names
-  //   var matched = multimatch(names, pattern)
-  //   matched.forEach((() => {
-  //     return (name) => {
-  //       var dir = (options.nodeModulesDir || ".")+"/node_modules/"+name
-  //       this.loadPackage(name, dir, packages)
-  //     }
-  //   })())
-  // }
-
-  /**
-   * Loads custom plugins in the <appDir>/<modulesDir> directory
-   * @param  {object} options  configuration options
-   * @param  {packages} packages the array of packages currently loaded by Nxus
-   */
-  
 
   /**
    * Loads manually passed in packages by path

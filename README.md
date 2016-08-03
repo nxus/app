@@ -40,10 +40,12 @@ In your root application, create a new Application instance:
 
 Nxus is built around the concept of a boot cycle.  The application dispatches events in the following order:
 
-1.  `init`: indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase.
-2.  `load`: modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase.
-3.  `startup`: all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage).
-4.  `launch`: the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched.
+| Boot Stage | Description                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `init`     | indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase.                                                  |
+| `load`     | modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase.        |
+| `startup`  | all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage)                                         |
+| `launch`   | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched |
 
 #### Module Loading
 
@@ -60,7 +62,9 @@ In order to access module commands, use the Application.get() method.
 
     let router = Application.get('router')
 
-#### Application Configuration Options
+#### Application Options
+
+    new App(...options)
 
 Available options are:
 
@@ -74,7 +78,61 @@ _debug_: Boolean to display debug messages, including startup banner
 
 _script_: Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls
 
+#### Application Configuration
+
+The Application exposes a core `config` object that contains application and module specific configuration values.
+
+Nxus uses the [rc](https://www.npmjs.com/package/rc) library to provide application configuration.
+
+The application configuration can usually be found in a `.nxusrc` file in the root folder.
+
+You can override specific confirguation values using command line environment variables, which supports nesting.
+
+    nxus_myconfig__value__first=true npm start
+
+will translate into an application config of
+
+    console.log(app.config.myconfig) // {value: {first: true}}
+
 ### API
+
+## PluginManager
+
+The PluginManager handles all of the module loading.  Load order is as follows:
+
+1.  Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
+2.  Folders in the <appDir>/modules directory.
+3.  Filepaths passed in the `modules` config option
+
+### loadAdditionalModules
+
+[loadAdditionalModules description]
+
+**Parameters**
+
+-   `options` **\[type]** [description]
+-   `packages` **\[type]** [description]
+
+Returns **\[type]** [description]
+
+### loadNxusModules
+
+[loadNxusModules description]
+
+**Parameters**
+
+-   `options` **\[type]** [description]
+
+Returns **\[type]** [description]
+
+### loadPassedPlugins
+
+Loads manually passed in packages by path
+
+**Parameters**
+
+-   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
+-   `packages` **packages** the array of packages currently loaded by Nxus
 
 ## Application
 
@@ -146,12 +204,6 @@ ConfigurationManager loads the internal app.config hash using the following orde
 1.  Opts loaded into the application object.
 2.  Opts in the `config` hash of the project package.json file
 3.  Any environment variables
-
-### \_rcConfig
-
-Gets the local package.json file and tries to find an internal `config` key
-
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the intenral `config` object or an empty object if it isn't defined.
 
 ### getConfig
 
@@ -251,83 +303,6 @@ Bind once to before an event. Receives the event arguments, should return
 -   `listener` **callable** The before handler for the event
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
-
-## PluginManager
-
-The PluginManager handles all of the module loading.  Load order is as follows:
-
-1.  Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
-2.  Folders in the <appDir>/modules directory.
-3.  Filepaths passed in the `modules` config option
-
-### arrayify
-
-Helper method to ensure a passed variable is an array. Wraps the value in an array if it isn't already.
-
-**Parameters**
-
--   `el` **anything** the item to ensure is an array
-
-Returns **[Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** either a new empty array, or el as is if its an array, or el wrapped in an array.
-
-### loadAdditionalModules
-
-[loadAdditionalModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
--   `packages` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadNxusModules
-
-[loadNxusModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadPassedPlugins
-
-Loads manually passed in packages by path
-
-**Parameters**
-
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
--   `packages` **packages** the array of packages currently loaded by Nxus
-
-### loadPassedPlugins
-
-Loads all Nxus pacakges for an application
-
-**Parameters**
-
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** options to use to load the packages
--   `packages` **packages** the array of packages currently loaded by Nxus
-
-### loadPassedPlugins
-
-Loads a package
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the package
--   `directory` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** A path to the package
--   `options`  
--   `packages` **[array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array)** An array of the currently loaded packages
-
-### loadPassedPlugins
-
-Loads custom plugins in the <appDir>/<modulesDir> directory
-
-**Parameters**
-
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
--   `packages` **packages** the array of packages currently loaded by Nxus
 
 ## Module
 

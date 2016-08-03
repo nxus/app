@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-05-20
-* @Last Modified time: 2016-05-20 07:43:31
+* @Last Modified 2016-08-03
+* @Last Modified time: 2016-08-03 16:57:34
 */
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
@@ -42,11 +42,13 @@
  * ### Events
  * 
  * Nxus is built around the concept of a boot cycle.  The application dispatches events in the following order:
- * 
- * 1.  `init`: indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase.
- * 2.  `load`: modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase.
- * 3.  `startup`: all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage).
- * 4.  `launch`: the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched.
+ *
+ * | Boot Stage | Description |
+ * | --- | --- |
+ * | `init` | indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase. |
+ * | `load` | modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase. |
+ * | `startup` | all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage) |
+ * | `launch` | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched |
  * 
  * ### Module Loading
  * 
@@ -63,7 +65,11 @@
  * 
  *     let router = Application.get('router')
  * 
- * ### Application Configuration Options
+ * ### Application Options
+ *
+ * ```
+ * new App(...options)
+ * ```
  * 
  * Available options are:
  * 
@@ -76,6 +82,26 @@
  * _debug_: Boolean to display debug messages, including startup banner
  * 
  * _script_: Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls
+ *
+ * ### Application Configuration
+ *
+ * The Application exposes a core `config` object that contains application and module specific configuration values.
+ *
+ * Nxus uses the [rc](https://www.npmjs.com/package/rc) library to provide application configuration.
+ *
+ * The application configuration can usually be found in a `.nxusrc` file in the root folder.
+ *
+ * You can override specific confirguation values using command line environment variables, which supports nesting.
+ *
+ * ```
+ * nxus_myconfig__value__first=true npm start
+ * ```
+ *
+ * will translate into an application config of
+ *
+ * ```
+ * console.log(app.config.myconfig) // {value: {first: true}}
+ * ```
  * 
  * ## API
  */

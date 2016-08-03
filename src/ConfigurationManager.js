@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2016-05-20
-* @Last Modified time: 2016-05-20 07:44:23
+* @Last Modified 2016-07-28
+* @Last Modified time: 2016-07-28 07:39:31
 */
 
 'use strict';
@@ -33,6 +33,7 @@ class ConfigurationManager {
   }
 
   /**
+   * @private
    * Gets the local package.json file and tries to find an internal `config` key
    * @return {object} the intenral `config` object or an empty object if it isn't defined.
    */
