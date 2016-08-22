@@ -1,5 +1,3 @@
-// Old-style proxy lib, rather than requiring node --harmony_proxies
-import Proxy from 'node-proxy'
 
 
 export default function(constructor, proxyTo='provide') {
@@ -16,9 +14,7 @@ export default function(constructor, proxyTo='provide') {
         }
       }
     }
-    let prox = Proxy.createFunction(handlers, function() {
-      return module.apply(this, arguments)
-    })
+    let prox = new Proxy(module, handlers)
     module.__proxyLess = module
     return prox
   }

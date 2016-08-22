@@ -42,7 +42,6 @@
     "merge-descriptors": "0.0.2",
     "moment": "^2.10.3",
     "multimatch": "^2.0.0",
-    "node-proxy": "^1.0.0",
     "rc": "^1.1.6",
     "underscore": "*",
     "underscore.deep": "^0.5.1",
