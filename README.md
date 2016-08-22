@@ -96,44 +96,6 @@ will translate into an application config of
 
 ### API
 
-## PluginManager
-
-The PluginManager handles all of the module loading.  Load order is as follows:
-
-1.  Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
-2.  Folders in the <appDir>/modules directory.
-3.  Filepaths passed in the `modules` config option
-
-### loadAdditionalModules
-
-[loadAdditionalModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
--   `packages` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadNxusModules
-
-[loadNxusModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadPassedPlugins
-
-Loads manually passed in packages by path
-
-**Parameters**
-
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
--   `packages` **packages** the array of packages currently loaded by Nxus
-
 ## Application
 
 **Extends Dispatcher**
@@ -153,14 +115,6 @@ app.start()
 export default app
 ```
 
-### boot
-
-Boots the application, cycling through the internal boot stages.
-
-**Note**: Should rarely be called directly. Instead use #start
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
-
 ### get
 
 Returns an internal Module object for the given name.
@@ -179,9 +133,17 @@ Initializes the application by loading plugins, then booting the application.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
-### restart
+### boot
 
-Restarts the Nxus application.
+Boots the application, cycling through the internal boot stages.
+
+**Note**: Should rarely be called directly. Instead use #start
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+
+### stop
+
+Stops the currently running application, removing all event listeners.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
@@ -191,9 +153,9 @@ Starts the Nxus application.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
-### stop
+### restart
 
-Stops the currently running application, removing all event listeners.
+Restarts the Nxus application.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
@@ -205,11 +167,11 @@ ConfigurationManager loads the internal app.config hash using the following orde
 2.  Opts in the `config` hash of the project package.json file
 3.  Any environment variables
 
-### getConfig
+### getNodeEnv
 
-Returns the final config option using the loading order described above.
+Returns the current NODE_ENV
 
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the final composed configuration object.
+Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the current NODE_ENV
 
 ### getEnvironmentVariables
 
@@ -217,11 +179,11 @@ Extracts the currently avaiable environment variables
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** A hash of the current environment variables
 
-### getNodeEnv
+### getConfig
 
-Returns the current NODE_ENV
+Returns the final config option using the loading order described above.
 
-Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the current NODE_ENV
+Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the final composed configuration object.
 
 ## Dispatcher
 
@@ -238,15 +200,16 @@ class MyClass extends Dispatcher {
 }
 ```
 
-### after
+### once
 
-Bind to after an event. Receives the event handlers results, should return 
- modified results or nothing.
+Bind to an event once
 
 **Parameters**
 
 -   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
--   `listener` **callable** The after handler for the event
+-   `listener` **\[callable]** The handler for the event
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
 ### before
 
@@ -258,25 +221,25 @@ Bind to before an event. Receives the event arguments, should return
 -   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable** The before handler for the event
 
-### emit
+### after
 
-Emits an event, calling all registered handlers.
-
-**Parameters**
-
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to emit.
--   `args` **...Any** Arguments to the event handlers
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when all handlers have completed, with any returned results as an array.
-
-### once
-
-Bind to an event once
+Bind to after an event. Receives the event handlers results, should return 
+ modified results or nothing.
 
 **Parameters**
 
 -   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
--   `listener` **callable=** The handler for the event
+-   `listener` **callable** The after handler for the event
+
+### onceBefore
+
+Bind once to before an event. Receives the event arguments, should return 
+ modified arguments or nothing.
+
+**Parameters**
+
+-   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `listener` **callable** The before handler for the event
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
@@ -292,17 +255,16 @@ Bind once to after an event. Receives the event handlers results, should return
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
-### onceBefore
+### emit
 
-Bind once to before an event. Receives the event arguments, should return 
- modified arguments or nothing.
+Emits an event, calling all registered handlers.
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
--   `listener` **callable** The before handler for the event
+-   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to emit.
+-   `args` **...Any** Arguments to the event handlers
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when all handlers have completed, with any returned results as an array.
 
 ## Module
 
@@ -370,6 +332,14 @@ app.get('router').default().route('GET', '/', ...)
 app.get('router').replace().route('GET', '/', ...)
 ```
 
+### use
+
+Let another instance use this module's events to reduce boilerplate calls
+
+**Parameters**
+
+-   `instance`  
+
 ### default
 
 Provide default arguments to a delayed gather() call, before other provides
@@ -380,15 +350,6 @@ Provide default arguments to a delayed gather() call, before other provides
 -   `args` **...Any** Arguments to provide to the gather event
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
-
-### gather
-
-Receive arguments provided to a delayed gather() call.
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `handler` **callable** The handler for each provided value
 
 ### provide
 
@@ -412,6 +373,15 @@ Provide a replacement for a delayed gather() call (after others are provided)
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
 
+### gather
+
+Receive arguments provided to a delayed gather() call.
+
+**Parameters**
+
+-   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
+-   `handler` **callable** The handler for each provided value
+
 ### request
 
 Request the result of processing a named event
@@ -432,13 +402,43 @@ Respond to a named event
 -   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the request event
 -   `handler` **callable** The handler for the request
 
-### use
+## PluginManager
 
-Let another instance use this module's events to reduce boilerplate calls
+The PluginManager handles all of the module loading.  Load order is as follows:
+
+1.  Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
+2.  Folders in the <appDir>/modules directory.
+3.  Filepaths passed in the `modules` config option
+
+### loadNxusModules
+
+[loadNxusModules description]
 
 **Parameters**
 
--   `instance`  
+-   `options` **\[type]** [description]
+
+Returns **\[type]** [description]
+
+### loadAdditionalModules
+
+[loadAdditionalModules description]
+
+**Parameters**
+
+-   `options` **\[type]** [description]
+-   `packages` **\[type]** [description]
+
+Returns **\[type]** [description]
+
+### loadPassedPlugins
+
+Loads manually passed in packages by path
+
+**Parameters**
+
+-   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
+-   `packages` **packages** the array of packages currently loaded by Nxus
 
 ## Watcher
 
