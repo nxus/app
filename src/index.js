@@ -13,5 +13,6 @@ import Module from './Module'
 import ProxyMethods from './ProxyMethods'
 import ConfigurationManager from './ConfigurationManager'
 import PluginManager from './PluginManager'
+import NxusModule from './NxusModule'
 
-export {Application, Dispatcher, Module, ProxyMethods, ConfigurationManager, PluginManager}
+export {Application, Dispatcher, Module, ProxyMethods, ConfigurationManager, PluginManager, NxusModule}

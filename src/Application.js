@@ -155,6 +155,7 @@ export default class Application extends Dispatcher {
     this._opts = opts
     this._modules = {}
     this._pluginInfo = {}
+    this._pluginInstances = {}
     this._currentStage = null
     this._banner = opts.banner || startupBanner
     this._defaultConfig = {};
@@ -420,7 +421,7 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Accepts an instatiatable object (function or class) as a plugin, then boots it.
+   * Accepts an instantiable object (function or class) as a plugin, then boots it.
    *
    * @private
    * @param  {Function|Class} plugin the instantiable plugin
@@ -429,16 +430,22 @@ export default class Application extends Dispatcher {
   _bootPlugin(plugin) {
     var name = plugin._pluginInfo.name
     //if (this.config.debug) console.log(' ------- ', plugin)
+    if (this._pluginInstances[name] !== undefined) {
+      this.log.error('Duplicate module found', name)
+      process.exit()
+    }
     try {
       this.log.debug('Booting Module', name)
       if(plugin.default)
         plugin = plugin.default
-      plugin = new plugin(this);
+      pluginInstance = new plugin(this);
+      this._pluginInstances[name] = pluginInstance
     } catch(e) {
       this.log.error('Error booting module '+name, e)
       this.log.error(e.stack)
       process.exit()
     }
-    return Promise.resolve(plugin)
+    return Promise.resolve(pluginInstance)
   }
+
 }
