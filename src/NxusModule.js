@@ -1,19 +1,21 @@
+import ModuleProxy from './ModuleProxy'
+import {application} from './Application'
+
+console.log("prox", ModuleProxy)
 
 class NxusModule {
 
   constructor(app) {
-    let myName = this.name()
-    app.get(myName).use(this)
-    this.constructor[myName] = this
+    app.get(this.constructor._moduleName()).use(this)
   }
 
-  name() {
-    let n = this.constructor.name
+  static _moduleName() {
+    let n = this.name
     return n[0].toLowerCase() + n.substring(1)
   }
 
-  static getProxy(app) {
-    
+  static getProxy() {
+    return application.get(this._moduleName())
   }
 
 }

@@ -8,6 +8,7 @@
 global.Promise = require('bluebird');
 
 import Application from './Application'
+import {application} from './Application'
 import Dispatcher from './Dispatcher'
 import ModuleProxy from './ModuleProxy'
 import ProxyMethods from './ProxyMethods'
@@ -15,7 +16,7 @@ import ConfigurationManager from './ConfigurationManager'
 import PluginManager from './PluginManager'
 import NxusModule from './NxusModule'
 
-export {Application, Dispatcher, ModuleProxy, ProxyMethods, ConfigurationManager, PluginManager, NxusModule}
+export {application, Application, Dispatcher, ModuleProxy, ProxyMethods, ConfigurationManager, PluginManager, NxusModule}
 
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)

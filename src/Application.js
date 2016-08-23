@@ -63,12 +63,15 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
  *
  * 
  */
+
+
 export default class Application extends Dispatcher {
 
   constructor(opts = {}) {
     super()
     this._opts = opts
     this._modules = {}
+    this._moduleProxies = {}
     this._pluginInfo = {}
     this._pluginInstances = {}
     this._currentStage = null
@@ -158,8 +161,10 @@ export default class Application extends Dispatcher {
    * @return {ModuleProxy}
    */
   get(name) {
-    if(!this._modules[name]) this._modules[name] = new ModuleProxy(this, name)
-    return this._modules[name]
+    if(!this._moduleProxies[name]) {
+      this._moduleProxies[name] = new ModuleProxy(this, name)
+    }
+    return this._moduleProxies[name]
   }
 
   /**
@@ -364,3 +369,5 @@ export default class Application extends Dispatcher {
   }
 
 }
+
+export let application = new Application()

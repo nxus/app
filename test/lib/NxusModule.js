@@ -6,7 +6,7 @@
 
 'use strict';
 
-import {NxusModule, Application} from '../../lib/'
+import {NxusModule, application} from '../../lib/'
 import should from 'should'
 
 class SubModule extends NxusModule {
@@ -14,22 +14,26 @@ class SubModule extends NxusModule {
     super(app)
   }
 }
-
+SubModule.subModule = SubModule.getProxy()
 
 describe("NxusModule", () => {
   describe("Load", () => {
     var instance;
-    var app = new Application();
 
     it("should not be null", () => NxusModule.should.not.be.null())
 
     it("should be subclassable", () => {
-      instance = new SubModule(app)
+      instance = new SubModule(application)
       instance.should.not.be.null()
     })
 
-    it("should set itself as instance at lower name", () => {
-      SubModule.subModule.should.not.be.null()
+    it("should set itself in app modules", () => {
+      application._moduleProxies.should.have.property('subModule')
+    })
+    it("proxied instance should be same as app.get", (done) => {
+      let app_proxy = application.get('subModule')
+      console.log("app_proxy", args, app_proxy, application._moduleProxies)
+      SubModule.subModule.should.equal(app_proxy)
     })
   })
 

@@ -4,12 +4,12 @@ export default function(constructor, proxyTo='provide') {
   return function(...args) {
     let module = constructor(...args)
     let handlers = {
-      get: function(receiver, property) {
-        if (module[property] !== undefined) {
-          return module[property]
+      get: function(target, property, receiver) {
+        if (target[property] !== undefined) {
+          return target[property]
         } else {
           return (...innerArgs) => {
-            return module[proxyTo](property, ...innerArgs)
+            return target[proxyTo](property, ...innerArgs)
           }
         }
       }

@@ -158,7 +158,7 @@ describe("ModuleProxy", () => {
         arg.should.equal(result+1)
         result = arg
       });
-      return Promise.all([
+      Promise.all([
         module.replace().testDefault2(3).then(() => {
           result.should.equal(3);
         }),
