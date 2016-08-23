@@ -4,7 +4,7 @@ import _ from 'underscore'
 import sinon from 'sinon'
 import Promise from 'bluebird'
 
-import { Dispatcher, Module, ProxyMethods } from '../../'
+import { Dispatcher, ModuleProxy, ProxyMethods } from '../../'
 
 const stubPromise = sinon.createStubInstance(Promise)
 
@@ -60,7 +60,7 @@ class TestApp extends Dispatcher {
       default: this._default,
       replace: this._replace,
       use: (i) => {
-        let m = new Module(this)
+        let m = new ModuleProxy(this)
         let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
         return m.use.call(useme, i)
       }

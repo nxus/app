@@ -12,7 +12,7 @@ import domain from 'domain'
 import path from 'path'
 
 import Dispatcher from './Dispatcher'
-import Module from './Module'
+import ModuleProxy from './ModuleProxy'
 import PluginManager from './PluginManager'
 import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
@@ -152,13 +152,13 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Returns an internal Module object for the given name.
+   * Returns an internal ModuleProxy object for the given name.
    * 
    * @param  {string} name The name of the module to return
-   * @return {Module}
+   * @return {ModuleProxy}
    */
   get(name) {
-    if(!this._modules[name]) this._modules[name] = new Module(this, name)
+    if(!this._modules[name]) this._modules[name] = new ModuleProxy(this, name)
     return this._modules[name]
   }
 

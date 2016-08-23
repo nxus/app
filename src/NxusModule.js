@@ -12,6 +12,10 @@ class NxusModule {
     return n[0].toLowerCase() + n.substring(1)
   }
 
+  static getProxy(app) {
+    
+  }
+
 }
 
 export default NxusModule

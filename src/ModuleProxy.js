@@ -13,7 +13,7 @@ import Dispatcher from './Dispatcher'
 import ProxyMethods from './ProxyMethods'
 
 /**
- * The core Module class. This provides a messaging proxy layer between modules and calling code.
+ * The core ModuleProxy class. This provides a messaging proxy layer between modules and calling code.
  * The main advantage of this proxy class is that missing modules won't cause exceptions in the code.
  *
  * Modules are accessed through the Application.get() method
@@ -47,7 +47,7 @@ import ProxyMethods from './ProxyMethods'
  *     app.get('router').replace().route('GET', '/', ...)
  *
  */
-class Module extends Dispatcher {
+class ModuleProxy extends Dispatcher {
 
   constructor(app, name) {
     super()
@@ -195,4 +195,4 @@ class Module extends Dispatcher {
   }
 }
 
-export default ProxyMethods((...args) => {return new Module(...args)})
+export default ProxyMethods((...args) => {return new ModuleProxy(...args)})

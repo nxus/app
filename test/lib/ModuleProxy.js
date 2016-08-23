@@ -1,17 +1,17 @@
 'use strict';
 
-import {Module} from '../../lib'
+import {ModuleProxy} from '../../lib'
 import TestApp from '../../lib/test/support/TestApp'
 
-describe("Module", () => {
+describe("ModuleProxy", () => {
   var module;
   var app = new TestApp();
   
   describe("Load", () => {
-    it("should not be null", () => Module.should.not.be.null())
+    it("should not be null", () => ModuleProxy.should.not.be.null())
 
     it("should be instantiated", () => {
-     module = new Module(app, 'test')
+     module = new ModuleProxy(app, 'test')
      module.should.not.be.null() 
     });
   });
@@ -21,7 +21,7 @@ describe("Module", () => {
 
     before((done) => {
       other_app = new TestApp()
-      other = new Module(other_app, 'other')
+      other = new ModuleProxy(other_app, 'other')
       class TestModule {
         constructor() {
           this.x = 1
@@ -126,7 +126,7 @@ describe("Module", () => {
     
     beforeEach(() => {
       other_app = new TestApp()
-      module = new Module(other_app, 'test')
+      module = new ModuleProxy(other_app, 'test')
     })
     it("should have methods", () => {
       module.original.should.be.Function();
@@ -212,7 +212,7 @@ describe("Module", () => {
     let m, a
     beforeEach((done) => {
       a = new TestApp()
-      m = new Module(a, 'test')
+      m = new ModuleProxy(a, 'test')
       done()
     })
     it("warns for events after launch", (done) => {
