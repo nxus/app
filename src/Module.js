@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-04-13
+* @Last Modified 2016-08-22
 */
 
 'use strict';
@@ -18,29 +18,33 @@ import ProxyMethods from './ProxyMethods'
  *
  * Modules are accessed through the Application.get() method
  *
- * @example let router = app.get('router')
- *
+ * ## Examples
+ * 
  * Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
- * @example app.get('router').use(this).gather('route')
- * @example app.get('templater').use(this).respond('template')
+ * 
+ *     app.get('router').use(this).gather('route')
+ *     app.get('templater').use(this).respond('template')
  *
  * Consumer modules should get the module they need to use and call provide or request
- * @example app.get('router').provide('route', ...)
- * @example app.get('templater').request('render', ...)
+ * 
+ *     app.get('router').provide('route', ...)
+ *     app.get('templater').request('render', ...)
  *
  * Modules proxy event names as methods to provide/request, so these are synomymous with above: 
- * @example app.get('router').route(...)
- * @example app.get('templater').render(...)
+ * 
+ *     app.get('router').route(...)
+ *     app.get('templater').render(...)
  * 
  * Default implementations should be indicated by using default() to occur before provide()
  * Overriding another implementation can use replace() to occur after provide()
  * 
- * @example app.get('router').default('route', GET', '/', ...)
- * @example app.get('router').replace('route', GET', '/', ...)
+ *     app.get('router').default('route', GET', '/', ...)
+ *     app.get('router').replace('route', GET', '/', ...)
  *
  * Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
- * @example app.get('router').default().route('GET', '/', ...)
- * @example app.get('router').replace().route('GET', '/', ...)
+ * 
+ *     app.get('router').default().route('GET', '/', ...)
+ *     app.get('router').replace().route('GET', '/', ...)
  *
  */
 class Module extends Dispatcher {

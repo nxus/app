@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-06 07:44:02
-* @Last Modified 2016-02-25
+* @Last Modified 2016-08-22
 */
 
 'use strict';
@@ -14,7 +14,7 @@ import _ from 'underscore'
  * 
  * @extends EventEmitter
  * @example
- * import { Dispatcher } from '@nxus/core'
+ * import { Dispatcher } from 'nxus-core'
  * class MyClass extends Dispatcher {
  *   ...
  * }

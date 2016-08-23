@@ -1,6 +1,6 @@
 # nxus-core
 
-## \_
+## 
 
 [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
 
@@ -22,13 +22,13 @@ The full set of Nxus docs is available at <http://docs.gonxus.org>.
 
 ### Installation
 
-    > npm install @nxus/core --save
+    > npm install nxus-core --save
 
 ### Usage
 
 In your root application, create a new Application instance:
 
-    import {Application} from '@nxus/core'
+    import {Application} from 'nxus-core'
 
     let app = new Application(options)
 
@@ -62,22 +62,6 @@ In order to access module commands, use the Application.get() method.
 
     let router = Application.get('router')
 
-#### Application Options
-
-    new App(...options)
-
-Available options are:
-
-_appDir_: the location to use to load the default 'package.json' file. 
-
-_namespace_: any additional namespaces to use to load modules in the node_modules folder. Can be a string or array of strings.
-
-_modules_: an array of paths to require into the application
-
-_debug_: Boolean to display debug messages, including startup banner
-
-_script_: Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls
-
 #### Application Configuration
 
 The Application exposes a core `config` object that contains application and module specific configuration values.
@@ -94,13 +78,23 @@ will translate into an application config of
 
     console.log(app.config.myconfig) // {value: {first: true}}
 
-### API
-
 ## Application
 
 **Extends Dispatcher**
 
 The Core Application class.
+
+#### Configuration Options
+
+Available options are:
+
+| Name      | Description                                                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| appDir    | the location to use to load the default 'package.json' file.                                                                    |
+| namespace | any additional namespaces to use to load modules in the node_modules folder. Can be a string or array of strings.               |
+| modules   | an array of paths to require into the application                                                                               |
+| debug     | Boolean to display debug messages, including startup banner                                                                     |
+| script    | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
 
 **Parameters**
 
@@ -109,9 +103,12 @@ The Core Application class.
 **Examples**
 
 ```javascript
-import {Application} from '@nxus/core'
-let app = new Application(options)
+import {Application} from 'nxus-core'
+
+let app = new Application()
+
 app.start()
+
 export default app
 ```
 
@@ -159,31 +156,10 @@ Restarts the Nxus application.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
-## ConfigurationManager
+## Watcher
 
-ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
-
-1.  Opts loaded into the application object.
-2.  Opts in the `config` hash of the project package.json file
-3.  Any environment variables
-
-### getNodeEnv
-
-Returns the current NODE_ENV
-
-Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the current NODE_ENV
-
-### getEnvironmentVariables
-
-Extracts the currently avaiable environment variables
-
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** A hash of the current environment variables
-
-### getConfig
-
-Returns the final config option using the loading order described above.
-
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the final composed configuration object.
+The Watcher class monitors the project directory and restarts the application whenever 
+there is a change in files detected. Useful for development.
 
 ## Dispatcher
 
@@ -194,7 +170,7 @@ The core Dispatcher class, which implements promisified
 **Examples**
 
 ```javascript
-import { Dispatcher } from '@nxus/core'
+import { Dispatcher } from 'nxus-core'
 class MyClass extends Dispatcher {
   ...
 }
@@ -275,62 +251,33 @@ The main advantage of this proxy class is that missing modules won't cause excep
 
 Modules are accessed through the Application.get() method
 
-**Examples**
-
-```javascript
-let router = app.get('router')
+### Examples
 
 Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
-```
 
-```javascript
-app.get('router').use(this).gather('route')
-```
-
-```javascript
-app.get('templater').use(this).respond('template')
+    app.get('router').use(this).gather('route')
+    app.get('templater').use(this).respond('template')
 
 Consumer modules should get the module they need to use and call provide or request
-```
 
-```javascript
-app.get('router').provide('route', ...)
-```
+    app.get('router').provide('route', ...)
+    app.get('templater').request('render', ...)
 
-```javascript
-app.get('templater').request('render', ...)
+Modules proxy event names as methods to provide/request, so these are synomymous with above: 
 
-Modules proxy event names as methods to provide/request, so these are synomymous with above:
-```
-
-```javascript
-app.get('router').route(...)
-```
-
-```javascript
-app.get('templater').render(...)
+    app.get('router').route(...)
+    app.get('templater').render(...)
 
 Default implementations should be indicated by using default() to occur before provide()
 Overriding another implementation can use replace() to occur after provide()
-```
 
-```javascript
-app.get('router').default('route', GET', '/', ...)
-```
-
-```javascript
-app.get('router').replace('route', GET', '/', ...)
+    app.get('router').default('route', GET', '/', ...)
+    app.get('router').replace('route', GET', '/', ...)
 
 Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
-```
 
-```javascript
-app.get('router').default().route('GET', '/', ...)
-```
-
-```javascript
-app.get('router').replace().route('GET', '/', ...)
-```
+    app.get('router').default().route('GET', '/', ...)
+    app.get('router').replace().route('GET', '/', ...)
 
 ### use
 
@@ -402,6 +349,32 @@ Respond to a named event
 -   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the request event
 -   `handler` **callable** The handler for the request
 
+## ConfigurationManager
+
+ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
+
+1.  Opts loaded into the application object.
+2.  Opts in the `config` hash of the project package.json file
+3.  Any environment variables
+
+### getNodeEnv
+
+Returns the current NODE_ENV
+
+Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the current NODE_ENV
+
+### getEnvironmentVariables
+
+Extracts the currently avaiable environment variables
+
+Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** A hash of the current environment variables
+
+### getConfig
+
+Returns the final config option using the loading order described above.
+
+Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the final composed configuration object.
+
 ## PluginManager
 
 The PluginManager handles all of the module loading.  Load order is as follows:
@@ -439,8 +412,3 @@ Loads manually passed in packages by path
 
 -   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
 -   `packages` **packages** the array of packages currently loaded by Nxus
-
-## Watcher
-
-The Watcher class monitors the project directory and restarts the application whenever 
-there is a change in files detected. Useful for development.

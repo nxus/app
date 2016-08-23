@@ -1,111 +1,9 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-08-07
-* @Last Modified time: 2016-08-07 13:11:50
+* @Last Modified 2016-08-22
+* @Last Modified time: 2016-08-22 16:03:55
 */
-/**
- * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
- * 
- * The Nxus Core package includes the basic Application framework for building a Nxus app.
- * 
- * ## Introduction
- * 
- * You'll probably find the following resources useful background and help in building Nxus applcations.
- * 
- * -   [Getting Started](<>) (TODO)
- * -   [Design Patterns](<>) (TODO)
- * -   [Nxus Modules](<>) (TODO)
- * -   [Recipes](<>) (TODO)
- * -   [Developing a ](<>) (TODO)
- * 
- * ## Documentation
- * 
- * The full set of Nxus docs is available at [http://docs.gonxus.org](http://docs.gonxus.org).
- * 
- * ## Installation
- * 
- *     > npm install @nxus/core --save
- * 
- * ## Usage
- * 
- * In your root application, create a new Application instance:
- * 
- *     import {Application} from '@nxus/core'
- * 
- *     let app = new Application(options)
- * 
- *     app.start()
- * 
- *     export default app
- * 
- * ### Events
- * 
- * Nxus is built around the concept of a boot cycle.  The application dispatches events in the following order:
- *
- * | Boot Stage | Description |
- * | --- | --- |
- * | `init` | indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase. |
- * | `load` | modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase. |
- * | `startup` | all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage) |
- * | `launch` | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched |
- * 
- * ### Module Loading
- * 
- * By defaul the Application will look for other Nxus modules in the following order:
- * 
- * 1.  @nxus namespaced npm modules in your `package.json` file.
- * 2.  Any packages that match the 'namespace-' pattern passed in the `namespace` application config option.
- * 3.  folders in the ./modules folder in the root of your project
- * 4.  any modules specified in the _modules_ option passed into Application on instantiation.
- * 
- * ### Module Access
- * 
- * In order to access module commands, use the Application.get() method.
- * 
- *     let router = Application.get('router')
- * 
- * ### Application Options
- *
- * ```
- * new App(...options)
- * ```
- * 
- * Available options are:
- * 
- * _appDir_: the location to use to load the default 'package.json' file. 
- * 
- * _namespace_: any additional namespaces to use to load modules in the node\_modules folder. Can be a string or array of strings.
- * 
- * _modules_: an array of paths to require into the application
- * 
- * _debug_: Boolean to display debug messages, including startup banner
- * 
- * _script_: Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls
- *
- * ### Application Configuration
- *
- * The Application exposes a core `config` object that contains application and module specific configuration values.
- *
- * Nxus uses the [rc](https://www.npmjs.com/package/rc) library to provide application configuration.
- *
- * The application configuration can usually be found in a `.nxusrc` file in the root folder.
- *
- * You can override specific confirguation values using command line environment variables, which supports nesting.
- *
- * ```
- * nxus_myconfig__value__first=true npm start
- * ```
- *
- * will translate into an application config of
- *
- * ```
- * console.log(app.config.myconfig) // {value: {first: true}}
- * ```
- * 
- * ## API
- */
-
 
 import _ from 'underscore'
 import util from 'util'
@@ -137,15 +35,32 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
     "|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
 
 /**
+ * 
  * The Core Application class.
+ *
+ * ### Configuration Options
+ * 
+ * Available options are:
+ *
+ * | Name | Description |
+ * | --- | --- |
+ * | appDir | the location to use to load the default 'package.json' file. |
+ * | namespace | any additional namespaces to use to load modules in the node\_modules folder. Can be a string or array of strings. |
+ * | modules | an array of paths to require into the application |
+ * | debug | Boolean to display debug messages, including startup banner |
+ * | script | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
  *
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
- * import {Application} from '@nxus/core'
- * let app = new Application(options)
+ * import {Application} from 'nxus-core'
+ * 
+ * let app = new Application()
+ * 
  * app.start()
+ * 
  * export default app
+ *
  * 
  */
 export default class Application extends Dispatcher {
