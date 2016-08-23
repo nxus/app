@@ -1,8 +1,6 @@
 import ModuleProxy from './ModuleProxy'
 import {application} from './Application'
 
-console.log("prox", ModuleProxy)
-
 class NxusModule {
 
   constructor(app) {
