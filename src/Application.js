@@ -71,7 +71,6 @@ export default class Application extends Dispatcher {
     super()
     this._opts = opts
     this._modules = {}
-    this._moduleProxies = {}
     this._pluginInfo = {}
     this._pluginInstances = {}
     this._currentStage = null
@@ -161,10 +160,10 @@ export default class Application extends Dispatcher {
    * @return {ModuleProxy}
    */
   get(name) {
-    if(!this._moduleProxies[name]) {
-      this._moduleProxies[name] = new ModuleProxy(this, name)
+    if(!this._modules[name]) {
+      this._modules[name] = new ModuleProxy(this, name)
     }
-    return this._moduleProxies[name]
+    return this._modules[name]
   }
 
   /**

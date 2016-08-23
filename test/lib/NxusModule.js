@@ -15,7 +15,6 @@ class SubModule extends NxusModule {
   }
 }
 SubModule.subModule = SubModule.getProxy()
-console.log(SubModule.subModule)
 
 describe("NxusModule", () => {
   describe("Load", () => {
@@ -29,12 +28,7 @@ describe("NxusModule", () => {
     })
 
     it("should set itself in app modules", () => {
-      application._moduleProxies.should.have.property('subModule')
-    })
-    it("proxied instance should be same as app.get", (done) => {
-      let app_proxy = application.get('subModule')
-      console.log("app_proxy", application._moduleProxies)
-      SubModule.subModule.should.equal(app_proxy)
+      application._modules.should.have.property('subModule')
     })
   })
 
