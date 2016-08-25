@@ -27,8 +27,8 @@ describe("NxusModule", () => {
       instance.should.not.be.null()
     })
 
-    it("should set itself in app modules", () => {
-      application._modules.should.have.property('subModule')
+    it("should set itself in app modules with the config name (dashed)", () => {
+      application._modules.should.have.property('sub-module')
     })
   })
 

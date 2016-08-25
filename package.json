@@ -36,6 +36,7 @@
     "findup-sync": "^0.4.2",
     "merge-descriptors": "^1.0.1",
     "moment": "^2.14.1",
+    "morph": "^0.2.0",
     "multimatch": "^2.1.0",
     "rc": "^1.1.6",
     "underscore": "^1.8.3",
