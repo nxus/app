@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-08-25
-* @Last Modified time: 2016-08-25 10:19:54
+* @Last Modified time: 2016-08-25 11:12:35
 */
 
 import _ from 'underscore'
@@ -21,7 +21,10 @@ import {logger} from './Logger'
 var _defaultConfig = {
   siteName: 'Nxus App',
   host: 'localhost',
-  baseUrl: 'localhost:3001'
+  baseUrl: 'localhost:3001',
+  appName: 'App',
+  namespace: 'nxus',
+  appDir: process.cwd()
 }
 
 _.mixin(require('underscore.deep'))
@@ -44,12 +47,14 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
  *
  * | Name | Description |
  * | --- | --- |
+ * | appName | the name of your app. Will be used for console logging. |
  * | appDir | the location to use to load the default 'package.json' file. |
  * | namespace | any additional namespaces to use to load modules in the node\_modules folder. Can be a string or array of strings. |
  * | modules | an array of paths to require into the application |
  * | debug | Boolean to display debug messages, including startup banner |
  * | script | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
- *
+ * | silent | Don't show any console output. Useful for CLI scripts. |
+ * 
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
@@ -108,13 +113,9 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupConfig() {    
-    this._opts.appName = this._opts.appName || "NXUS App"
-    this._opts.namespace = this._opts.namespace || "nxus"
-    this._opts.appDir = this._opts.appDir || process.cwd()
-
     this.writeDefaultConfig(null, _defaultConfig)
         
-    this.config = Object.assign(this.config, this._opts, new ConfigurationManager(this._opts).getConfig())
+    this.config = Object.assign(this.config, this._opts, new ConfigurationManager(this.config).getConfig())
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -215,7 +216,7 @@ export default class Application extends Dispatcher {
    */
   start() {
     if(!this.config.silent) this._showBanner()
-    this.log.info(this.name+' Starting')
+    this.log.info(this.config.appName+' Starting at', new Date())
     return this.init()
   }
 
