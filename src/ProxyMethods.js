@@ -1,4 +1,7 @@
 
+/**
+ * @private
+ */
 
 export default function(constructor, proxyTo='provide') {
   return function(...args) {

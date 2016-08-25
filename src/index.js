@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 16:56:47
-* @Last Modified 2016-08-22
-* @Last Modified time: 2016-08-22 16:24:59
+* @Last Modified 2016-08-25
+* @Last Modified time: 2016-08-25 10:03:51
 */
 
 global.Promise = require('bluebird');
@@ -15,8 +15,21 @@ import ProxyMethods from './ProxyMethods'
 import ConfigurationManager from './ConfigurationManager'
 import PluginManager from './PluginManager'
 import NxusModule from './NxusModule'
+import Logger from './Logger'
+import {logger} from './Logger'
 
-export {application, Application, Dispatcher, ModuleProxy, ProxyMethods, ConfigurationManager, PluginManager, NxusModule}
+export {
+  application, 
+  Application, 
+  Dispatcher, 
+  ModuleProxy, 
+  ProxyMethods, 
+  ConfigurationManager, 
+  PluginManager, 
+  NxusModule,
+  Logger,
+  logger
+}
 
 /**
  * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)

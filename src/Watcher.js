@@ -1,12 +1,13 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-05-23 09:36:21
-* @Last Modified 2016-04-10
+* @Last Modified 2016-08-22
 */
 
 import moment from 'moment'
 
 /**
+ * @private
  * The Watcher class monitors the project directory and restarts the application whenever 
  * there is a change in files detected. Useful for development.
  */

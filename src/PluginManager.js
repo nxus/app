@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-07-28
-* @Last Modified time: 2016-07-28 07:44:36
+* @Last Modified 2016-08-25
+* @Last Modified time: 2016-08-25 10:26:28
 */
 
 'use strict';
@@ -14,6 +14,8 @@ import path from 'path'
 import _ from 'underscore'
 
 /**
+ * @private
+ * 
  * The PluginManager handles all of the module loading.  Load order is as follows:
  *
  * 1. Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.

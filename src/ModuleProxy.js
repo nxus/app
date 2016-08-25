@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-08-22
+* @Last Modified 2016-08-25
 */
 
 'use strict';
@@ -13,6 +13,7 @@ import Dispatcher from './Dispatcher'
 import ProxyMethods from './ProxyMethods'
 
 /**
+ * @private
  * The core ModuleProxy class. This provides a messaging proxy layer between modules and calling code.
  * The main advantage of this proxy class is that missing modules won't cause exceptions in the code.
  *

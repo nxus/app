@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-08-22
-* @Last Modified time: 2016-08-22 16:03:55
+* @Last Modified 2016-08-25
+* @Last Modified time: 2016-08-25 10:19:54
 */
 
 import _ from 'underscore'
@@ -16,7 +16,7 @@ import ModuleProxy from './ModuleProxy'
 import PluginManager from './PluginManager'
 import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
-import Logger from './Logger'
+import {logger} from './Logger'
 
 var _defaultConfig = {
   siteName: 'Nxus App',
@@ -133,11 +133,7 @@ export default class Application extends Dispatcher {
         error: () => {}
       })
     } else {
-      var logger = Logger(this)
-      this.log = (...args) => {
-        logger.debug.apply(this, args)
-      }
-      this.log = Object.assign(this.log, logger)
+      this.log = logger
     }
   }
 
