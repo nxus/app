@@ -348,6 +348,7 @@ export default class Application extends Dispatcher {
    */
   _bootPlugin(plugin) {
     var name = plugin._pluginInfo.name
+    let pluginInstance = null
     //if (this.config.debug) console.log(' ------- ', plugin)
     if (this._pluginInstances[name] !== undefined) {
       this.log.error('Duplicate module found', name)
