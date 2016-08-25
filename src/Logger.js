@@ -15,5 +15,6 @@ const Logger = (name = 'application') => {
   return debug("nxus:"+name)
 } 
 
-export default Logger
-export var logger = Logger()
+const logger = new Logger()
+
+export {Logger as default, logger}
