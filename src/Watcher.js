@@ -31,7 +31,7 @@ export default class Watcher {
     
     this.watch = chokidar.watch(watch,watchOptions)
     this.watch.on('all', (event, path) => {
-        console.log(watchEvent, path) 
+        app.log.info(watchEvent, path) 
         app.emit(watchEvent || 'change.detected', path)
       }
     ) 
@@ -42,7 +42,7 @@ export default class Watcher {
       if(app._currentStage != app._bootEvents[app._bootEvents.length - 1]) return
       app.restart().then(() => {
         var end = moment()
-        console.log(`Restart took ${end.diff(start, 'seconds')} seconds`)
+        app.log.info(`Restart took ${end.diff(start, 'seconds')} seconds`)
         app.emit('app.run.tests', path)
       })
     })

@@ -80,7 +80,11 @@ class ModuleProxy extends Dispatcher {
       if (this[name] === undefined) continue
       instance[name] = (event, handler) => {
         if (handler === undefined) {
-          handler = instance[event].bind(instance)
+          if (instance[event].bind === undefined) {
+            this._app.log.error("Module", this._name, "tried to register", event, "without a handler, and does not define a method with that name")
+          } else {
+            handler = instance[event].bind(instance)
+          }
         }
         this[name](event, handler)
         return instance
@@ -92,7 +96,7 @@ class ModuleProxy extends Dispatcher {
   _checkMissingEvents() {
     let registered = _.keys(this._registeredEvents)
     if (registered.length == 0) {
-      this._app.log.warn("Application.get called with", this._name, "but only knows of:", _.keys(this._app.registeredModules).join(' '))
+      this._app.log.warn("Module", this._name, "registered but without events, we only know of:", _.keys(this._app.registeredModules).join(' '))
       return
     }
     
