@@ -71,6 +71,7 @@ export default class Application extends Dispatcher {
     super()
     this._opts = opts
     this._modules = {}
+    this._moduleProxies = {}
     this._pluginInfo = {}
     this._pluginInstances = {}
     this._currentStage = null
@@ -156,10 +157,10 @@ export default class Application extends Dispatcher {
    * @return {ModuleProxy}
    */
   get(name) {
-    if(!this._modules[name]) {
-      this._modules[name] = new ModuleProxy(this, name)
+    if(!this._moduleProxies[name]) {
+      this._moduleProxies[name] = new ModuleProxy(this, name)
     }
-    return this._modules[name]
+    return this._moduleProxies[name]
   }
 
   /**
@@ -170,6 +171,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   init() {
+    this._pluginInstances = {}
     return this._loadPlugins().then(this.boot.bind(this)).then(() => {
       if (!this.config.script && this.config.NODE_ENV != 'production') {
         this.log.debug('Setting up App watcher')
@@ -215,7 +217,7 @@ export default class Application extends Dispatcher {
    */
   start() {
     if(!this.config.silent) this._showBanner()
-    this.log.info(this.name+' Starting')
+    this.log.info(this.config.appName+' Starting')
     return this.init()
   }
 
@@ -263,14 +265,14 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   _invalidatePluginsInRequireCache() {
+    let nxusModules = this._modules.map((x) => { return x._pluginInfo.modulePath })
+
     return new Promise((resolve) => {
-      // we only want to reload nxus code
-      var ignore = new RegExp("^(.*node_modules/(?!@nxus).*)")
-      // but we need to always reload mongoose so that models can be rebuilt
-      var mongoose = new RegExp("node_modules/mongoose")
+      let invalid = new RegExp("^.*("+nxusModules.join("|")+").*.js")
       _.each(require.cache, (v, k) => {
-        if (ignore.test(k) && !mongoose.test(k)) return
-        delete require.cache[k]
+        if (invalid.test(k)) {
+          delete require.cache[k]
+        }
       })
       resolve()
     })

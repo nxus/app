@@ -7,7 +7,6 @@ class NxusModule {
 
   constructor(app) {
     this.__name = this.constructor._moduleName()
-
     application.get(this.__name).use(this)
 
     this.log = Logger(this.__name)

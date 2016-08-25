@@ -93,9 +93,13 @@ class PluginManager {
       if(!name || (name && name[0] == ".")) return
       this.app.log.debug('Loading module', name)
       try {
-        var pkg = require(path.resolve(dir + "/" + name))
-        pkg._pluginInfo = {name}
+        let modulePath = path.resolve(path.join(dir, name))
+        var pkg = require(modulePath)
+        pkg._pluginInfo = {name, modulePath}
         this.packages.push(pkg)
+        // Recurse for module modules
+        this._loadModulesFromDirectory(path.join(dir, name, 'modules'))
+        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'))
         //if(fs.existsSync(dir + "/" + name + "/node_modules")) 
           //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
       } catch (e) {
@@ -105,8 +109,6 @@ class PluginManager {
       }
     })
 
-    // Recurse for module modules
-    this._loadModulesFromDirectory(dir+'/modules')
   }
 
   /**
