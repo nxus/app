@@ -102,6 +102,9 @@ class PluginManager {
         process.kill(process.pid, 'SIGTERM')
       }
     })
+
+    // Recurse for module modules
+    this._loadModulesFromDirectory(dir+'/modules')
   }
 
   /**
