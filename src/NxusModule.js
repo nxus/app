@@ -5,7 +5,22 @@ import {application} from './Application'
 class NxusModule {
 
   constructor(app) {
-    application.get(this.constructor._moduleName()).use(this)
+    this.__name = this.constructor._moduleName()
+
+    application.get(this.__name).use(this)
+
+    let defaultConfig = this.defaultConfig()
+    if (defaultConfig !== null) {
+      application.writeDefaultConfig(this.__name, defaultConfig)
+    }
+  }
+
+  get config() {
+    return application.config[this.__name]
+  }
+
+  defaultConfig() {
+    return null
   }
 
   static _moduleName() {

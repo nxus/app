@@ -13,6 +13,10 @@ class SubModule extends NxusModule {
   constructor(app) {
     super(app)
   }
+
+  defaultConfig() {
+    return {"other": "you"}
+  }
 }
 SubModule.subModule = SubModule.getProxy()
 
@@ -29,6 +33,16 @@ describe("NxusModule", () => {
 
     it("should set itself in app modules with the config name (dashed)", () => {
       application._modules.should.have.property('sub-module')
+    })
+
+    it("should set defaultConfig", () => {
+      application.config.should.have.property("sub-module")
+      application.config['sub-module'].should.have.property("other", "you")
+    })
+
+    it("should get config from app key", () => {
+      application.config['sub-module']["hi"] = "hello"
+      instance.config.hi.should.equal("hello")
     })
   })
 
