@@ -218,11 +218,7 @@ export default class Application extends Dispatcher {
    */
   start() {
     if(!this.config.silent) this._showBanner()
-<<<<<<< HEAD
     this.log.info(this.config.appName+' Starting at', new Date())
-=======
-    this.log.info(this.config.appName+' Starting')
->>>>>>> f86c4b5d628c22151c54ee4580458f3bab0cc430
     return this.init()
   }
 
