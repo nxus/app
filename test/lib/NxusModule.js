@@ -35,7 +35,7 @@ describe("NxusModule", () => {
     })
 
     it("should set itself in app modules with the config name (dashed)", () => {
-      application._modules.should.have.property('sub-module')
+      application._moduleProxies.should.have.property('sub-module')
     })
 
     it("should set defaultConfig", () => {

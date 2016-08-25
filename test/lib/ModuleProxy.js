@@ -228,7 +228,7 @@ describe("ModuleProxy", () => {
       m.request('noSuchEvent', 1)
       a.launch().then(() => {
         a.log.warn.called.should.be.true()
-        a.log.warn.calledWith('Application.get called with', 'test', 'but only knows of:').should.be.true()
+        a.log.warn.calledWith('Module', 'test', 'registered but without events, we only know of:').should.be.true()
         done()
       })
     })
