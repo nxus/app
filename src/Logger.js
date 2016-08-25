@@ -8,11 +8,11 @@
 
 import debug from 'debug-logger'
 
-const Logger = (name = 'Application') => {
+const Logger = (name = 'application') => {
   debug.inspectOptions = {
     colors : true
   };
-  return debug(name)
+  return debug("nxus:"+name)
 } 
 
 export default Logger
