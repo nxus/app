@@ -26,6 +26,8 @@ class TestApp extends Dispatcher {
     this.onceBefore = sinon.spy(this.onceBefore);
     this.onceAfter = sinon.spy(this.onceAfter);
 
+    this.testMethod = sinon.spy(this.onceAfter);
+
     this._request = sinon.stub().returns(stubPromise)
     this._provide = sinon.stub().returns(stubPromise)
     this._replace = sinon.stub().returns(stubPromise)
@@ -60,8 +62,8 @@ class TestApp extends Dispatcher {
       default: this._default,
       replace: this._replace,
       use: (i) => {
-        let m = new ModuleProxy(this)
-        let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
+        let m = new ModuleProxy(this, i)
+        let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond), emit: () => {}})
         return m.use.call(useme, i)
       }
     }

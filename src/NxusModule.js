@@ -3,6 +3,12 @@ import ModuleProxy from './ModuleProxy'
 import {application} from './Application'
 import Logger from './Logger'
 
+/**
+ * The NxusModule class is a base class for all Nxus modules.
+ *
+ * @property {object} config The application configuration for this module.
+ * @property {Logger} log The logger for the module.
+ */
 class NxusModule {
 
   constructor(app) {
@@ -11,17 +17,17 @@ class NxusModule {
 
     this.log = Logger(this.__name)
 
-    let defaultConfig = this.defaultConfig()
+    let defaultConfig = this._defaultConfig()
     if (defaultConfig !== null) {
-      application.writeDefaultConfig(this.__name, defaultConfig)
+      application.setDefaultConfig(this.__name, defaultConfig)
     }
   }
 
   get config() {
-    return application.config[this.__name]
+    return application.config[this.__name] || {}
   }
 
-  defaultConfig() {
+  _defaultConfig() {
     return null
   }
 

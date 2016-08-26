@@ -62,6 +62,7 @@ class ModuleProxy extends Dispatcher {
     this._requestedEvents = {}
     this._registeredEvents = {}
     app.after('launch', this._checkMissingEvents.bind(this))
+    this._instance = null
   }
 
   /**
@@ -70,14 +71,24 @@ class ModuleProxy extends Dispatcher {
    */
 
   use(instance) {
+    if(!instance) return instance
+    this._instance = instance
     let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter', 'default', 'replace']
-    let handler_names = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
+    let handlerNames = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
+    let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
+      .map(prop => (instance[prop] instanceof Function && prop != 'constructor' && prop[0] != "_") ? prop : null)
+      .filter(p => p)
     for (let name of names) {
       if (this[name] === undefined) continue
+      if(this._requestedEvents) this._requestedEvents[name] = true
       instance[name] = this[name].bind(this)
     }
-    for (let name of handler_names) {
+    for (let method of methods) {
+      this.gather(method, ::instance[method])
+    }
+    for (let name of handlerNames) {
       if (this[name] === undefined) continue
+      if(this._requestedEvents) this._requestedEvents[name] = true
       instance[name] = (event, handler) => {
         if (handler === undefined) {
           if (instance[event].bind === undefined) {
@@ -100,17 +111,18 @@ class ModuleProxy extends Dispatcher {
       return
     }
     
-    let diff = _.difference(_.keys(this._requestedEvents), registered)
-    if (diff.length) {
-      this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", registered.join(' '))
-    }
+    // let diff = _.difference(_.keys(this._requestedEvents), registered)
+    // if (diff.length) {
+    //   this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", registered.join(' '))
+    // }
   }
 
   _provide(myself, when, name, ...args) {
     if (name === undefined) {
       return ProxyMethods(() => { return this.__proxyLess }, myself)()
     }
-    this._requestedEvents[name] = true
+    if(this._instance && !this._registeredEvents[name]) throw new Error('Requested event '+name+' which doesn\'t exist on target '+this._name)
+    
     if(!this.loaded) {
       return this._app[when]('load').then(() => {
         return this.emit(name, ...args);
@@ -173,8 +185,8 @@ class ModuleProxy extends Dispatcher {
     if (_.isEmpty(this._registeredEvents)) {
       this._app.emit('registeredModule', this._name)
     }
-    this._registeredEvents[name] = true
     this.on(name, handler);
+    this._registeredEvents[name] = true
     return this;
   }
 

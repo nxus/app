@@ -26,14 +26,20 @@ describe("ModuleProxy", () => {
         constructor() {
           this.x = 1
           other.use(this)
-          this.respond('testEvent')
-          this.respond('namedEvent', this._handler.bind(this))
+          this.respond('testEvent', ::this._testEvent)
+          this.respond('namedEvent', ::this._handler)
         }
         _handler (a) {
           return 1
         }
-        testEvent (a, b) {
+        _testEvent (a, b) {
           return this.x + a + b
+        }
+        notBoundMethod(a) {
+          return 2
+        } 
+        _ignoredMethod() {
+          return 3
         }
       }
       inst = new TestModule()
@@ -74,8 +80,22 @@ describe("ModuleProxy", () => {
         done()
       })
     })
+    it("should respond normally to a proxy method implicitly bound", (done) => {
+      other.notBoundMethod().then((arg) => {
+        arg.should.equal(2)
+        done()
+      })
+    })
+    it("should not respond to a private method", (done) => {
+      expect(() => {
+        other._ignoredMethod()
+      }).to.throw();
+      done()
+    })
     it("should error for missing event handlers", (done) => {
-      expect(inst.respond, 'missingHandler').to.throw();
+      expect(() => {
+        inst.respond('missingHandler')
+      }).to.throw();
       done();
     })
   });
@@ -215,15 +235,15 @@ describe("ModuleProxy", () => {
       m = new ModuleProxy(a, 'test')
       done()
     })
-    it("warns for events after launch", (done) => {
-      m.respond('someSuchEvent', () => {})
-      m.request('noSuchEvent', 1)
-      a.launch().then(() => {
-        a.log.warn.called.should.be.true()
-        a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
-        done()
-      })
-    })
+    // it("warns for events after launch", (done) => {
+    //   m.respond('someSuchEvent', () => {})
+    //   m.request('noSuchEvent', 1)
+    //   a.launch().then(() => {
+    //     a.log.warn.called.should.be.true()
+    //     a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
+    //     done()
+    //   })
+    // })
     it("warns for module after launch", (done) => {
       m.request('noSuchEvent', 1)
       a.launch().then(() => {

@@ -14,8 +14,12 @@ class SubModule extends NxusModule {
     super(app)
   }
 
-  defaultConfig() {
+  _defaultConfig() {
     return {"other": "you"}
+  }
+
+  test(done) {
+    if(cb) done()
   }
 }
 SubModule.subModule = SubModule.getProxy()
