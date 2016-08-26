@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-08-25
-* @Last Modified time: 2016-08-25 14:30:57
+* @Last Modified time: 2016-08-25 15:36:12
 */
 
 import _ from 'underscore'
@@ -58,13 +58,11 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
- * import {Application} from 'nxus-core'
+ * import {application} from 'nxus-core'
  * 
- * let app = new Application()
- * 
- * app.start()
- * 
- * export default app
+ * application.start()
+ *
+ * export default application
  *
  * 
  */
@@ -81,8 +79,8 @@ export default class Application extends Dispatcher {
     this._pluginInstances = {}
     this._currentStage = null
     this._banner = opts.banner || startupBanner
-    this._defaultConfig = {};
-    this.config = {};
+    this._defaultConfig = {}
+    this.config = {}
     
     this._bootEvents = [
       'init',
@@ -114,9 +112,9 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupConfig() {    
-    this.writeDefaultConfig(null, _defaultConfig)
+    this.setDefaultConfig(null, _defaultConfig)
         
-    this.config = Object.assign(this.config, this._opts, new ConfigurationManager(this.config).getConfig())
+    this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig(), this._opts)
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -146,7 +144,7 @@ export default class Application extends Dispatcher {
    */
   _setupPluginManager() {
     this._modules = new PluginManager(this, this.config)
-    _.each(this._modules, (plugin) => {
+    this._modules.forEach((plugin) => {
       this._pluginInfo[plugin._pluginInfo.name] = plugin._pluginInfo
     })
   }
@@ -165,30 +163,32 @@ export default class Application extends Dispatcher {
   }
 
   /**
+   * @private
    * Initializes the application by loading plugins, then booting the application.
    *
    * **Note**: this should rarely be called directly. Instead use #start
    * 
    * @return {Promise}
    */
-  init() {
+  _init() {
     this._pluginInstances = {}
-    return this._loadPlugins().then(this.boot.bind(this)).then(() => {
+    return this._loadPlugins().then(::this._boot).then(() => {
       if (!this.config.script && this.config.NODE_ENV != 'production') {
         this.log.debug('Setting up App watcher')
         this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
       }
-    });
+    })
   }
 
   /**
+   * @private
    * Boots the application, cycling through the internal boot stages.
    *
    * **Note**: Should rarely be called directly. Instead use #start
    * 
    * @return {Promise}
    */
-  boot() {
+  _boot() {
     if (this.config.debug) this.log.info('Booting Application')
     return new Promise.mapSeries(this._bootEvents, (e) => {
       this._currentStage = e
@@ -204,9 +204,9 @@ export default class Application extends Dispatcher {
    */
   stop() {
     if (this.config.debug) this.log.info('Stopping')
-    return this.emit("stop").then(() => {
+    return this.emit('stop').then(() => {
       return Promise.resolve().then(() => {
-        Object.keys(this._events).map((event) =>  this.removeAllListeners(event) );
+        Object.keys(this._events).map((event) =>  this.removeAllListeners(event) )
       })
     })
   }
@@ -219,7 +219,7 @@ export default class Application extends Dispatcher {
   start() {
     if(!this.config.silent) this._showBanner()
     this.log.info(this.config.appName+' Starting at', new Date())
-    return this.init()
+    return this._init()
   }
 
   /**
@@ -229,15 +229,15 @@ export default class Application extends Dispatcher {
    */
   restart() {
     this._currentStage = 'restarting'
-    this.log.info("Restarting App");
+    this.log.info('Restarting App')
     return this._invalidatePluginsInRequireCache()
-    .then(this.stop.bind(this))
-    .then(this._setupConfig.bind(this))
-    .then(this.start.bind(this))
+    .then(::this.stop)
+    .then(::this._setupConfig)
+    .then(::this.start)
   }
 
-  writeDefaultConfig(name, opts) {
-    if(name && name != "") {
+  setDefaultConfig(name, opts) {
+    if(name && name != '') {
       this._defaultConfig[name] = _.deepClone(opts)
       if(!this.config[name]) this.config[name] = opts
     } else {
@@ -256,7 +256,7 @@ export default class Application extends Dispatcher {
         config[key] = value
       }
     })
-    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2))
   }
 
   /**
@@ -269,7 +269,7 @@ export default class Application extends Dispatcher {
     let nxusModules = this._modules.map((x) => { return x._pluginInfo.modulePath })
 
     return new Promise((resolve) => {
-      let invalid = new RegExp("^.*("+nxusModules.join("|")+").*.js")
+      let invalid = new RegExp('^.*('+nxusModules.join('|')+').*.js')
       _.each(require.cache, (v, k) => {
         if (invalid.test(k)) {
           delete require.cache[k]
@@ -287,7 +287,7 @@ export default class Application extends Dispatcher {
    * @return {Array}
    */
   _getWatchPaths() {
-    let watch = ["**/node_modules/**", "**/modules/**"]
+    let watch = ['**/node_modules/**', '**/modules/**']
     if(_.isString(this.config.watch)) this.config.watch = [this.config.watch]
     return watch.concat(this.config.watch || [])
   }
@@ -299,11 +299,11 @@ export default class Application extends Dispatcher {
    * @return {Array}
    */
   _getAppIgnorePaths() {
-    var opts = this.config.ignore || [];
+    var opts = this.config.ignore || []
     return opts.concat([
       '**/.git/**',
       '**.ejs'
-    ]);
+    ])
   }
 
   /**
@@ -331,10 +331,10 @@ export default class Application extends Dispatcher {
   _bootPlugins() {
     return Promise.map(
       this._modules,
-      this._bootPlugin.bind(this)
+      ::this._bootPlugin
     ).catch((e) => {
       this.log.error('Error booting module', e)
-      this.log.error(e.stack);
+      this.log.error(e.stack)
     })
   }
 
@@ -357,7 +357,7 @@ export default class Application extends Dispatcher {
       this.log.debug('Booting Module', name)
       if(plugin.default)
         plugin = plugin.default
-      pluginInstance = new plugin(this);
+      pluginInstance = new plugin(this)
       this._pluginInstances[name] = pluginInstance
     } catch(e) {
       this.log.error('Error booting module '+name, e)
