@@ -1,7 +1,18 @@
 import morph from 'morph'
+import path from 'path'
+import stackTrace from 'stack-trace'
 import ModuleProxy from './ModuleProxy'
 import {application} from './Application'
 import Logger from './Logger'
+
+
+function __dirName(constructorName) {
+  for (let site of stackTrace.get()) {
+    if(site.getFunctionName() == constructorName) {
+      return path.dirname(site.getFileName())
+    }
+  }
+}
 
 /**
  * The NxusModule class is a base class for all Nxus modules.
@@ -21,6 +32,8 @@ class NxusModule {
     if (defaultConfig !== null) {
       application.setDefaultConfig(this.__name, defaultConfig)
     }
+
+    this._dirName = __dirName(this.constructor.name)
   }
 
   get config() {

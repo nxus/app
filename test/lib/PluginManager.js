@@ -7,15 +7,14 @@
 'use strict';
 
 import {PluginManager} from '../../lib/'
-import should from 'should'
 
 describe("PluginManager", () => {
   describe("Load", () => {
     var instance;
 
-    it("should not be null", () => PluginManager.should.not.be.null())
+    it("should not be null", () => PluginManager.should.not.be.null)
 
-    it("should be instantiated", () => (instance = new PluginManager()).should.not.be.null())
+    it("should be instantiated", () => (instance = new PluginManager()).should.not.be.null)
   })
 
 })

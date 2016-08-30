@@ -7,12 +7,8 @@
 'use strict';
 
 import {NxusModule, application} from '../../lib/'
-import should from 'should'
 
 class SubModule extends NxusModule {
-  constructor(app) {
-    super(app)
-  }
 
   _defaultConfig() {
     return {"other": "you"}
@@ -32,10 +28,10 @@ describe("NxusModule", () => {
   })
 
   describe("Load", () => {
-    it("should not be null", () => NxusModule.should.not.be.null())
+    it("should not be null", () => NxusModule.should.not.be.null)
 
     it("should be subclassable", () => {
-      instance.should.not.be.null()
+      instance.should.not.be.null
     })
 
     it("should set itself in app modules with the config name (dashed)", () => {
@@ -55,7 +51,13 @@ describe("NxusModule", () => {
 
   describe("Logging", () => {
     it("should have a logger instance", () => {
-      instance.log.should.not.be.null()
+      instance.log.should.not.be.null
+    })
+  })
+
+  describe("_dirName", () => {
+    it("should be this directory", () => {
+      instance._dirName.includes("test/lib").should.equal(true)
     })
   })
 
