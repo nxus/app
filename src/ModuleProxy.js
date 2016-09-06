@@ -55,7 +55,10 @@ class ModuleProxy extends Dispatcher {
     this._app = app;
     this._name = name;
     this.loaded = false
-    app.on('stop', this.removeAllListeners.bind(this));
+    app.on('stop', () => {
+      this.removeAllListeners()
+      this.loaded = false
+    })
     app.on('load.before', () => {
       this.loaded = true
     })
@@ -124,7 +127,7 @@ class ModuleProxy extends Dispatcher {
     if(this._instance && !this._registeredEvents[name]) throw new Error('Requested event '+name+' which doesn\'t exist on target '+this._name)
     
     if(!this.loaded) {
-      return this._app[when]('load').then(() => {
+      return this._app[when]('load', () => {
         return this.emit(name, ...args);
       });
     } else {
