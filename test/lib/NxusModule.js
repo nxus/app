@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 08:47:51
-* @Last Modified 2016-08-25
+* @Last Modified 2016-09-06
 */
 
 'use strict';
@@ -46,6 +46,13 @@ describe("NxusModule", () => {
     it("should get config from app key", () => {
       application.config['sub-module']["hi"] = "hello"
       instance.config.hi.should.equal("hello")
+    })
+  })
+
+  describe("Config", () => {
+    it("should be settable", () => {
+      instance.config.key = 'value'
+      instance.config.key.should.equal('value')
     })
   })
 

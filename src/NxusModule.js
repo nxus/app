@@ -37,7 +37,12 @@ class NxusModule {
   }
 
   get config() {
-    return application.config[this.__name] || {}
+    if(!this._config) this._config = Object.assign({}, application.config[this.__name])
+    return this._config
+  }
+
+  set config(val) {
+    this._config = val
   }
 
   _defaultConfig() {
