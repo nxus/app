@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
-* @Last Modified 2016-08-25
+* @Last Modified 2016-09-06
 */
 
 'use strict';
@@ -109,7 +109,7 @@ class ModuleProxy extends Dispatcher {
 
   _checkMissingEvents() {
     let registered = _.keys(this._registeredEvents)
-    if (registered.length == 0) {
+    if (registered.length == 0 && (!process.env['NODE_ENV'] || process.env['NODE_ENV'] != 'production')) {
       this._app.log.warn("Module", this._name, "registered but without events, we only know of:", _.keys(this._app.registeredModules).join(' '))
       return
     }

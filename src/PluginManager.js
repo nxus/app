@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
-* @Last Modified 2016-08-25
-* @Last Modified time: 2016-08-25 10:26:28
+* @Last Modified 2016-09-06
+* @Last Modified time: 2016-09-06 17:13:42
 */
 
 'use strict';
@@ -69,7 +69,7 @@ class PluginManager {
    * @return {[type]}          [description]
    */
   loadAdditionalModules(options, packages) {
-    var customDir = options.modulesDir || options.appDir+'/modules'
+    var customDir = options.modulesDir || (options.appDir || process.cwd())+'/modules'
     if(!_.isArray(customDir)) customDir = [customDir]
     _.each(customDir, (dir) => {
       this._loadModulesFromDirectory(dir)
@@ -108,7 +108,6 @@ class PluginManager {
         process.kill(process.pid, 'SIGTERM')
       }
     })
-
   }
 
   /**

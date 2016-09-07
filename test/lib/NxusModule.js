@@ -14,6 +14,10 @@ class SubModule extends NxusModule {
     return {"other": "you"}
   }
 
+  _userConfig() {
+    return {user: 'config'}
+  }
+
   test(done) {
     if(cb) done()
   }
@@ -39,12 +43,18 @@ describe("NxusModule", () => {
     })
 
     it("should set defaultConfig", () => {
-      application.config.should.have.property("sub-module")
-      application.config['sub-module'].should.have.property("other", "you")
+      instance.config.should.not.be.null()
+      instance.config.should.have.property("other", "you")
+    })
+
+    it("should set the userConfig value", () => {
+      instance.config.user.should.not.be.null()
+      application._userConfig.should.have.property('sub-module')
     })
 
     it("should get config from app key", () => {
-      application.config['sub-module']["hi"] = "hello"
+      delete instance.config
+      application.config['sub-module'] = {"hi": "hello"}
       instance.config.hi.should.equal("hello")
     })
   })

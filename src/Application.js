@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-08-25
-* @Last Modified time: 2016-08-25 15:36:12
+* @Last Modified 2016-09-06
+* @Last Modified time: 2016-09-06 19:04:31
 */
 
 import _ from 'underscore'
@@ -18,13 +18,17 @@ import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
 import {logger} from './Logger'
 
-var _defaultConfig = {
+var _userConfig = {
   siteName: 'Nxus App',
   host: 'localhost',
-  baseUrl: 'localhost:3001',
+  baseUrl: 'localhost:3001'
+}
+
+var _defaultConfig = {
   appName: 'App',
   namespace: 'nxus',
-  appDir: process.cwd()
+  appDir: process.cwd(),
+  config: process.cwd()+"/.nxusrc"
 }
 
 _.mixin(require('underscore.deep'))
@@ -79,7 +83,7 @@ export default class Application extends Dispatcher {
     this._pluginInstances = {}
     this._currentStage = null
     this._banner = opts.banner || startupBanner
-    this._defaultConfig = {}
+    this._userConfig = {}
     this.config = {}
     
     this._bootEvents = [
@@ -112,9 +116,11 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupConfig() {    
-    this.setDefaultConfig(null, _defaultConfig)
+    this.setUserConfig(null, _userConfig)
         
-    this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig(), this._opts)
+    this.config = Object.assign(this.config, _defaultConfig)
+    this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
+    this.config = Object.assign(this.config, this._opts)
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -236,12 +242,12 @@ export default class Application extends Dispatcher {
     .then(::this.start)
   }
 
-  setDefaultConfig(name, opts) {
+  setUserConfig(name, opts) {
     if(name && name != '') {
-      this._defaultConfig[name] = _.deepClone(opts)
+      this._userConfig[name] = _.deepClone(opts)
       if(!this.config[name]) this.config[name] = opts
     } else {
-      Object.assign(this._defaultConfig, opts)
+      Object.assign(this._userConfig, opts)
       Object.assign(this.config, opts)
     }
   }
@@ -250,8 +256,12 @@ export default class Application extends Dispatcher {
     if(!this.config.config) return
     var configFile = this.config.config
     var config = {}
-    if(fs.existsSync(configFile)) config = JSON.parse(fs.readFileSync(configFile))
-    _.each(this._defaultConfig, (value, key) => {
+    try {
+      if(fs.existsSync(configFile)) config = JSON.parse(fs.readFileSync(configFile))
+    } catch(e) {
+      config = {}
+    }
+    _.each(this._userConfig, (value, key) => {
       if(!config[key]) {
         config[key] = value
       }

@@ -4,6 +4,7 @@ import stackTrace from 'stack-trace'
 import ModuleProxy from './ModuleProxy'
 import {application} from './Application'
 import Logger from './Logger'
+import deepExtend from 'deep-extend'
 
 
 function __dirName(constructorName) {
@@ -28,16 +29,17 @@ class NxusModule {
 
     this.log = Logger(this.__name)
 
-    let defaultConfig = this._defaultConfig()
-    if (defaultConfig !== null) {
-      application.setDefaultConfig(this.__name, defaultConfig)
+    let userConfig = this._userConfig()
+    if (userConfig !== null) {
+      application.setUserConfig(this.__name, userConfig)
     }
 
     this._dirName = __dirName(this.constructor.name)
   }
 
   get config() {
-    if(!this._config) this._config = Object.assign({}, application.config[this.__name])
+    let _defaultConfig = this._defaultConfig() || {}
+    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__name]))
     return this._config
   }
 
@@ -46,6 +48,10 @@ class NxusModule {
   }
 
   _defaultConfig() {
+    return null
+  }
+
+  _userConfig() {
     return null
   }
 
