@@ -59,7 +59,7 @@ class PluginManager {
 
     var pattern = _.unique(this._arrayify(options.namespace).concat(['nxus-*', '!nxus-core']))
 
-    this._loadModulesFromDirectory(nxusCorePath, pattern)
+    this._loadModulesFromDirectory(nxusCorePath, false, pattern)
   }
 
   /**
@@ -72,7 +72,7 @@ class PluginManager {
     var customDir = options.modulesDir || (options.appDir || process.cwd())+'/modules'
     if(!_.isArray(customDir)) customDir = [customDir]
     _.each(customDir, (dir) => {
-      this._loadModulesFromDirectory(dir)
+      this._loadModulesFromDirectory(dir, true)
     })
   }
 
@@ -83,7 +83,7 @@ class PluginManager {
    * @param  {[type]} matches [description]
    * @return {[type]}         [description]
    */
-  _loadModulesFromDirectory(dir, matches) {
+  _loadModulesFromDirectory(dir, isLocal, matches) {
     if (!fs.existsSync(dir)) return
 
     var moduleDirs = fs.readdirSync(dir)
@@ -91,15 +91,15 @@ class PluginManager {
     moduleDirs.forEach((name) => {
       if(matches) name = multimatch([name], matches)[0]
       if(!name || (name && name[0] == ".")) return
-      this.app.log.debug('Loading module', name)
+      this.app.log.debug('Loading module', name, isLocal ? "(app)": "(dep)")
       try {
         let modulePath = path.resolve(path.join(dir, name))
         var pkg = require(modulePath)
-        pkg._pluginInfo = {name, modulePath}
+        pkg._pluginInfo = {name, modulePath, isLocal}
         this.packages.push(pkg)
         // Recurse for module modules
-        this._loadModulesFromDirectory(path.join(dir, name, 'modules'))
-        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'))
+        this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal)
+        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal)
         //if(fs.existsSync(dir + "/" + name + "/node_modules")) 
           //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
       } catch (e) {

@@ -82,6 +82,7 @@ export default class Application extends Dispatcher {
     this._pluginInfo = {}
     this._pluginInstances = {}
     this._currentStage = null
+    this._appWatcher = null
     this._banner = opts.banner || startupBanner
     this._userConfig = {}
     this.config = {}
@@ -179,9 +180,9 @@ export default class Application extends Dispatcher {
   _init() {
     this._pluginInstances = {}
     return this._loadPlugins().then(::this._boot).then(() => {
-      if (!this.config.script && this.config.NODE_ENV != 'production') {
+      if (!this._appWatcher && !this.config.script && this.config.NODE_ENV != 'production') {
         this.log.debug('Setting up App watcher')
-        this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
+        this._appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
       }
     })
   }
@@ -204,17 +205,13 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Stops the currently running application, removing all event listeners.
+   * Stops the currently running application
    * 
    * @return {Promise}
    */
   stop() {
     if (this.config.debug) this.log.info('Stopping')
-    return this.emit('stop').then(() => {
-      return Promise.resolve().then(() => {
-        Object.keys(this._events).map((event) =>  this.removeAllListeners(event) )
-      })
-    })
+    return this.emit('stop')
   }
 
   /**
@@ -236,7 +233,7 @@ export default class Application extends Dispatcher {
   restart() {
     this._currentStage = 'restarting'
     this.log.info('Restarting App')
-    return this._invalidatePluginsInRequireCache()
+    return this._invalidateLocalModules()
     .then(::this.stop)
     .then(::this._setupConfig)
     .then(::this.start)
@@ -270,16 +267,21 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Invalidates the internal require plugin cache, ensuring all plugins are reloaded from the files.
+   * Invalidates the internal require plugin cache, ensuring all plugins are reloaded from the files. Only applies to local app modules, not dependencies in node_modules.
    * 
    * @private
    * @return {Promise}
    */
-  _invalidatePluginsInRequireCache() {
-    let nxusModules = this._modules.map((x) => { return x._pluginInfo.modulePath })
-
+  _invalidateLocalModules() {
+    let localModulePaths = []
+    for (let m of this._modules) {
+      if (m._pluginInfo.isLocal) {
+        localModulePaths.push(m._pluginInfo.modulePath)
+        this._pluginInstances[m._pluginInfo.name].deregister()
+      }
+    }
     return new Promise((resolve) => {
-      let invalid = new RegExp('^.*('+nxusModules.join('|')+').*.js')
+      let invalid = new RegExp('^.*('+localModulePaths.join('|')+').*.js')
       _.each(require.cache, (v, k) => {
         if (invalid.test(k)) {
           delete require.cache[k]

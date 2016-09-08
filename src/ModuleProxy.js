@@ -55,17 +55,26 @@ class ModuleProxy extends Dispatcher {
     this._app = app;
     this._name = name;
     this.loaded = false
-    app.on('stop', () => {
-      this.removeAllListeners()
-      this.loaded = false
-    })
-    app.on('load.before', () => {
-      this.loaded = true
-    })
+    app.on('stop', ::this._onStop)
+    app.on('load.before', ::this._beforeLoad)
     this._requestedEvents = {}
     this._registeredEvents = {}
     app.after('launch', this._checkMissingEvents.bind(this))
     this._instance = null
+  }
+
+  _onStop() {
+    this.removeAllListeners()
+    this.loaded = false
+  }
+
+  _beforeLoad() {
+    this.loaded = true
+  }
+
+  deregister() {
+    this._app.removeListener('stop', ::this._onStop)
+    this._app.removeListener('load.before', ::this._beforeLoad)
   }
 
   /**
