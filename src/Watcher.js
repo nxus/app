@@ -37,7 +37,6 @@ export default class Watcher {
     ) 
 
     app.on('change', (path) => {
-      this.watch.close();
       var start = moment()
       if(app._currentStage != app._bootEvents[app._bootEvents.length - 1]) return
       app.restart().then(() => {

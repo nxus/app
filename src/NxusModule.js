@@ -25,7 +25,8 @@ class NxusModule {
 
   constructor(app) {
     this.__name = this.constructor._moduleName()
-    application.get(this.__name).use(this)
+    this.__proxy = application.get(this.__name)
+    this.__proxy.use(this)
 
     this.log = Logger(this.__name)
 
@@ -61,6 +62,10 @@ class NxusModule {
 
   static getProxy() {
     return application.get(this._moduleName())
+  }
+
+  deregister() {
+    this.__proxy.deregister()
   }
 
 }
