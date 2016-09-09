@@ -1,17 +1,17 @@
 'use strict';
 
-import {Module} from '../../lib'
+import {ModuleProxy} from '../../lib'
 import TestApp from '../../lib/test/support/TestApp'
 
-describe("Module", () => {
+describe("ModuleProxy", () => {
   var module;
   var app = new TestApp();
   
   describe("Load", () => {
-    it("should not be null", () => Module.should.not.be.null())
+    it("should not be null", () => ModuleProxy.should.not.be.null())
 
     it("should be instantiated", () => {
-     module = new Module(app, 'test')
+     module = new ModuleProxy(app, 'test')
      module.should.not.be.null() 
     });
   });
@@ -21,19 +21,25 @@ describe("Module", () => {
 
     before((done) => {
       other_app = new TestApp()
-      other = new Module(other_app, 'other')
+      other = new ModuleProxy(other_app, 'other')
       class TestModule {
         constructor() {
           this.x = 1
           other.use(this)
-          this.respond('testEvent')
-          this.respond('namedEvent', this._handler.bind(this))
+          this.respond('testEvent', ::this._testEvent)
+          this.respond('namedEvent', ::this._handler)
         }
         _handler (a) {
           return 1
         }
-        testEvent (a, b) {
+        _testEvent (a, b) {
           return this.x + a + b
+        }
+        notBoundMethod(a) {
+          return 2
+        } 
+        _ignoredMethod() {
+          return 3
         }
       }
       inst = new TestModule()
@@ -74,8 +80,22 @@ describe("Module", () => {
         done()
       })
     })
+    it("should respond normally to a proxy method implicitly bound", (done) => {
+      other.notBoundMethod().then((arg) => {
+        arg.should.equal(2)
+        done()
+      })
+    })
+    it("should not respond to a private method", (done) => {
+      expect(() => {
+        other._ignoredMethod()
+      }).to.throw();
+      done()
+    })
     it("should error for missing event handlers", (done) => {
-      expect(inst.respond, 'missingHandler').to.throw();
+      expect(() => {
+        inst.respond('missingHandler')
+      }).to.throw();
       done();
     })
   });
@@ -126,7 +146,7 @@ describe("Module", () => {
     
     beforeEach(() => {
       other_app = new TestApp()
-      module = new Module(other_app, 'test')
+      module = new ModuleProxy(other_app, 'test')
     })
     it("should have methods", () => {
       module.original.should.be.Function();
@@ -158,7 +178,7 @@ describe("Module", () => {
         arg.should.equal(result+1)
         result = arg
       });
-      return Promise.all([
+      Promise.all([
         module.replace().testDefault2(3).then(() => {
           result.should.equal(3);
         }),
@@ -212,23 +232,23 @@ describe("Module", () => {
     let m, a
     beforeEach((done) => {
       a = new TestApp()
-      m = new Module(a, 'test')
+      m = new ModuleProxy(a, 'test')
       done()
     })
-    it("warns for events after launch", (done) => {
-      m.respond('someSuchEvent', () => {})
-      m.request('noSuchEvent', 1)
-      a.launch().then(() => {
-        a.log.warn.called.should.be.true()
-        a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
-        done()
-      })
-    })
+    // it("warns for events after launch", (done) => {
+    //   m.respond('someSuchEvent', () => {})
+    //   m.request('noSuchEvent', 1)
+    //   a.launch().then(() => {
+    //     a.log.warn.called.should.be.true()
+    //     a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
+    //     done()
+    //   })
+    // })
     it("warns for module after launch", (done) => {
       m.request('noSuchEvent', 1)
       a.launch().then(() => {
         a.log.warn.called.should.be.true()
-        a.log.warn.calledWith('Application.get called with', 'test', 'but only knows of:').should.be.true()
+        a.log.warn.calledWith('Module', 'test', 'registered but without events, we only know of:').should.be.true()
         done()
       })
     })

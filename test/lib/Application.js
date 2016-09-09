@@ -1,7 +1,7 @@
 /* 
 * @Author: Mike Reich
 * @Date:   2015-07-16 07:40:46
-* @Last Modified 2016-02-25
+* @Last Modified 2016-09-06
 */
 
 'use strict';
@@ -17,6 +17,8 @@ describe("Application", () => {
     it("should not be null", () => Application.should.not.be.null())
 
     it("should be instantiated", () => (app = new Application()).should.not.be.null())
+
+    it("should have the logger", () => app.log.should.not.be.null())
 
     it("should use the passed in appDir if present", () => {
       app = new Application({appDir: 'someValue'})

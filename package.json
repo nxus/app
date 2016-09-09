@@ -1,7 +1,7 @@
 {
   "name": "nxus-core",
   "main": "lib",
-  "version": "3.0.0",
+  "version": "4.0.0-0",
   "description": "A framework for building light-weight, event-driven data processing apps.",
   "bin": {
     "gonxus": "./bin/start.js"
@@ -12,7 +12,8 @@
     "test": "npm run compile && NODE_ENV=test nxus_myconfig=test mocha --compilers js:babel-core/register -R spec test/lib/* --config=./test/testApp/.nxusrc",
     "compile": "babel src --out-dir lib && babel test/support/ --out-dir lib/test/support/",
     "prepublish": "npm run compile",
-    "build-docs": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/*.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
+    "postpublish": "npm run build-docs && npm run publish-docs",
+    "build-docs": "export NAME=`npm view . name`; export VERSION=`npm view . version`; documentation readme ./src/index.js --name $NAME --project-version $VERSION --readme-file ./README.md -s $NAME",
     "publish-docs": "npm run build-docs && git add ./README.md && git commit -m 'Updated README API Docs' && git push"
   },
   "author": "info@nxusapp.com",
@@ -25,34 +26,37 @@
     "url": "https://github.com/nxus/core/issues"
   },
   "homepage": "https://github.com/nxus/core",
-  "babel": {
-    "presets": [
-      "es2015"
-    ]
+  "engines": {
+    "node": "~6"
   },
   "dependencies": {
-    "async": "^0.9.0",
-    "bluebird": "^3.0.5",
-    "chokidar": "^1.0.1",
-    "findup-sync": "^0.2.1",
-    "merge-descriptors": "0.0.2",
-    "moment": "^2.10.3",
-    "multimatch": "^2.0.0",
-    "node-proxy": "^1.0.0",
+    "async": "^2.0.1",
+    "babel-plugin-transform-class-properties": "^6.11.5",
+    "babel-plugin-transform-function-bind": "^6.8.0",
+    "bluebird": "^3.4.1",
+    "chokidar": "^1.6.0",
+    "debug-logger": "^0.4.1",
+    "deep-extend": "^0.4.1",
+    "findup-sync": "^0.4.2",
+    "merge-descriptors": "^1.0.1",
+    "moment": "^2.14.1",
+    "morph": "^0.2.0",
+    "multimatch": "^2.1.0",
     "rc": "^1.1.6",
-    "underscore": "*",
+    "stack-trace": "0.0.9",
+    "underscore": "^1.8.3",
     "underscore.deep": "^0.5.1",
-    "winston": "^2.1.1"
+    "winston": "^2.2.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-core": "^6.13.2",
+    "babel-preset-es2015": "^6.13.2",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.3.0",
     "documentation": "^4.0.0-beta9",
-    "chai": "^3.4.1",
-    "chai-as-promised": "^5.1.0",
-    "mocha": "^2.2.5",
-    "should": "^7.0.2",
-    "sinon": "^1.17.2",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-cli": "^6.9.0",
-    "babel-core": "^6.9.0"
+    "mocha": "^3.0.2",
+    "should": "^11.1.0",
+    "sinon": "^1.17.5"
   }
 }

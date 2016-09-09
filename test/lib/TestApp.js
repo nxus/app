@@ -12,13 +12,13 @@ describe("TestApp", () => {
 
   it("Provide", () => {
     var ret = app.get('module').provide('event', 'val')
-    app.get().provide.calledWith('event', 'val').should.be.true()
+    app.get('module').provide.calledWith('event', 'val').should.be.true()
     ret.then.should.be.Function();
   });
 
   it("Use", () => {
     app.get('module').use({'event': () => {}}).gather('event')
-    app.get().gather.calledWith('event').should.be.true()
+    app.get('module').gather.calledWith('event').should.be.true()
   });
 
   it("Default and Replace", () => {

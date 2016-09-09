@@ -4,7 +4,7 @@ import _ from 'underscore'
 import sinon from 'sinon'
 import Promise from 'bluebird'
 
-import { Dispatcher, Module, ProxyMethods } from '../../'
+import { Dispatcher, ModuleProxy, ProxyMethods } from '../../'
 
 const stubPromise = sinon.createStubInstance(Promise)
 
@@ -25,6 +25,8 @@ class TestApp extends Dispatcher {
     this.after = sinon.spy(this.after);
     this.onceBefore = sinon.spy(this.onceBefore);
     this.onceAfter = sinon.spy(this.onceAfter);
+
+    this.testMethod = sinon.spy(this.onceAfter);
 
     this._request = sinon.stub().returns(stubPromise)
     this._provide = sinon.stub().returns(stubPromise)
@@ -60,8 +62,8 @@ class TestApp extends Dispatcher {
       default: this._default,
       replace: this._replace,
       use: (i) => {
-        let m = new Module(this)
-        let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond)})
+        let m = new ModuleProxy(this, i)
+        let useme = _.extend(_.clone(this._get), {gather: handler(this._get_gather), respond: handler(this._get_respond), emit: () => {}})
         return m.use.call(useme, i)
       }
     }
@@ -73,7 +75,7 @@ class TestApp extends Dispatcher {
 
   }
 
-  writeDefaultConfig(key, value) {
+  setUserConfig(key, value) {
     if(typeof this.config[key] == 'undefined') this.config[key] = value
   }
 

@@ -1,8 +1,8 @@
 /* 
 * @Author: mike
 * @Date:   2015-05-18 17:04:13
-* @Last Modified 2016-07-28
-* @Last Modified time: 2016-07-28 07:39:31
+* @Last Modified 2016-08-25
+* @Last Modified time: 2016-08-25 10:27:07
 */
 
 'use strict';
@@ -13,6 +13,7 @@ import path from 'path'
 import rc from 'rc'
 
 /**
+ * @private
  * ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
  * 1. Opts loaded into the application object.
  * 2. Opts in the `config` hash of the project package.json file

@@ -1,111 +1,9 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-08-07
-* @Last Modified time: 2016-08-07 13:11:50
+* @Last Modified 2016-09-06
+* @Last Modified time: 2016-09-06 19:04:31
 */
-/**
- * [![Build Status](https://travis-ci.org/nxus/core.svg?branch=master)](https://travis-ci.org/nxus/core)
- * 
- * The Nxus Core package includes the basic Application framework for building a Nxus app.
- * 
- * ## Introduction
- * 
- * You'll probably find the following resources useful background and help in building Nxus applcations.
- * 
- * -   [Getting Started](<>) (TODO)
- * -   [Design Patterns](<>) (TODO)
- * -   [Nxus Modules](<>) (TODO)
- * -   [Recipes](<>) (TODO)
- * -   [Developing a ](<>) (TODO)
- * 
- * ## Documentation
- * 
- * The full set of Nxus docs is available at [http://docs.gonxus.org](http://docs.gonxus.org).
- * 
- * ## Installation
- * 
- *     > npm install @nxus/core --save
- * 
- * ## Usage
- * 
- * In your root application, create a new Application instance:
- * 
- *     import {Application} from '@nxus/core'
- * 
- *     let app = new Application(options)
- * 
- *     app.start()
- * 
- *     export default app
- * 
- * ### Events
- * 
- * Nxus is built around the concept of a boot cycle.  The application dispatches events in the following order:
- *
- * | Boot Stage | Description |
- * | --- | --- |
- * | `init` | indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase. |
- * | `load` | modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase. |
- * | `startup` | all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage) |
- * | `launch` | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched |
- * 
- * ### Module Loading
- * 
- * By defaul the Application will look for other Nxus modules in the following order:
- * 
- * 1.  @nxus namespaced npm modules in your `package.json` file.
- * 2.  Any packages that match the 'namespace-' pattern passed in the `namespace` application config option.
- * 3.  folders in the ./modules folder in the root of your project
- * 4.  any modules specified in the _modules_ option passed into Application on instantiation.
- * 
- * ### Module Access
- * 
- * In order to access module commands, use the Application.get() method.
- * 
- *     let router = Application.get('router')
- * 
- * ### Application Options
- *
- * ```
- * new App(...options)
- * ```
- * 
- * Available options are:
- * 
- * _appDir_: the location to use to load the default 'package.json' file. 
- * 
- * _namespace_: any additional namespaces to use to load modules in the node\_modules folder. Can be a string or array of strings.
- * 
- * _modules_: an array of paths to require into the application
- * 
- * _debug_: Boolean to display debug messages, including startup banner
- * 
- * _script_: Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls
- *
- * ### Application Configuration
- *
- * The Application exposes a core `config` object that contains application and module specific configuration values.
- *
- * Nxus uses the [rc](https://www.npmjs.com/package/rc) library to provide application configuration.
- *
- * The application configuration can usually be found in a `.nxusrc` file in the root folder.
- *
- * You can override specific confirguation values using command line environment variables, which supports nesting.
- *
- * ```
- * nxus_myconfig__value__first=true npm start
- * ```
- *
- * will translate into an application config of
- *
- * ```
- * console.log(app.config.myconfig) // {value: {first: true}}
- * ```
- * 
- * ## API
- */
-
 
 import _ from 'underscore'
 import util from 'util'
@@ -114,16 +12,23 @@ import domain from 'domain'
 import path from 'path'
 
 import Dispatcher from './Dispatcher'
-import Module from './Module'
+import ModuleProxy from './ModuleProxy'
 import PluginManager from './PluginManager'
 import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
-import Logger from './Logger'
+import {logger} from './Logger'
 
-var _defaultConfig = {
+var _userConfig = {
   siteName: 'Nxus App',
   host: 'localhost',
   baseUrl: 'localhost:3001'
+}
+
+var _defaultConfig = {
+  appName: 'App',
+  namespace: 'nxus',
+  appDir: process.cwd(),
+  config: process.cwd()+"/.nxusrc"
 }
 
 _.mixin(require('underscore.deep'))
@@ -137,28 +42,50 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
     "|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
 
 /**
+ * 
  * The Core Application class.
  *
+ * ### Configuration Options
+ * 
+ * Available options are:
+ *
+ * | Name | Description |
+ * | --- | --- |
+ * | appName | the name of your app. Will be used for console logging. |
+ * | appDir | the location to use to load the default 'package.json' file. |
+ * | namespace | any additional namespaces to use to load modules in the node\_modules folder. Can be a string or array of strings. |
+ * | modules | an array of paths to require into the application |
+ * | debug | Boolean to display debug messages, including startup banner |
+ * | script | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
+ * | silent | Don't show any console output. Useful for CLI scripts. |
+ * 
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
- * import {Application} from '@nxus/core'
- * let app = new Application(options)
- * app.start()
- * export default app
+ * import {application} from 'nxus-core'
+ * 
+ * application.start()
+ *
+ * export default application
+ *
  * 
  */
+
+
 export default class Application extends Dispatcher {
 
   constructor(opts = {}) {
     super()
     this._opts = opts
     this._modules = {}
+    this._moduleProxies = {}
     this._pluginInfo = {}
+    this._pluginInstances = {}
     this._currentStage = null
+    this._appWatcher = null
     this._banner = opts.banner || startupBanner
-    this._defaultConfig = {};
-    this.config = {};
+    this._userConfig = {}
+    this.config = {}
     
     this._bootEvents = [
       'init',
@@ -190,13 +117,11 @@ export default class Application extends Dispatcher {
    * @private
    */
   _setupConfig() {    
-    this._opts.appName = this._opts.appName || "NXUS App"
-    this._opts.namespace = this._opts.namespace || "nxus"
-    this._opts.appDir = this._opts.appDir || process.cwd()
-
-    this.writeDefaultConfig(null, _defaultConfig)
+    this.setUserConfig(null, _userConfig)
         
-    this.config = Object.assign(this.config, this._opts, new ConfigurationManager(this._opts).getConfig())
+    this.config = Object.assign(this.config, _defaultConfig)
+    this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
+    this.config = Object.assign(this.config, this._opts)
     if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
   }
 
@@ -215,11 +140,7 @@ export default class Application extends Dispatcher {
         error: () => {}
       })
     } else {
-      var logger = Logger(this)
-      this.log = (...args) => {
-        logger.debug.apply(this, args)
-      }
-      this.log = Object.assign(this.log, logger)
+      this.log = logger
     }
   }
 
@@ -230,46 +151,51 @@ export default class Application extends Dispatcher {
    */
   _setupPluginManager() {
     this._modules = new PluginManager(this, this.config)
-    _.each(this._modules, (plugin) => {
+    this._modules.forEach((plugin) => {
       this._pluginInfo[plugin._pluginInfo.name] = plugin._pluginInfo
     })
   }
 
   /**
-   * Returns an internal Module object for the given name.
+   * Returns an internal ModuleProxy object for the given name.
    * 
    * @param  {string} name The name of the module to return
-   * @return {Module}
+   * @return {ModuleProxy}
    */
   get(name) {
-    if(!this._modules[name]) this._modules[name] = new Module(this, name)
-    return this._modules[name]
+    if(!this._moduleProxies[name]) {
+      this._moduleProxies[name] = new ModuleProxy(this, name)
+    }
+    return this._moduleProxies[name]
   }
 
   /**
+   * @private
    * Initializes the application by loading plugins, then booting the application.
    *
    * **Note**: this should rarely be called directly. Instead use #start
    * 
    * @return {Promise}
    */
-  init() {
-    return this._loadPlugins().then(this.boot.bind(this)).then(() => {
-      if (!this.config.script && this.config.NODE_ENV != 'production') {
+  _init() {
+    this._pluginInstances = {}
+    return this._loadPlugins().then(::this._boot).then(() => {
+      if (!this._appWatcher && !this.config.script && this.config.NODE_ENV != 'production') {
         this.log.debug('Setting up App watcher')
-        this.appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
+        this._appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
       }
-    });
+    })
   }
 
   /**
+   * @private
    * Boots the application, cycling through the internal boot stages.
    *
    * **Note**: Should rarely be called directly. Instead use #start
    * 
    * @return {Promise}
    */
-  boot() {
+  _boot() {
     if (this.config.debug) this.log.info('Booting Application')
     return new Promise.mapSeries(this._bootEvents, (e) => {
       this._currentStage = e
@@ -279,17 +205,13 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Stops the currently running application, removing all event listeners.
+   * Stops the currently running application
    * 
    * @return {Promise}
    */
   stop() {
     if (this.config.debug) this.log.info('Stopping')
-    return this.emit("stop").then(() => {
-      return Promise.resolve().then(() => {
-        Object.keys(this._events).map((event) =>  this.removeAllListeners(event) );
-      })
-    })
+    return this.emit('stop')
   }
 
   /**
@@ -299,8 +221,8 @@ export default class Application extends Dispatcher {
    */
   start() {
     if(!this.config.silent) this._showBanner()
-    this.log.info(this.name+' Starting')
-    return this.init()
+    this.log.info(this.config.appName+' Starting at', new Date())
+    return this._init()
   }
 
   /**
@@ -310,19 +232,19 @@ export default class Application extends Dispatcher {
    */
   restart() {
     this._currentStage = 'restarting'
-    this.log.info("Restarting App");
-    return this._invalidatePluginsInRequireCache()
-    .then(this.stop.bind(this))
-    .then(this._setupConfig.bind(this))
-    .then(this.start.bind(this))
+    this.log.info('Restarting App')
+    return this._invalidateLocalModules()
+    .then(::this.stop)
+    .then(::this._setupConfig)
+    .then(::this.start)
   }
 
-  writeDefaultConfig(name, opts) {
-    if(name && name != "") {
-      this._defaultConfig[name] = _.deepClone(opts)
+  setUserConfig(name, opts) {
+    if(name && name != '') {
+      this._userConfig[name] = _.deepClone(opts)
       if(!this.config[name]) this.config[name] = opts
     } else {
-      Object.assign(this._defaultConfig, opts)
+      Object.assign(this._userConfig, opts)
       Object.assign(this.config, opts)
     }
   }
@@ -331,30 +253,39 @@ export default class Application extends Dispatcher {
     if(!this.config.config) return
     var configFile = this.config.config
     var config = {}
-    if(fs.existsSync(configFile)) config = JSON.parse(fs.readFileSync(configFile))
-    _.each(this._defaultConfig, (value, key) => {
+    try {
+      if(fs.existsSync(configFile)) config = JSON.parse(fs.readFileSync(configFile))
+    } catch(e) {
+      config = {}
+    }
+    _.each(this._userConfig, (value, key) => {
       if(!config[key]) {
         config[key] = value
       }
     })
-    fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2))
   }
 
   /**
-   * Invalidates the internal require plugin cache, ensuring all plugins are reloaded from the files.
+   * Invalidates the internal require plugin cache, ensuring all plugins are reloaded from the files. Only applies to local app modules, not dependencies in node_modules.
    * 
    * @private
    * @return {Promise}
    */
-  _invalidatePluginsInRequireCache() {
+  _invalidateLocalModules() {
+    let localModulePaths = []
+    for (let m of this._modules) {
+      if (m._pluginInfo.isLocal) {
+        localModulePaths.push(m._pluginInfo.modulePath)
+        this._pluginInstances[m._pluginInfo.name].deregister()
+      }
+    }
     return new Promise((resolve) => {
-      // we only want to reload nxus code
-      var ignore = new RegExp("^(.*node_modules/(?!@nxus).*)")
-      // but we need to always reload mongoose so that models can be rebuilt
-      var mongoose = new RegExp("node_modules/mongoose")
+      let invalid = new RegExp('^.*('+localModulePaths.join('|')+').*.js')
       _.each(require.cache, (v, k) => {
-        if (ignore.test(k) && !mongoose.test(k)) return
-        delete require.cache[k]
+        if (invalid.test(k)) {
+          delete require.cache[k]
+        }
       })
       resolve()
     })
@@ -368,7 +299,7 @@ export default class Application extends Dispatcher {
    * @return {Array}
    */
   _getWatchPaths() {
-    let watch = ["**/node_modules/**", "**/modules/**"]
+    let watch = ['**/node_modules/**', '**/modules/**']
     if(_.isString(this.config.watch)) this.config.watch = [this.config.watch]
     return watch.concat(this.config.watch || [])
   }
@@ -380,11 +311,11 @@ export default class Application extends Dispatcher {
    * @return {Array}
    */
   _getAppIgnorePaths() {
-    var opts = this.config.ignore || [];
+    var opts = this.config.ignore || []
     return opts.concat([
       '**/.git/**',
       '**.ejs'
-    ]);
+    ])
   }
 
   /**
@@ -412,15 +343,15 @@ export default class Application extends Dispatcher {
   _bootPlugins() {
     return Promise.map(
       this._modules,
-      this._bootPlugin.bind(this)
+      ::this._bootPlugin
     ).catch((e) => {
       this.log.error('Error booting module', e)
-      this.log.error(e.stack);
+      this.log.error(e.stack)
     })
   }
 
   /**
-   * Accepts an instatiatable object (function or class) as a plugin, then boots it.
+   * Accepts an instantiable object (function or class) as a plugin, then boots it.
    *
    * @private
    * @param  {Function|Class} plugin the instantiable plugin
@@ -428,17 +359,26 @@ export default class Application extends Dispatcher {
    */
   _bootPlugin(plugin) {
     var name = plugin._pluginInfo.name
+    let pluginInstance = null
     //if (this.config.debug) console.log(' ------- ', plugin)
+    if (this._pluginInstances[name] !== undefined) {
+      this.log.error('Duplicate module found', name)
+      process.exit()
+    }
     try {
       this.log.debug('Booting Module', name)
       if(plugin.default)
         plugin = plugin.default
-      plugin = new plugin(this);
+      pluginInstance = new plugin(this)
+      this._pluginInstances[name] = pluginInstance
     } catch(e) {
       this.log.error('Error booting module '+name, e)
       this.log.error(e.stack)
       process.exit()
     }
-    return Promise.resolve(plugin)
+    return Promise.resolve(pluginInstance)
   }
+
 }
+
+export let application = new Application()

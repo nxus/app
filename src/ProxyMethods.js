@@ -1,24 +1,23 @@
-// Old-style proxy lib, rather than requiring node --harmony_proxies
-import Proxy from 'node-proxy'
 
+/**
+ * @private
+ */
 
 export default function(constructor, proxyTo='provide') {
   return function(...args) {
     let module = constructor(...args)
     let handlers = {
-      get: function(receiver, property) {
-        if (module[property] !== undefined) {
-          return module[property]
+      get: function(target, property, receiver) {
+        if (target[property] !== undefined) {
+          return target[property]
         } else {
           return (...innerArgs) => {
-            return module[proxyTo](property, ...innerArgs)
+            return target[proxyTo](property, ...innerArgs)
           }
         }
       }
     }
-    let prox = Proxy.createFunction(handlers, function() {
-      return module.apply(this, arguments)
-    })
+    let prox = new Proxy(module, handlers)
     module.__proxyLess = module
     return prox
   }
