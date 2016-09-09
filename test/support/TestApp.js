@@ -75,7 +75,7 @@ class TestApp extends Dispatcher {
 
   }
 
-  writeDefaultConfig(key, value) {
+  setUserConfig(key, value) {
     if(typeof this.config[key] == 'undefined') this.config[key] = value
   }
 
