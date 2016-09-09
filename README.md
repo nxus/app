@@ -90,11 +90,13 @@ Available options are:
 
 | Name      | Description                                                                                                                     |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| appName   | the name of your app. Will be used for console logging.                                                                         |
 | appDir    | the location to use to load the default 'package.json' file.                                                                    |
 | namespace | any additional namespaces to use to load modules in the node_modules folder. Can be a string or array of strings.               |
 | modules   | an array of paths to require into the application                                                                               |
 | debug     | Boolean to display debug messages, including startup banner                                                                     |
 | script    | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
+| silent    | Don't show any console output. Useful for CLI scripts.                                                                          |
 
 **Parameters**
 
@@ -103,44 +105,26 @@ Available options are:
 **Examples**
 
 ```javascript
-import {Application} from 'nxus-core'
+import {application} from 'nxus-core'
 
-let app = new Application()
+application.start()
 
-app.start()
-
-export default app
+export default application
 ```
 
 ### get
 
-Returns an internal Module object for the given name.
+Returns an internal ModuleProxy object for the given name.
 
 **Parameters**
 
 -   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the module to return
 
-Returns **[Module](https://nodejs.org/api/modules.html)** 
-
-### init
-
-Initializes the application by loading plugins, then booting the application.
-
-**Note**: this should rarely be called directly. Instead use #start
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
-
-### boot
-
-Boots the application, cycling through the internal boot stages.
-
-**Note**: Should rarely be called directly. Instead use #start
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+Returns **ModuleProxy** 
 
 ### stop
 
-Stops the currently running application, removing all event listeners.
+Stops the currently running application
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
@@ -155,11 +139,6 @@ Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refe
 Restarts the Nxus application.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
-
-## Watcher
-
-The Watcher class monitors the project directory and restarts the application whenever 
-there is a change in files detected. Useful for development.
 
 ## Dispatcher
 
@@ -242,173 +221,11 @@ Emits an event, calling all registered handlers.
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when all handlers have completed, with any returned results as an array.
 
-## Module
+## NxusModule
 
-**Extends Dispatcher**
+The NxusModule class is a base class for all Nxus modules.
 
-The core Module class. This provides a messaging proxy layer between modules and calling code.
-The main advantage of this proxy class is that missing modules won't cause exceptions in the code.
+**Properties**
 
-Modules are accessed through the Application.get() method
-
-### Examples
-
-Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
-
-    app.get('router').use(this).gather('route')
-    app.get('templater').use(this).respond('template')
-
-Consumer modules should get the module they need to use and call provide or request
-
-    app.get('router').provide('route', ...)
-    app.get('templater').request('render', ...)
-
-Modules proxy event names as methods to provide/request, so these are synomymous with above: 
-
-    app.get('router').route(...)
-    app.get('templater').render(...)
-
-Default implementations should be indicated by using default() to occur before provide()
-Overriding another implementation can use replace() to occur after provide()
-
-    app.get('router').default('route', GET', '/', ...)
-    app.get('router').replace('route', GET', '/', ...)
-
-Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
-
-    app.get('router').default().route('GET', '/', ...)
-    app.get('router').replace().route('GET', '/', ...)
-
-### use
-
-Let another instance use this module's events to reduce boilerplate calls
-
-**Parameters**
-
--   `instance`  
-
-### default
-
-Provide default arguments to a delayed gather() call, before other provides
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `args` **...Any** Arguments to provide to the gather event
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
-
-### provide
-
-Provide arguments to a delayed gather() call.
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `args` **...Any** Arguments to provide to the gather event
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
-
-### replace
-
-Provide a replacement for a delayed gather() call (after others are provided)
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `args` **...Any** Arguments to provide to the gather event
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves when the event is eventually handled
-
-### gather
-
-Receive arguments provided to a delayed gather() call.
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the gather event
--   `handler` **callable** The handler for each provided value
-
-### request
-
-Request the result of processing a named event
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the request event
--   `args` **...Any** Arguments to provide to the responder
-
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Resolves to the result of the event's handler
-
-### respond
-
-Respond to a named event
-
-**Parameters**
-
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the request event
--   `handler` **callable** The handler for the request
-
-## ConfigurationManager
-
-ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
-
-1.  Opts loaded into the application object.
-2.  Opts in the `config` hash of the project package.json file
-3.  Any environment variables
-
-### getNodeEnv
-
-Returns the current NODE_ENV
-
-Returns **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** the current NODE_ENV
-
-### getEnvironmentVariables
-
-Extracts the currently avaiable environment variables
-
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** A hash of the current environment variables
-
-### getConfig
-
-Returns the final config option using the loading order described above.
-
-Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the final composed configuration object.
-
-## PluginManager
-
-The PluginManager handles all of the module loading.  Load order is as follows:
-
-1.  Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
-2.  Folders in the <appDir>/modules directory.
-3.  Filepaths passed in the `modules` config option
-
-### loadNxusModules
-
-[loadNxusModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadAdditionalModules
-
-[loadAdditionalModules description]
-
-**Parameters**
-
--   `options` **\[type]** [description]
--   `packages` **\[type]** [description]
-
-Returns **\[type]** [description]
-
-### loadPassedPlugins
-
-Loads manually passed in packages by path
-
-**Parameters**
-
--   `options` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** configuration options
--   `packages` **packages** the array of packages currently loaded by Nxus
+-   `config` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** The application configuration for this module.
+-   `log` **Logger** The logger for the module.
