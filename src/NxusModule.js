@@ -34,12 +34,6 @@ class NxusModule {
 
     this._dirName = __dirName(this.constructor.name)
 
-    if(application.config[this.__name] && typeof application.config[this.__name].disabled != 'undefined' && application.config[this.__name].disabled) {
-      this.disabled = true
-      this.log.info(this.__name, 'disabled, not registering with Application')
-      return
-    }
-
     this.__proxy = application.get(this.__name)
     this.__proxy.use(this)
   }
