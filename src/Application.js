@@ -2,7 +2,7 @@
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-09-13
-* @Last Modified time: 2016-09-13 12:49:00
+* @Last Modified time: 2016-09-13 15:08:51
 */
 
 import _ from 'underscore'
@@ -366,22 +366,27 @@ export default class Application extends Dispatcher {
       this.log.error('Duplicate module found', name)
       process.exit()
     }
-    try {
-      if(plugin.default)
-        plugin = plugin.default
-      if(plugin._moduleName && this.config[plugin._moduleName()] && this.config[plugin._moduleName()].disabled) {
-        this.log.debug('Not booting Module', name)
-        promise = Promise.resolve()
-      } else {
+    if(plugin.default)
+      plugin = plugin.default
+
+    if(plugin.__appRef && plugin.__appRef() !== this) {
+      this.log.error('Separate Nxus Core module detected in', name)
+      process.exit()
+    }
+    if(plugin._moduleName && this.config[plugin._moduleName()] && this.config[plugin._moduleName()].disabled) {
+      this.log.debug('Not booting Module', name)
+      promise = Promise.resolve()
+    } else {
+      try {
         this.log.debug('Booting Module', name)
         pluginInstance = new plugin(this)
         this._pluginInstances[name] = pluginInstance
         promise = Promise.resolve(pluginInstance)
+      } catch(e) {
+        this.log.error('Error booting module '+name, e)
+        this.log.error(e.stack)
+        process.exit()
       }
-    } catch(e) {
-      this.log.error('Error booting module '+name, e)
-      this.log.error(e.stack)
-      process.exit()
     }
     return promise
   }

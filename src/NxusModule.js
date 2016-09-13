@@ -6,7 +6,6 @@ import {application} from './Application'
 import Logger from './Logger'
 import deepExtend from 'deep-extend'
 
-
 function __dirName(constructorName) {
   for (let site of stackTrace.get()) {
     if(site.getFunctionName() == constructorName) {
@@ -54,6 +53,10 @@ class NxusModule {
 
   _userConfig() {
     return null
+  }
+
+  static __appRef() {
+    return application
   }
 
   static _moduleName() {
