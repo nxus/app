@@ -25,9 +25,6 @@ class NxusModule {
 
   constructor(app) {
     this.__name = this.constructor._moduleName()
-    this.__proxy = application.get(this.__name)
-    this.__proxy.use(this)
-
     this.log = Logger(this.__name)
 
     let userConfig = this._userConfig()
@@ -36,6 +33,9 @@ class NxusModule {
     }
 
     this._dirName = __dirName(this.constructor.name)
+
+    this.__proxy = application.get(this.__name)
+    this.__proxy.use(this)
   }
 
   get config() {
