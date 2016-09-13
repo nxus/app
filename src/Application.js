@@ -1,8 +1,8 @@
 /* 
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
-* @Last Modified 2016-09-06
-* @Last Modified time: 2016-09-06 19:04:31
+* @Last Modified 2016-09-13
+* @Last Modified time: 2016-09-13 12:49:00
 */
 
 import _ from 'underscore'
@@ -275,7 +275,7 @@ export default class Application extends Dispatcher {
   _invalidateLocalModules() {
     let localModulePaths = []
     for (let m of this._modules) {
-      if (m._pluginInfo.isLocal) {
+      if (m._pluginInfo.isLocal && this._pluginInstances[m._pluginInfo.name].deregister) {
         localModulePaths.push(m._pluginInfo.modulePath)
         this._pluginInstances[m._pluginInfo.name].deregister()
       }
@@ -360,23 +360,30 @@ export default class Application extends Dispatcher {
   _bootPlugin(plugin) {
     var name = plugin._pluginInfo.name
     let pluginInstance = null
+    let promise = null
     //if (this.config.debug) console.log(' ------- ', plugin)
     if (this._pluginInstances[name] !== undefined) {
       this.log.error('Duplicate module found', name)
       process.exit()
     }
     try {
-      this.log.debug('Booting Module', name)
       if(plugin.default)
         plugin = plugin.default
-      pluginInstance = new plugin(this)
-      this._pluginInstances[name] = pluginInstance
+      if(plugin._moduleName && this.config[plugin._moduleName()] && this.config[plugin._moduleName()].disabled) {
+        this.log.debug('Not booting Module', name)
+        promise = Promise.resolve()
+      } else {
+        this.log.debug('Booting Module', name)
+        pluginInstance = new plugin(this)
+        this._pluginInstances[name] = pluginInstance
+        promise = Promise.resolve(pluginInstance)
+      }
     } catch(e) {
       this.log.error('Error booting module '+name, e)
       this.log.error(e.stack)
       process.exit()
     }
-    return Promise.resolve(pluginInstance)
+    return promise
   }
 
 }
