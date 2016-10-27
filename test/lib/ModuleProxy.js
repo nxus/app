@@ -228,30 +228,4 @@ describe("ModuleProxy", () => {
     })
   });
 
-  describe("Warns for unregistered events", () => {
-    let m, a
-    beforeEach((done) => {
-      a = new TestApp()
-      m = new ModuleProxy(a, 'test')
-      done()
-    })
-    // it("warns for events after launch", (done) => {
-    //   m.respond('someSuchEvent', () => {})
-    //   m.request('noSuchEvent', 1)
-    //   a.launch().then(() => {
-    //     a.log.warn.called.should.be.true()
-    //     a.log.warn.calledWith('Module', 'test', 'called with events:', 'noSuchEvent').should.be.true()
-    //     done()
-    //   })
-    // })
-    it("warns for module after launch", (done) => {
-      m.request('noSuchEvent', 1)
-      a.launch().then(() => {
-        a.log.warn.called.should.be.true()
-        a.log.warn.calledWith('Module', 'test', 'registered but without events, we only know of:').should.be.true()
-        done()
-      })
-    })
-  })
-
 });  
