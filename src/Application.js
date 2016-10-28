@@ -359,6 +359,7 @@ export default class Application extends Dispatcher {
    */
   _bootPlugin(plugin) {
     var name = plugin._pluginInfo.name
+    let path = plugin._pluginInfo.modulePath
     let pluginInstance = null
     let promise = null
     //if (this.config.debug) console.log(' ------- ', plugin)
@@ -383,7 +384,7 @@ export default class Application extends Dispatcher {
         this._pluginInstances[name] = pluginInstance
         promise = Promise.resolve(pluginInstance)
       } catch(e) {
-        this.log.error('Error booting module '+name, e)
+        this.log.error('Error booting module '+name+' from '+path, e)
         this.log.error(e.stack)
         process.exit()
       }
