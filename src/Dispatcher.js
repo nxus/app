@@ -124,15 +124,19 @@ export default class Dispatcher extends EventEmitter {
         })
       })
       .spread((results, newArgs) => {
-        results = this._squashArrayResults(results)
-        if (!results) {
-          results = []
-        }
-        return this._squashArrayResults(Promise.reduce(super.listeners(event+".after"), waterfaller(newArgs), results));
+        results = this._squashMultipleListenerArrayResults(results)
+        // Promise.reduce will not call afters if results is undefined, so pass [] as sentinel
+        return Promise.reduce(super.listeners(event+".after"), waterfaller(newArgs), results || []).then((r) => {
+          if(_.isArray(r) && r.length < 1) {
+            // undefined and untouched by afters, return original
+            return results
+          }
+          return r
+        })
       })
   }
 
-  _squashArrayResults(results) {
+  _squashMultipleListenerArrayResults(results) {
     if(_.isArray(results)) {
       results = _.compact(results)
       if(results.length < 1) return undefined
