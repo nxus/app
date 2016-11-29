@@ -59,7 +59,6 @@ class ModuleProxy extends Dispatcher {
     app.on('load.before', ::this._beforeLoad)
     this._requestedEvents = {}
     this._registeredEvents = {}
-    app.after('launch', this._checkMissingEvents.bind(this))
     this._instance = null
   }
 
@@ -114,19 +113,6 @@ class ModuleProxy extends Dispatcher {
       }
     }
     return instance
-  }
-
-  _checkMissingEvents() {
-    let registered = _.keys(this._registeredEvents)
-    if (registered.length == 0 && (!process.env['NODE_ENV'] || process.env['NODE_ENV'] != 'production')) {
-      this._app.log.warn("Module", this._name, "registered but without events, we only know of:", _.keys(this._app.registeredModules).join(' '))
-      return
-    }
-    
-    // let diff = _.difference(_.keys(this._requestedEvents), registered)
-    // if (diff.length) {
-    //   this._app.log.warn("Module", this._name, "called with events:", diff.join(' '), "but only knows of:", registered.join(' '))
-    // }
   }
 
   _provide(myself, when, name, ...args) {
