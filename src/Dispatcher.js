@@ -117,13 +117,16 @@ export default class Dispatcher extends EventEmitter {
     return Promise.reduce(super.listeners(event+".before"), waterfaller(), args)
       .then((newArgs) => {
         let handlers = super.listeners(event)
+        let p
         if (handlers.length == 0) {
-          return Promise.resolve(newArgs)
+          p = Promise.resolve(newArgs)
+        } else  {
+          p = Promise.all(handlers.map((handler) => {
+            let ret = handler(...newArgs)
+            return Promise.resolve(ret)
+          }))
         }
-        return Promise.all(handlers.map((handler) => {
-          let ret = handler(...newArgs)
-          return Promise.resolve(ret)
-        })).then((results) => {
+        return p.then((results) => {
           return [results, newArgs]
         })
       })
