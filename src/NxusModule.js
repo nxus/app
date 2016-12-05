@@ -24,11 +24,12 @@ class NxusModule {
 
   constructor(app) {
     this.__name = this.constructor._moduleName()
+    this.__config_name = morph.toSnake(this.__name)
     this.log = Logger(this.__name)
 
     let userConfig = this._userConfig()
     if (userConfig !== null) {
-      application.setUserConfig(this.__name, userConfig)
+      application.setUserConfig(this.__config_name, userConfig)
     }
 
     this._dirName = __dirName(this.constructor.name)
@@ -39,7 +40,7 @@ class NxusModule {
 
   get config() {
     let _defaultConfig = this._defaultConfig() || {}
-    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__name]))
+    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__config_name]))
     return this._config
   }
 
