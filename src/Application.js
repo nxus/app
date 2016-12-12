@@ -282,6 +282,7 @@ export default class Application extends Dispatcher {
     }
     return new Promise((resolve) => {
       let invalid = new RegExp('^.*('+localModulePaths.join('|')+').*.js')
+      if(localModulePaths.length == 0) return resolve()
       _.each(require.cache, (v, k) => {
         if (invalid.test(k)) {
           delete require.cache[k]
