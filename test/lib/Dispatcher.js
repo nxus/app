@@ -33,6 +33,16 @@ describe("Dispatcher", () => {
         result.should.be.true()
       })
     })
+
+    it("should run afters wtih no on handler", () => {
+      module.after("afterOnly", (result) => {
+        return result+1
+      })
+      return module.emit("afterOnly", 1).then((after) => {
+        after.should.equal(2)
+      })
+    })
+    
     it("should not alter args if before does not return anything", () => {
       module.on('event', (arg) => {
         arg.should.equal(1)
