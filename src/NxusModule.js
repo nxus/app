@@ -24,7 +24,7 @@ class NxusModule {
 
   constructor(app) {
     this.__name = this.constructor._moduleName()
-    this.__config_name = morph.toSnake(this.__name)
+    this.__config_name = this.constructor._configName()
     this.log = Logger(this.__name)
 
     let userConfig = this._userConfig()
@@ -58,6 +58,10 @@ class NxusModule {
 
   static __appRef() {
     return application
+  }
+
+  static _configName() {
+    return morph.toSnake(this.name)
   }
 
   static _moduleName() {
