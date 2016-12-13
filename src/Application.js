@@ -375,7 +375,7 @@ export default class Application extends Dispatcher {
       this.log.error('Separate Nxus Core module detected in', name)
       process.exit()
     }
-    if(plugin._moduleName && this.config[plugin._moduleName()] && this.config[plugin._moduleName()].disabled) {
+    if (plugin._configName && this.config[plugin._configName()] && this.config[plugin._configName()].disabled) {
       this.log.debug('Not booting Module', name)
       promise = Promise.resolve()
     } else {
