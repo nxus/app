@@ -92,8 +92,8 @@ class PluginManager {
       if(matches) name = multimatch([name], matches)[0]
       if(!name || (name && name[0] == ".")) return
       this.app.log.debug('Loading module', name, isLocal ? "(app)": "(dep)")
+      let modulePath = path.resolve(path.join(dir, name))
       try {
-        let modulePath = path.resolve(path.join(dir, name))
         var pkg = require(modulePath)
         pkg._pluginInfo = {name, modulePath, isLocal}
         this.packages.push(pkg)
@@ -103,9 +103,11 @@ class PluginManager {
         //if(fs.existsSync(dir + "/" + name + "/node_modules")) 
           //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
       } catch (e) {
-        this.app.log.error('Error loading module', name)
-        this.app.log.error(e)
-        process.kill(process.pid, 'SIGTERM')
+        this.app.log.warn('Error loading module', name, modulePath)
+        if (e.code !== 'MODULE_NOT_FOUND') {
+          this.app.log.error(e)
+          process.kill(process.pid, 'SIGTERM')
+        }
       }
     })
   }
