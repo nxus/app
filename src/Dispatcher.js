@@ -1,4 +1,4 @@
-/* 
+/*
 * @Author: Mike Reich
 * @Date:   2015-11-06 07:44:02
 * @Last Modified 2016-08-22
@@ -6,12 +6,13 @@
 
 'use strict';
 
+import Promise from 'bluebird'
 import { EventEmitter } from 'events'
 import _ from 'underscore'
 
 /**
- * The core Dispatcher class, which implements promisified 
- * 
+ * The core Dispatcher class, which implements promisified
+ *
  * @extends EventEmitter
  * @example
  * import { Dispatcher } from 'nxus-core'
@@ -25,15 +26,14 @@ export default class Dispatcher extends EventEmitter {
     super()
     this.setMaxListeners(1000)
   }
-  
+
   /**
    * Bind to an event once
-   * @param  {string} event The name of the event to bind to 
+   * @param  {string} event The name of the event to bind to
    * @param  {callable} [listener] The handler for the event
    * @return {Promise}       Returns a promise that resolves when the event fires
    */
   once (event, listener) {
-    let superOnce = super.once
     if (listener === undefined) {
       listener = () => {};
     }
@@ -43,7 +43,6 @@ export default class Dispatcher extends EventEmitter {
 
       var g = (...args) => {
         this.removeListener(event, g);
-        
         if (!fired) {
           fired = true;
           var result = listener.apply(this, args);
@@ -57,9 +56,9 @@ export default class Dispatcher extends EventEmitter {
   }
 
   /**
-   * Bind to before an event. Receives the event arguments, should return 
+   * Bind to before an event. Receives the event arguments, should return
    *  modified arguments or nothing.
-   * @param  {string} event The name of the event to bind to 
+   * @param  {string} event The name of the event to bind to
    * @param  {callable} listener The before handler for the event
    */
   before (event, listener) {
@@ -67,9 +66,9 @@ export default class Dispatcher extends EventEmitter {
   }
 
   /**
-   * Bind to after an event. Receives the event handlers results, should return 
+   * Bind to after an event. Receives the event handlers results, should return
    *  modified results or nothing.
-   * @param  {string} event The name of the event to bind to 
+   * @param  {string} event The name of the event to bind to
    * @param  {callable} listener The after handler for the event
    */
   after (event, listener) {
@@ -77,9 +76,9 @@ export default class Dispatcher extends EventEmitter {
   }
 
   /**
-   * Bind once to before an event. Receives the event arguments, should return 
+   * Bind once to before an event. Receives the event arguments, should return
    *  modified arguments or nothing.
-   * @param  {string} event The name of the event to bind to 
+   * @param  {string} event The name of the event to bind to
    * @param  {callable} listener The before handler for the event
    * @return {Promise}       Returns a promise that resolves when the event fires
    */
@@ -88,16 +87,16 @@ export default class Dispatcher extends EventEmitter {
   }
 
   /**
-   * Bind once to after an event. Receives the event handlers results, should return 
+   * Bind once to after an event. Receives the event handlers results, should return
    *  modified results or nothing.
-   * @param  {string} event The name of the event to bind to 
+   * @param  {string} event The name of the event to bind to
    * @param  {callable} listener The after handler for the event
    * @return {Promise}       Returns a promise that resolves when the event fires
    */
   onceAfter (event, listener) {
     return this.once(event+".after", listener);
   }
-  
+
   /**
    * Emits an event, calling all registered handlers.
    * @param  {string} event The name of the event to emit.
@@ -111,7 +110,7 @@ export default class Dispatcher extends EventEmitter {
         // Need to resolve internally so that we can allow observing-only handlers
         //  that don't return anything, even from their promise.
         return Promise.resolve(curr(prev, newArgs)).then((_args) => { return _args || prev });
-      }      
+      }
     }
 
     return Promise.reduce(super.listeners(event+".before"), waterfaller(), args)
@@ -151,4 +150,4 @@ export default class Dispatcher extends EventEmitter {
     }
     return results
   }
-} 
+}

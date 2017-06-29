@@ -1,15 +1,13 @@
-/* 
+/*
 * @Author: mjreich
 * @Date:   2015-05-18 17:03:15
 * @Last Modified 2016-09-13
 * @Last Modified time: 2016-09-13 15:08:51
 */
 
+import Promise from 'bluebird'
 import _ from 'underscore'
-import util from 'util'
 import fs from 'fs'
-import domain from 'domain'
-import path from 'path'
 
 import Dispatcher from './Dispatcher'
 import ModuleProxy from './ModuleProxy'
@@ -42,11 +40,11 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
     "|_______|_______|_|  |__|__| |__|_______|_______|__| \n"
 
 /**
- * 
+ *
  * The Core Application class.
  *
  * ### Configuration Options
- * 
+ *
  * Available options are:
  *
  * | Name | Description |
@@ -58,17 +56,17 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
  * | debug | Boolean to display debug messages, including startup banner |
  * | script | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
  * | silent | Don't show any console output. Useful for CLI scripts. |
- * 
+ *
  * @param {Object} opts the configuration options
  * @extends Dispatcher
  * @example
  * import {application} from 'nxus-core'
- * 
+ *
  * application.start()
  *
  * export default application
  *
- * 
+ *
  */
 
 
@@ -86,7 +84,7 @@ export default class Application extends Dispatcher {
     this._banner = opts.banner || startupBanner
     this._userConfig = {}
     this.config = {}
-    
+
     this._bootEvents = [
       'init',
       'load',
@@ -108,7 +106,7 @@ export default class Application extends Dispatcher {
   }
 
   _showBanner() {
-      console.log(" \n"+this._banner)
+    console.log(" \n"+this._banner)
   }
 
   /**
@@ -116,9 +114,9 @@ export default class Application extends Dispatcher {
    *
    * @private
    */
-  _setupConfig() {    
+  _setupConfig() {
     this.setUserConfig(null, _userConfig)
-        
+
     this.config = Object.assign(this.config, _defaultConfig)
     this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
     this.config = Object.assign(this.config, this._opts)
@@ -127,7 +125,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Sets up the internal log object. Falls back to console.log.
-   * 
+   *
    * @private
    */
   _setupLog() {
@@ -146,7 +144,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Loads the internal _modules object by instantiating the PluginManager class.
-   * 
+   *
    * @private
    */
   _setupPluginManager() {
@@ -158,7 +156,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Returns an internal ModuleProxy object for the given name.
-   * 
+   *
    * @param  {string} name The name of the module to return
    * @return {ModuleProxy}
    */
@@ -174,7 +172,7 @@ export default class Application extends Dispatcher {
    * Initializes the application by loading plugins, then booting the application.
    *
    * **Note**: this should rarely be called directly. Instead use #start
-   * 
+   *
    * @return {Promise}
    */
   _init() {
@@ -192,7 +190,7 @@ export default class Application extends Dispatcher {
    * Boots the application, cycling through the internal boot stages.
    *
    * **Note**: Should rarely be called directly. Instead use #start
-   * 
+   *
    * @return {Promise}
    */
   _boot() {
@@ -206,7 +204,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Stops the currently running application
-   * 
+   *
    * @return {Promise}
    */
   stop() {
@@ -216,7 +214,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Starts the Nxus application.
-   * 
+   *
    * @return {Promise}
    */
   start() {
@@ -227,7 +225,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Restarts the Nxus application.
-   * 
+   *
    * @return {Promise}
    */
   restart() {
@@ -268,7 +266,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Invalidates the internal require plugin cache, ensuring all plugins are reloaded from the files. Only applies to local app modules, not dependencies in node_modules.
-   * 
+   *
    * @private
    * @return {Promise}
    */
@@ -293,7 +291,7 @@ export default class Application extends Dispatcher {
   }
 
   /**
-   * Returns an array of watch paths, either as defined by `config.watch` or the default paths 
+   * Returns an array of watch paths, either as defined by `config.watch` or the default paths
    * `/node_modules` and `/modules`
    *
    * @private
@@ -337,7 +335,7 @@ export default class Application extends Dispatcher {
 
   /**
    * Iterates through all loaded plugins, instantiating them and returning a promise once every plugin has successfully started.
-   * 
+   *
    * @private
    * @return {Promise}
    */
