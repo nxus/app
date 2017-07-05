@@ -8,6 +8,11 @@
 
 import debug from 'debug-logger'
 
+/**
+ * Factory method for instances of the `debug-logger` module.
+ * @param  {string} name display name used to identify output from the logger
+ * @return {Object} `debug-logger` module instance
+ */
 const Logger = (name = 'application') => {
   debug.inspectOptions = {
     colors : true
