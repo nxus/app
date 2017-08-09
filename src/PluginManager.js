@@ -5,9 +5,8 @@
 * @Last Modified time: 2016-09-06 17:13:42
 */
 
-'use strict';
+'use strict'
 
-import findup from 'findup-sync'
 import multimatch from 'multimatch'
 import fs from 'fs'
 import path from 'path'
@@ -76,7 +75,14 @@ class PluginManager {
     })
   }
 
-  /**
+  /** Loads all modules from directory.
+   *
+   * A missing module produces a warning message. Other errors produce
+   * an error message and force the process to exit. (If `require()`
+   * reports a subsidiary module as missing, it forces an exit; that is,
+   * a missing nxus module is non-fatal, but a nxus module that is
+   * missing a required module is fatal.)
+   *
    * @private
    * [_loadModulesFromDirectory description]
    * @param  {[type]} dir     [description]
@@ -103,9 +109,11 @@ class PluginManager {
         //if(fs.existsSync(dir + "/" + name + "/node_modules")) 
           //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
       } catch (e) {
-        this.app.log.warn('Error loading module', name, modulePath)
-        if (e.code !== 'MODULE_NOT_FOUND') {
-          this.app.log.error(e)
+        // kludgy message text match to distinguish subsidiary modules from primary
+        if ((e.code === 'MODULE_NOT_FOUND') && e.message.includes(`'${modulePath}'`))
+          this.app.log.warn(`Module ${name} not found (${modulePath})`)
+        else {
+          this.app.log.error(`Error loading module ${name} (${modulePath})`, e)
           process.kill(process.pid, 'SIGTERM')
         }
       }
