@@ -40,7 +40,6 @@
     "chokidar": "^1.6.0",
     "debug-logger": "^0.4.1",
     "deep-extend": "^0.4.1",
-    "findup-sync": "^0.4.2",
     "merge-descriptors": "^1.0.1",
     "moment": "^2.14.1",
     "morph": "^0.2.0",
