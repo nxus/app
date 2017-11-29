@@ -50,7 +50,6 @@ export default class Dispatcher extends EventEmitter {
           return result;
         }
       }
-      g.listener = listener;
       this.on.apply(this, [event, g]);
     })
   }
