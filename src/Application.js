@@ -92,7 +92,6 @@ export default class Application extends Dispatcher {
       'launch'
     ]
 
-    this._setupConfig()
     this._setupLog()
 
     this.after('launch', () => {
@@ -176,6 +175,7 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   _init() {
+    this._setupConfig()
     this._pluginInstances = {}
     return this._loadPlugins().then(::this._boot).then(() => {
       if (!this._appWatcher && !this.config.script && this.config.NODE_ENV != 'production') {
