@@ -19,18 +19,6 @@ describe("Application", () => {
     it("should be instantiated", () => (app = new Application()).should.not.be.null())
 
     it("should have the logger", () => app.log.should.not.be.null())
-
-    it("should use the passed in appDir if present", () => {
-      app = new Application({appDir: 'someValue'})
-      app.config.appDir.should.eql('someValue')
-    })
-
-    it("should have the default config vars", () => {
-      app = new Application()
-      app.should.have.property('config')
-      app.config.should.have.property('baseUrl')
-      app.config.should.have.property('siteName')
-    })
   })
 
   describe("Events", () => {
@@ -175,6 +163,28 @@ describe("Application", () => {
         done();
       })
     });
+  })
+
+  describe("Config on startup", () => {
+    it("should use the passed in appDir if present", (done) => {
+      app = new Application({appDir: 'someValue'})
+      app.on('init', () => {
+        app.config.appDir.should.eql('someValue')
+        done()
+      })
+      app.start()
+    })
+
+    it("should have the default config vars", (done) => {
+      app = new Application()
+      app.on('init', () => {
+        app.should.have.property('config')
+        app.config.should.have.property('baseUrl')
+        app.config.should.have.property('siteName')
+        done()
+      })
+      app.start()
+    })
   })
 
   describe("Boot Stages", () => {
