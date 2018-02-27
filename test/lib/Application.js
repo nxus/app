@@ -174,6 +174,29 @@ describe("Application", () => {
       })
       app.start()
     })
+    it("should deepmerge config passed to start", (done) => {
+      app = new Application({test: {x: 1}})
+      app.on('init', () => {
+        app.config.test.x.should.eql(1)
+        app.config.test.y.should.eql('someValue')
+        done()
+      })
+      app.start({test: {y:'someValue'}})
+    })
+    it("should deepmerge config returned on config event, overriden by start value", (done) => {
+      app = new Application({test: {x: 1}})
+      app.on('config', () => {
+        return {test: {y: 'otherValue', z: 3}}
+      })
+      app.on('init', () => {
+        console.log(app.config.test)
+        app.config.test.y.should.eql('otherValue')
+        app.config.test.x.should.eql(2)
+        app.config.test.z.should.eql(4)
+        done()
+      })
+      app.start({test: {x: 2, z: 4}})
+    })
 
     it("should have the default config vars", (done) => {
       app = new Application()
