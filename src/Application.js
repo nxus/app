@@ -119,7 +119,7 @@ export default class Application extends Dispatcher {
 
     return this.emit('config').then((config={}) => {
       if (_.isArray(config)) {
-        config = Object.assign(...config)
+        config = deepExtend({}, ...config)
       }
     
       this.config = Object.assign(this.config, _defaultConfig)
