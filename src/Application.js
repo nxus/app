@@ -124,7 +124,7 @@ export default class Application extends Dispatcher {
     
       this.config = Object.assign(this.config, _defaultConfig)
       this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
-      this.config = Object.assign(this.config, deepExtend(config, this._opts))
+      this.config = deepExtend(this.config, config, this._opts)
       if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
 
     })
