@@ -8,3 +8,4 @@ introduction.md
 src
 test
 !lib/test
+*.tgz

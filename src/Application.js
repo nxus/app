@@ -15,6 +15,7 @@ import PluginManager from './PluginManager'
 import ConfigurationManager from './ConfigurationManager'
 import Watcher from './Watcher'
 import {logger} from './Logger'
+import deepExtend from 'deep-extend'
 
 var _userConfig = {
   siteName: 'Nxus App',
@@ -116,10 +117,17 @@ export default class Application extends Dispatcher {
   _setupConfig() {
     this.setUserConfig(null, _userConfig)
 
-    this.config = Object.assign(this.config, _defaultConfig)
-    this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
-    this.config = Object.assign(this.config, this._opts)
-    if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+    return this.emit('config').then((config={}) => {
+      if (_.isArray(config)) {
+        config = deepExtend({}, ...config)
+      }
+    
+      this.config = Object.assign(this.config, _defaultConfig)
+      this.config = Object.assign(this.config, new ConfigurationManager(this.config).getConfig())
+      this.config = deepExtend(this.config, config, this._opts)
+      if(typeof this.config.debug === 'undefined') this.config.debug = (!process.env.NODE_ENV || process.env.NODE_ENV == 'development')
+
+    })
   }
 
   /**
@@ -175,13 +183,14 @@ export default class Application extends Dispatcher {
    * @return {Promise}
    */
   _init() {
-    this._setupConfig()
-    this._pluginInstances = {}
-    return this._loadPlugins().then(::this._boot).then(() => {
-      if (!this._appWatcher && !this.config.script && this.config.NODE_ENV != 'production') {
-        this.log.debug('Setting up App watcher')
-        this._appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
-      }
+    return this._setupConfig().then(() => {
+      this._pluginInstances = {}
+      return this._loadPlugins().then(::this._boot).then(() => {
+        if (!this._appWatcher && !this.config.script && this.config.NODE_ENV != 'production') {
+          this.log.debug('Setting up App watcher')
+          this._appWatcher = new Watcher(this, this._getWatchPaths(), 'change', this._getAppIgnorePaths())
+        }
+      })
     })
   }
 
@@ -215,11 +224,13 @@ export default class Application extends Dispatcher {
   /**
    * Starts the Nxus application.
    *
+   * @param {object} opts Config to deeply merge with default and rc configs
    * @return {Promise}
    */
-  start() {
+  start(opts={}) {
     if(!this.config.silent) this._showBanner()
     this.log.info(this.config.appName+' Starting at', new Date())
+    this._opts = deepExtend(this._opts, opts)
     return this._init()
   }
 
@@ -233,7 +244,6 @@ export default class Application extends Dispatcher {
     this.log.info('Restarting App')
     return this._invalidateLocalModules()
     .then(::this.stop)
-    .then(::this._setupConfig)
     .then(::this.start)
   }
 

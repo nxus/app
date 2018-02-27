@@ -3,3 +3,4 @@ lib
 !test/lib
 npm-debug.log
 docs
+*.tgz
