@@ -49,11 +49,11 @@ Nxus is built around the concept of a boot cycle.  The application dispatches ev
 | `init`     | indicates the application is starting up and initializing modules.  Other modules are not gauranteed to be available at this phase.                                                  |
 | `load`     | modules are initialized and loading. This is the place to do any internal setup (outside of the constructor). Other modules are not gauranteed to be available at this phase.        |
 | `startup`  | all modules have been loaded and are available. This is the place to do any setup that requires data/input from other modules (like Storage)                                         |
-| `launch`   | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to gaurantee execution after the application has completely launched |
+| `launch`   | the application is launching and all services have been started. Routes are accessible. Use onceAfter('launch') to guarantee execution after the application has completely launched |
 
 ### Module Loading
 
-By defaul the Application will look for other Nxus modules in the following order:
+By default the Application will look for other Nxus modules in the following order:
 
 1.  @nxus namespaced npm modules in your `package.json` file.
 2.  Any packages that match the 'namespace-' pattern passed in the `namespace` application config option.
@@ -81,6 +81,18 @@ You can override specific confirguation values using command line environment va
 will translate into an application config of
 
     console.log(app.config.myconfig) // {value: {first: true}}
+
+You can also pass partial config objects (for run-time override of specific keys) in two ways. An options argument to `application.start()`:
+
+    application.start({module: {key: value}})
+
+Or as a response to the `config` event:
+
+    application.on('config', () => {
+      return {module: {key: value}}
+    })
+
+`start` options take precendence over `config` event options take precendence over rc or command-line options.
 
 ### Mocha Test Configuration
 
@@ -154,6 +166,10 @@ Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refe
 ### start
 
 Starts the Nxus application.
+
+**Parameters**
+
+-   `opts` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Config to deeply merge with default and rc configs (optional, default `{}`)
 
 Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 

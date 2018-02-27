@@ -224,6 +224,7 @@ export default class Application extends Dispatcher {
   /**
    * Starts the Nxus application.
    *
+   * @param {object} opts Config to deeply merge with default and rc configs
    * @return {Promise}
    */
   start(opts={}) {
