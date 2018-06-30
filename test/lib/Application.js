@@ -234,6 +234,15 @@ describe("Application", () => {
       app.once('launch').then(done)
       app.start()
     })
+
+    it("start() should return a promise that resolves when boot sequence completes", (done) => {
+      let completed = false
+      app.onceAfter('launch').then(() => { completed = true })
+      app.start().then(() => {
+        completed.should.be.true()
+        done()
+      })
+    })
   })
 
   describe("Get Module", () => {

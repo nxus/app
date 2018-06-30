@@ -225,7 +225,7 @@ export default class Application extends Dispatcher {
    * Starts the Nxus application.
    *
    * @param {object} opts Config to deeply merge with default and rc configs
-   * @return {Promise}
+   * @return {Promise} resolves when the boot sequence is complete
    */
   start(opts={}) {
     if(!this.config.silent) this._showBanner()
@@ -237,7 +237,7 @@ export default class Application extends Dispatcher {
   /**
    * Restarts the Nxus application.
    *
-   * @return {Promise}
+   * @return {Promise} resolves when the restart boot sequence is complete
    */
   restart() {
     this._currentStage = 'restarting'
