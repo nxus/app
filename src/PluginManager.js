@@ -1,4 +1,4 @@
-/* 
+/*
 * @Author: mike
 * @Date:   2015-05-18 17:05:09
 * @Last Modified 2016-09-06
@@ -14,7 +14,7 @@ import _ from 'underscore'
 
 /**
  * @private
- * 
+ *
  * The PluginManager handles all of the module loading.  Load order is as follows:
  *
  * 1. Packages in node_modules that match the passed `namespace` config option, and packages in the `@nxus` namespace.
@@ -69,7 +69,7 @@ class PluginManager {
    */
   loadAdditionalModules(options, packages) {
     var customDir = options.modulesDir || (options.appDir || process.cwd())+'/modules'
-    if(!_.isArray(customDir)) customDir = [customDir]
+    if(!_.isArray(customDir)) customDir = [].concat(customDir.split(","))
     _.each(customDir, (dir) => {
       this._loadModulesFromDirectory(dir, true)
     })
@@ -93,7 +93,7 @@ class PluginManager {
     if (!fs.existsSync(dir)) return
 
     var moduleDirs = fs.readdirSync(dir)
-    
+
     moduleDirs.forEach((name) => {
       if(matches) name = multimatch([name], matches)[0]
       if(!name || (name && name[0] == ".")) return
@@ -106,7 +106,7 @@ class PluginManager {
         // Recurse for module modules
         this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal)
         this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal)
-        //if(fs.existsSync(dir + "/" + name + "/node_modules")) 
+        //if(fs.existsSync(dir + "/" + name + "/node_modules"))
           //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
       } catch (e) {
         // kludgy message text match to distinguish subsidiary modules from primary
@@ -127,7 +127,7 @@ class PluginManager {
    */
   loadPassedPlugins(options, packages) {
     var customPluginDirs = options.modules || []
-    
+
     customPluginDirs.forEach((modulePath) => {
       this.app.log.debug('Loading custom module', modulePath)
       var pkg = require(modulePath)
