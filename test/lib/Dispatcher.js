@@ -56,6 +56,25 @@ describe("Dispatcher", () => {
         result.should.equal(1)
       })
     })
+
+    it("should return a value for single listener even if 0", () => {
+      module.on('event', () => {
+        return 0
+      })
+      return module.emit('event').then((result) => {
+        result.should.equal(0)
+      })
+    })
+    it("should return a value for multiple listener even if 0 and undefined", () => {
+      module.on('event', () => {
+        return 0
+      })
+      module.on('event', () => {
+      })
+      return module.emit('event').then((result) => {
+        result.should.equal(0)
+      })
+    })
     
     it("should return an array for multiple listeners", () => {
       module.on('event', () => {

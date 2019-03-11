@@ -143,7 +143,7 @@ export default class Dispatcher extends EventEmitter {
 
   _squashMultipleListenerArrayResults(results) {
     if(_.isArray(results)) {
-      results = _.compact(results)
+      results = results.filter(x => x !== undefined)
       if(results.length < 1) return undefined
       else if (results.length == 1) return results[0]
     }
