@@ -92,7 +92,7 @@ class ModuleProxy extends Dispatcher {
       let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
         .map((prop) => {
           const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop)
-          return ((descriptor && !descriptor.get) && obj[prop] instanceof Function && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null
+          return ((!descriptor || (descriptor && !descriptor.get)) && prop != 'config' && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null
         })
         .filter(p => p)
 

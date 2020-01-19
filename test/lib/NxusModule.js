@@ -48,13 +48,11 @@ describe("NxusModule", () => {
     })
 
     it("should set the userConfig value", () => {
-      instance.config = null
       instance.config.user.should.not.be.null()
-      application._userConfig.should.have.property('sub_module')
+      application.config.should.have.property('sub_module')
     })
 
     it("should get config from app key", () => {
-      instance.config = null
       application.config['sub_module'] = {"hi": "hello"}
       instance.config.hi.should.equal("hello")
     })
