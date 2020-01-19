@@ -90,7 +90,10 @@ class ModuleProxy extends Dispatcher {
     let recurseClassMethods = (obj) => {
       if(!obj || obj === Object.prototype || Object.getPrototypeOf(obj) === Object.prototype) return []
       let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
-        .map(prop => (obj[prop] instanceof Function && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null)
+        .map((prop) => {
+          const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop)
+          return ((descriptor && !descriptor.get) && obj[prop] instanceof Function && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null
+        })
         .filter(p => p)
 
       methods = methods.concat(recurseClassMethods(Object.getPrototypeOf(obj)))

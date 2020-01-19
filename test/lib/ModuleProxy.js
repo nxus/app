@@ -44,6 +44,9 @@ describe("ModuleProxy", () => {
           this.respond('testEvent', ::this._testEvent)
           this.respond('namedEvent', ::this._handler)
         }
+        get getter() {
+          throw new Error('Dont call me')
+        }
         _handler (a) {
           return 1
         }
@@ -118,6 +121,12 @@ describe("ModuleProxy", () => {
         arg.should.equal('super')
         done()
       })
+    })
+    it("should error for getters", (done) => {
+      expect(() => {
+        inst.respond('getter')
+      }).to.throw();
+      done();
     })
   });
 
