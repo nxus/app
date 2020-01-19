@@ -1,4 +1,4 @@
-/* 
+/*
 * @Author: Mike Reich
 * @Date:   2015-11-22 13:06:39
 * @Last Modified 2016-09-06
@@ -20,30 +20,30 @@ import ProxyMethods from './ProxyMethods'
  * Modules are accessed through the Application.get() method
  *
  * ## Examples
- * 
+ *
  * Producer modules should register themselves with the use() method, and define gather() and respond() handlers:
- * 
+ *
  *     app.get('router').use(this).gather('route')
  *     app.get('templater').use(this).respond('template')
  *
  * Consumer modules should get the module they need to use and call provide or request
- * 
+ *
  *     app.get('router').provide('route', ...)
  *     app.get('templater').request('render', ...)
  *
- * Modules proxy event names as methods to provide/request, so these are synomymous with above: 
- * 
+ * Modules proxy event names as methods to provide/request, so these are synomymous with above:
+ *
  *     app.get('router').route(...)
  *     app.get('templater').render(...)
- * 
+ *
  * Default implementations should be indicated by using default() to occur before provide()
  * Overriding another implementation can use replace() to occur after provide()
- * 
+ *
  *     app.get('router').default('route', GET', '/', ...)
  *     app.get('router').replace('route', GET', '/', ...)
  *
  * Provide, default, and replace all return a proxy object if called with no arguments, so these are synonymous with above:
- * 
+ *
  *     app.get('router').default().route('GET', '/', ...)
  *     app.get('router').replace().route('GET', '/', ...)
  *
@@ -86,9 +86,19 @@ class ModuleProxy extends Dispatcher {
     this._instance = instance
     let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter', 'default', 'replace']
     let handlerNames = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
-    let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
-      .map(prop => (instance[prop] instanceof Function && prop != 'constructor' && prop[0] != "_") ? prop : null)
-      .filter(p => p)
+
+    let recurseClassMethods = (obj) => {
+      if(!obj || obj === Object.prototype || Object.getPrototypeOf(obj) === Object.prototype) return []
+      let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
+        .map(prop => (obj[prop] instanceof Function && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null)
+        .filter(p => p)
+
+      methods = methods.concat(recurseClassMethods(Object.getPrototypeOf(obj)))
+      return methods
+    }
+
+    let methods = _.unique(recurseClassMethods(instance).reverse())
+
     for (let name of names) {
       if (this[name] === undefined) continue
       if(this._requestedEvents) this._requestedEvents[name] = true
@@ -120,7 +130,7 @@ class ModuleProxy extends Dispatcher {
       return ProxyMethods(() => { return this.__proxyLess }, myself)()
     }
     if(this._instance && !this._registeredEvents[name]) throw new Error('Requested event '+name+' which doesn\'t exist on target '+this._name)
-    
+
     if(!this.loaded) {
       return this._app[when]('load', () => {
         return this.emit(name, ...args);
@@ -132,11 +142,11 @@ class ModuleProxy extends Dispatcher {
 
   /**
    * Provide default arguments to a delayed gather() call, before other provides
-   *  
+   *
    * @param  {string} name The name of the gather event
    * @param  {...*}   args Arguments to provide to the gather event
    * @return {Promise} Resolves when the event is eventually handled
-   */  
+   */
   default(name, ...args) {
     return this._provide('default', 'onceBefore', name, ...args)
   }
@@ -144,26 +154,26 @@ class ModuleProxy extends Dispatcher {
   provideBefore(name, ...args) {
     return this.default(name, ...args)
   }
-  
+
 
   /**
    * Provide arguments to a delayed gather() call.
-   *  
+   *
    * @param  {string} name The name of the gather event
    * @param  {...*}   args Arguments to provide to the gather event
    * @return {Promise} Resolves when the event is eventually handled
-   */  
+   */
   provide(name, ...args) {
     return this._provide('provide', 'once', name, ...args)
   }
 
     /**
    * Provide a replacement for a delayed gather() call (after others are provided)
-   *  
+   *
    * @param  {string} name The name of the gather event
    * @param  {...*}   args Arguments to provide to the gather event
    * @return {Promise} Resolves when the event is eventually handled
-   */  
+   */
   replace(name, ...args) {
     return this._provide('replace', 'onceAfter', name, ...args)
   }
@@ -171,14 +181,14 @@ class ModuleProxy extends Dispatcher {
   provideAfter(name, ...args) {
     return this.replace(name, ...args)
   }
-  
-  
+
+
   /**
    * Receive arguments provided to a delayed gather() call.
-   *  
+   *
    * @param  {string}   name The name of the gather event
    * @param  {callable} handler The handler for each provided value
-   */  
+   */
   gather(name, handler) {
     if (_.isEmpty(this._registeredEvents)) {
       this._app.emit('registeredModule', this._name)
@@ -190,21 +200,21 @@ class ModuleProxy extends Dispatcher {
 
   /**
    * Request the result of processing a named event
-   *  
+   *
    * @param  {string}   name The name of the request event
    * @param  {...*}   args Arguments to provide to the responder
    * @return {Promise} Resolves to the result of the event's handler
-   */  
+   */
   request(name, ...args) {
     return this.provide(name, ...args);
   }
 
   /**
    * Respond to a named event
-   *  
+   *
    * @param  {string}   name The name of the request event
    * @param  {callable} handler The handler for the request
-   */  
+   */
   respond(name, handler) {
     return this.gather(name, handler);
   }

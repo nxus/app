@@ -6,13 +6,13 @@ import TestApp from '../../lib/test/support/TestApp'
 describe("ModuleProxy", () => {
   var module;
   var app = new TestApp();
-  
+
   describe("Load", () => {
     it("should not be null", () => ModuleProxy.should.not.be.null())
 
     it("should be instantiated", () => {
      module = new ModuleProxy(app, 'test')
-     module.should.not.be.null() 
+     module.should.not.be.null()
     });
   });
 
@@ -22,8 +22,23 @@ describe("ModuleProxy", () => {
     before((done) => {
       other_app = new TestApp()
       other = new ModuleProxy(other_app, 'other')
-      class TestModule {
+      class SuperModule {
         constructor() {
+
+        }
+
+        notBoundMethod(a) {
+          return 1
+        }
+
+        superMethod() {
+          return 'super'
+        }
+      }
+
+      class TestModule extends SuperModule {
+        constructor() {
+          super()
           this.x = 1
           other.use(this)
           this.respond('testEvent', ::this._testEvent)
@@ -37,7 +52,7 @@ describe("ModuleProxy", () => {
         }
         notBoundMethod(a) {
           return 2
-        } 
+        }
         _ignoredMethod() {
           return 3
         }
@@ -46,7 +61,7 @@ describe("ModuleProxy", () => {
       other_app.emit('load');
       done()
     })
-    
+
     it("should have method", () => {
       module.use.should.be.Function();
     })
@@ -98,9 +113,15 @@ describe("ModuleProxy", () => {
       }).to.throw();
       done();
     })
+    it("should respond normally for an inherited method", (done) => {
+      other.superMethod().then((arg) => {
+        arg.should.equal('super')
+        done()
+      })
+    })
   });
 
-  
+
   describe("Provide and Gather", () => {
     it("should have methods", () => {
       module.provide.should.be.Function();
@@ -143,7 +164,7 @@ describe("ModuleProxy", () => {
 
   describe("Default and Replace", () => {
     var other_app = null
-    
+
     beforeEach(() => {
       other_app = new TestApp()
       module = new ModuleProxy(other_app, 'test')
@@ -197,7 +218,7 @@ describe("ModuleProxy", () => {
       })
     })
   });
-  
+
   describe("Request and Respond", () => {
     it("should have methods", () => {
       module.request.should.be.Function();
@@ -228,4 +249,4 @@ describe("ModuleProxy", () => {
     })
   });
 
-});  
+});

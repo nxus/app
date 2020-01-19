@@ -40,7 +40,7 @@ class NxusModule {
 
   get config() {
     let _defaultConfig = this._defaultConfig() || {}
-    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__config_name]))
+    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__config_name], application._userConfig[this.__config_name]))
     return this._config
   }
 
