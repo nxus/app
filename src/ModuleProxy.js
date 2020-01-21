@@ -87,20 +87,21 @@ class ModuleProxy extends Dispatcher {
     let names = ['emit', 'provide', 'request', 'provideBefore', 'provideAfter', 'default', 'replace']
     let handlerNames = ['on', 'once', 'gather', 'respond', 'before', 'after', 'onceBefore', 'onceAfter']
 
-    let recurseClassMethods = (obj) => {
+    let ignoredMethods = ['constructor', 'deregister']
+    
+    let recurseClassMethodsToProxy = (obj) => {
       if(!obj || obj === Object.prototype || Object.getPrototypeOf(obj) === Object.prototype) return []
       let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
         .map((prop) => {
-          const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(obj), prop)
-          return ((!descriptor || (descriptor && !descriptor.get)) && prop != 'config' && prop != 'constructor' && prop != 'log' && prop != 'deregister' && prop[0] != "_") ? prop : null
+          return (!ignoredMethods.includes(prop) && instance[prop].bind && prop[0] != "_") ? prop : null
         })
         .filter(p => p)
 
-      methods = methods.concat(recurseClassMethods(Object.getPrototypeOf(obj)))
+      methods = methods.concat(recurseClassMethodsToProxy(Object.getPrototypeOf(obj)))
       return methods
     }
 
-    let methods = _.unique(recurseClassMethods(instance).reverse())
+    let methods = _.unique(recurseClassMethodsToProxy(instance).reverse())
 
     for (let name of names) {
       if (this[name] === undefined) continue

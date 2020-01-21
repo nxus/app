@@ -54,7 +54,9 @@ describe("NxusModule", () => {
 
     it("should get config from app key", () => {
       application.config['sub_module'] = {"hi": "hello"}
-      instance.config.hi.should.equal("hello")
+      // cached
+      delete instance._config
+      instance.config.should.have.property('hi', 'hello')
     })
   })
 

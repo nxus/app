@@ -44,8 +44,14 @@ describe("ModuleProxy", () => {
           this.respond('testEvent', ::this._testEvent)
           this.respond('namedEvent', ::this._handler)
         }
+        // this is like NxusModule.config getter
+        get config() {
+          return {a: 1}
+        }
+
+        // this is like autobind getter to function
         get getter() {
-          throw new Error('Dont call me')
+          return () => 9
         }
         _handler (a) {
           return 1
@@ -86,25 +92,25 @@ describe("ModuleProxy", () => {
         done()
       })
     })
-    it("should respond normally", (done) => {
+    it("should call method on request", (done) => {
       other.request("namedEvent").then((arg) => {
         arg.should.equal(1)
         done()
       })
     })
-    it("should respond normally to proxy method", (done) => {
+    it("should call via proxy method", (done) => {
       other.namedEvent().then((arg) => {
         arg.should.equal(1)
         done()
       })
     })
-    it("should respond normally to a proxy method implicitly bound", (done) => {
+    it("should call to a proxy method implicitly bound", (done) => {
       other.notBoundMethod().then((arg) => {
         arg.should.equal(2)
         done()
       })
     })
-    it("should not respond to a private method", (done) => {
+    it("should error for a private method", (done) => {
       expect(() => {
         other._ignoredMethod()
       }).to.throw();
@@ -112,20 +118,30 @@ describe("ModuleProxy", () => {
     })
     it("should error for missing event handlers", (done) => {
       expect(() => {
-        inst.respond('missingHandler')
+        other.respond('missingHandler')
       }).to.throw();
       done();
     })
-    it("should respond normally for an inherited method", (done) => {
+    it("should call an inherited method", (done) => {
       other.superMethod().then((arg) => {
         arg.should.equal('super')
         done()
       })
     })
-    it("should error for getters", (done) => {
+    it("should call a getter proxy method", (done) => {
       expect(() => {
-        inst.respond('getter')
-      }).to.throw();
+        other.getter().then((arg) => {
+          arg.should.equal(9)
+          done()
+        })
+      })
+      done();
+    })
+    it("should not bind non-method properties", (done) => {
+      inst.config.should.eql({a: 1})
+      expect(() => {
+        other.respond('config')
+      }).to.throw()
       done();
     })
   });
