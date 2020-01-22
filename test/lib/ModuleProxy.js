@@ -6,13 +6,13 @@ import TestApp from '../../lib/test/support/TestApp'
 describe("ModuleProxy", () => {
   var module;
   var app = new TestApp();
-  
+
   describe("Load", () => {
     it("should not be null", () => ModuleProxy.should.not.be.null())
 
     it("should be instantiated", () => {
      module = new ModuleProxy(app, 'test')
-     module.should.not.be.null() 
+     module.should.not.be.null()
     });
   });
 
@@ -22,13 +22,44 @@ describe("ModuleProxy", () => {
     before((done) => {
       other_app = new TestApp()
       other = new ModuleProxy(other_app, 'other')
-      class TestModule {
+
+      class SuperModule {
         constructor() {
-          this.x = 1
           other.use(this)
+        }
+
+        notBoundMethod(a) {
+          return 1
+        }
+
+        superMethod() {
+          return 'super'
+        }
+      }
+
+      class TestModule extends SuperModule {
+        constructor() {
+          super()
+          this.x = 1
+          this.cache = {1: 2}
           this.respond('testEvent', ::this._testEvent)
           this.respond('namedEvent', ::this._handler)
         }
+        // this is like NxusModule.config getter
+        get config() {
+          return {a: 1}
+        }
+
+        // this is like autobind getter to function
+        get getter() {
+          return () => 9
+        }
+
+        // this is like ViewController.model which shouldn't be accessed til after construction
+        get my_cache() {
+          return this.cache[this.x]
+        }
+        
         _handler (a) {
           return 1
         }
@@ -37,7 +68,7 @@ describe("ModuleProxy", () => {
         }
         notBoundMethod(a) {
           return 2
-        } 
+        }
         _ignoredMethod() {
           return 3
         }
@@ -46,7 +77,7 @@ describe("ModuleProxy", () => {
       other_app.emit('load');
       done()
     })
-    
+
     it("should have method", () => {
       module.use.should.be.Function();
     })
@@ -68,39 +99,68 @@ describe("ModuleProxy", () => {
         done()
       })
     })
-    it("should respond normally", (done) => {
+    it("should call method on request", (done) => {
       other.request("namedEvent").then((arg) => {
         arg.should.equal(1)
         done()
       })
     })
-    it("should respond normally to proxy method", (done) => {
+    it("should call via proxy method", (done) => {
       other.namedEvent().then((arg) => {
         arg.should.equal(1)
         done()
       })
     })
-    it("should respond normally to a proxy method implicitly bound", (done) => {
+    it("should call to a proxy method implicitly bound", (done) => {
       other.notBoundMethod().then((arg) => {
         arg.should.equal(2)
         done()
       })
     })
-    it("should not respond to a private method", (done) => {
+    it("should error for a private method", (done) => {
       expect(() => {
         other._ignoredMethod()
-      }).to.throw();
+      }).to.throw(Error);
       done()
     })
     it("should error for missing event handlers", (done) => {
       expect(() => {
-        inst.respond('missingHandler')
-      }).to.throw();
+        other.respond('missingHandler')
+      }).to.throw(Error);
+      done();
+    })
+    it("should call an inherited method", (done) => {
+      other.superMethod().then((arg) => {
+        arg.should.equal('super')
+        done()
+      })
+    })
+    it("should call a getter proxy method", (done) => {
+      expect(() => {
+        other.getter().then((arg) => {
+          arg.should.equal(9)
+          done()
+        })
+      })
+      done();
+    })
+    it("should not break on getters that depend on construction", (done) => {
+      inst.my_cache.should.equal(2)
+      expect(() => {
+        other.respond('my_cache')
+      }).to.throw(Error)
+      done();
+    })
+    it("should not bind non-method properties", (done) => {
+      inst.config.should.eql({a: 1})
+      expect(() => {
+        other.respond('config')
+      }).to.throw(Error)
       done();
     })
   });
 
-  
+
   describe("Provide and Gather", () => {
     it("should have methods", () => {
       module.provide.should.be.Function();
@@ -143,7 +203,7 @@ describe("ModuleProxy", () => {
 
   describe("Default and Replace", () => {
     var other_app = null
-    
+
     beforeEach(() => {
       other_app = new TestApp()
       module = new ModuleProxy(other_app, 'test')
@@ -197,7 +257,7 @@ describe("ModuleProxy", () => {
       })
     })
   });
-  
+
   describe("Request and Respond", () => {
     it("should have methods", () => {
       module.request.should.be.Function();
@@ -228,4 +288,4 @@ describe("ModuleProxy", () => {
     })
   });
 
-});  
+});

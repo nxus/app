@@ -1,4 +1,4 @@
-/* 
+/*
 * @Author: Mike Reich
 * @Date:   2015-07-16 08:47:51
 * @Last Modified 2016-09-06
@@ -26,12 +26,12 @@ SubModule.subModule = SubModule.getProxy()
 
 describe("NxusModule", () => {
   var instance;
-
   beforeEach(() => {
     instance = new SubModule(application)
   })
 
   describe("Load", () => {
+
     it("should not be null", () => NxusModule.should.not.be.null)
 
     it("should be subclassable", () => {
@@ -49,13 +49,14 @@ describe("NxusModule", () => {
 
     it("should set the userConfig value", () => {
       instance.config.user.should.not.be.null()
-      application._userConfig.should.have.property('sub_module')
+      application.config.should.have.property('sub_module')
     })
 
     it("should get config from app key", () => {
-      delete instance.config
       application.config['sub_module'] = {"hi": "hello"}
-      instance.config.hi.should.equal("hello")
+      // cached
+      delete instance._config
+      instance.config.should.have.property('hi', 'hello')
     })
   })
 

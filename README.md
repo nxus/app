@@ -135,7 +135,7 @@ Available options are:
 
 **Parameters**
 
--   `opts` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** the configuration options (optional, default `{}`)
+-   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** the configuration options (optional, default `{}`)
 
 **Examples**
 
@@ -153,7 +153,7 @@ Returns an internal ModuleProxy object for the given name.
 
 **Parameters**
 
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the module to return
+-   `name` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the module to return
 
 Returns **ModuleProxy** 
 
@@ -161,7 +161,7 @@ Returns **ModuleProxy**
 
 Stops the currently running application
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
 ### start
 
@@ -169,15 +169,15 @@ Starts the Nxus application.
 
 **Parameters**
 
--   `opts` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** Config to deeply merge with default and rc configs (optional, default `{}`)
+-   `opts` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Config to deeply merge with default and rc configs (optional, default `{}`)
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** resolves when the boot sequence is complete
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** resolves when the boot sequence is complete
 
 ### restart
 
 Restarts the Nxus application.
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** resolves when the restart boot sequence is complete
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** resolves when the restart boot sequence is complete
 
 ## Dispatcher
 
@@ -200,10 +200,10 @@ Bind to an event once
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable?** The handler for the event
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
 ### before
 
@@ -212,7 +212,7 @@ Bind to before an event. Receives the event arguments, should return
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable** The before handler for the event
 
 ### after
@@ -222,7 +222,7 @@ Bind to after an event. Receives the event handlers results, should return
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable** The after handler for the event
 
 ### onceBefore
@@ -232,10 +232,10 @@ Bind once to before an event. Receives the event arguments, should return
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable** The before handler for the event
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
 ### onceAfter
 
@@ -244,10 +244,10 @@ Bind once to after an event. Receives the event handlers results, should return
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to bind to
 -   `listener` **callable** The after handler for the event
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when the event fires
 
 ### emit
 
@@ -255,10 +255,10 @@ Emits an event, calling all registered handlers.
 
 **Parameters**
 
--   `event` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to emit.
+-   `event` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The name of the event to emit.
 -   `args` **...any** Arguments to the event handlers
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when all handlers have completed, with any returned results as an array.
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)** Returns a promise that resolves when all handlers have completed, with any returned results as an array.
 
 ## NxusModule
 
@@ -270,7 +270,7 @@ The NxusModule class is a base class for all Nxus modules.
 
 **Properties**
 
--   `config` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** The application configuration for this module.
+-   `config` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** The application configuration for this module.
 -   `log` **[Logger](#logger)** The logger for the module.
 
 ## Logger
@@ -279,6 +279,6 @@ Factory method for instances of the `debug-logger` module.
 
 **Parameters**
 
--   `name` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** display name used to identify output from the logger (optional, default `'application'`)
+-   `name` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** display name used to identify output from the logger (optional, default `'application'`)
 
-Returns **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** `debug-logger` module instance
+Returns **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** `debug-logger` module instance
