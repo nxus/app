@@ -22,9 +22,10 @@ describe("ModuleProxy", () => {
     before((done) => {
       other_app = new TestApp()
       other = new ModuleProxy(other_app, 'other')
+
       class SuperModule {
         constructor() {
-
+          other.use(this)
         }
 
         notBoundMethod(a) {
@@ -40,7 +41,7 @@ describe("ModuleProxy", () => {
         constructor() {
           super()
           this.x = 1
-          other.use(this)
+          this.cache = {1: 2}
           this.respond('testEvent', ::this._testEvent)
           this.respond('namedEvent', ::this._handler)
         }
@@ -53,6 +54,12 @@ describe("ModuleProxy", () => {
         get getter() {
           return () => 9
         }
+
+        // this is like ViewController.model which shouldn't be accessed til after construction
+        get my_cache() {
+          return this.cache[this.x]
+        }
+        
         _handler (a) {
           return 1
         }
@@ -113,13 +120,13 @@ describe("ModuleProxy", () => {
     it("should error for a private method", (done) => {
       expect(() => {
         other._ignoredMethod()
-      }).to.throw();
+      }).to.throw(Error);
       done()
     })
     it("should error for missing event handlers", (done) => {
       expect(() => {
         other.respond('missingHandler')
-      }).to.throw();
+      }).to.throw(Error);
       done();
     })
     it("should call an inherited method", (done) => {
@@ -137,11 +144,18 @@ describe("ModuleProxy", () => {
       })
       done();
     })
+    it("should not break on getters that depend on construction", (done) => {
+      inst.my_cache.should.equal(2)
+      expect(() => {
+        other.respond('my_cache')
+      }).to.throw(Error)
+      done();
+    })
     it("should not bind non-method properties", (done) => {
       inst.config.should.eql({a: 1})
       expect(() => {
         other.respond('config')
-      }).to.throw()
+      }).to.throw(Error)
       done();
     })
   });

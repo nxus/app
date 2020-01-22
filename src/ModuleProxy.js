@@ -93,7 +93,11 @@ class ModuleProxy extends Dispatcher {
       if(!obj || obj === Object.prototype || Object.getPrototypeOf(obj) === Object.prototype) return []
       let methods = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
         .map((prop) => {
-          return (!ignoredMethods.includes(prop) && instance[prop].bind && prop[0] != "_") ? prop : null
+          let isFunction = false
+          try {
+            isFunction = instance[prop] instanceof Function
+          } catch (e) {}
+          return (isFunction && !ignoredMethods.includes(prop) && prop[0] != "_") ? prop : null
         })
         .filter(p => p)
 
