@@ -15,9 +15,9 @@ import json5 from 'json5'
 /**
  * @private
  * ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
- * 1. Opts loaded into the application object.
- * 2. Opts in the `config` hash of the project package.json file
- * 3. Any environment variables
+ * 1. From opts `config` file path (can be JSON or JSON5) and from opts `namespace` '.{namespace}rc` file.
+ * 2. Any environment variables, both as-is and parsed from `{namespace}_obj__key` names.
+ *
  */
 class ConfigurationManager {
 
