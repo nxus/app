@@ -33,10 +33,23 @@ describe("ConfigurationManager", () => {
       done()
     })
   })
+
+  describe("Package Config as JSON5", () => {
+    before((done) => {
+      instance = new ConfigurationManager({config: __dirname+"/../testApp5/.nxusrc", env: 'test', namespace: 'nxus'})
+      done()
+    })
+    it("should read rc config", (done) => {
+      let config = instance.getConfig()
+      config.should.have.property('siteName', 'test-nxus-app-json5')
+      config.should.have.property('customConfig', 'default')
+      done()
+    })
+  })
   
   describe("Package Config", () => {
     before((done) => {
-      instance = new ConfigurationManager({appDir: __dirname+"/../testApp", env: 'test', namespace: 'nxus'})
+      instance = new ConfigurationManager({config: __dirname+"/../testApp/.nxusrc", env: 'test', namespace: 'nxus'})
       done()
     })
     it("should read rc config", (done) => {

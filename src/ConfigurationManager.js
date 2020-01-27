@@ -11,7 +11,7 @@ import fs from 'fs'
 import _ from 'underscore'
 import path from 'path'
 import rc from 'rc'
-
+import json5 from 'json5'
 /**
  * @private
  * ConfigurationManager loads the internal app.config hash using the following order (each overwrites any values of the previous):
@@ -39,7 +39,7 @@ class ConfigurationManager {
    * @return {object} the intenral `config` object or an empty object if it isn't defined.
    */
   _rcConfig() {
-    return rc(this.opts.namespace, {})
+    return rc(this.opts.namespace, {}, {config: this.opts.config}, json5.parse)
   }
 
   /**
