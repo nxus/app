@@ -57,6 +57,7 @@ var startupBanner = " _______ _______ __    _ __   __ __   __ _______ __  \n"+
  * | debug | Boolean to display debug messages, including startup banner |
  * | script | Boolean to indicate the application is a CLI script, silences all logging/output messages except for explicit console.log calls |
  * | silent | Don't show any console output. Useful for CLI scripts. |
+ * | exitAfter | Name of boot stage to complete and then stop with exit. Useful for CLI scripts that build, stopping at `build`. |
  *
  * @param {Object} opts the configuration options
  * @extends Dispatcher
@@ -82,13 +83,15 @@ export default class Application extends Dispatcher {
     this._pluginInstances = {}
     this._currentStage = null
     this._appWatcher = null
-    this._banner = opts.banner || startupBanner
+    this._banner = opts.banner || process.env.NODE_ENV == 'test' ? '' : startupBanner
     this._userConfig = {}
     this.config = {}
 
     this._bootEvents = [
       'init',
       'load',
+      'build',
+      'connect',
       'startup',
       'launch'
     ]
@@ -106,7 +109,9 @@ export default class Application extends Dispatcher {
   }
 
   _showBanner() {
-    console.log(" \n"+this._banner)
+    if (this._banner) {
+      console.log(" \n"+this._banner)
+    }
   }
 
   /**
@@ -205,6 +210,10 @@ export default class Application extends Dispatcher {
   _boot() {
     if (this.config.debug) this.log.info('Booting Application')
     return new Promise.mapSeries(this._bootEvents, (e) => {
+      if (this._currentStage === this.config.exitAfter) {
+        if (this.config.debug) this.log.info(`Boot Exiting After Stage: ${this._currentStage}`)
+        return this.stop(true)
+      }
       this._currentStage = e
       if (this.config.debug) this.log.info(`Booting Stage: ${e}`)
       return this.emit(e)
