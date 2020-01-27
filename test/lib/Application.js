@@ -243,6 +243,11 @@ describe("Application", () => {
         done()
       })
     })
+
+    it("stop takes option to exit", (done) => {
+      app.on('exit', done)
+      app.stop(true)
+    })
   })
 
   describe("Get Module", () => {

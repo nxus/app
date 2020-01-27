@@ -214,11 +214,20 @@ export default class Application extends Dispatcher {
   /**
    * Stops the currently running application
    *
+   * @param {bool} exit Also call process.exit, except in `test` env
    * @return {Promise}
    */
-  stop() {
+  stop(exit=false) {
     if (this.config.debug) this.log.info('Stopping')
-    return this.emit('stop')
+    return this.emit('stop').then(() => {
+      if (exit) {
+        this.emit('exit').then(() => {
+          if (process.env.NODE_ENV != 'test') {
+            process.exit()
+          }
+        })
+      }
+    })
   }
 
   /**
