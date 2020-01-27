@@ -225,6 +225,16 @@ describe("Application", () => {
       app.start()
     })
 
+    it("should send the build event", (done) => {
+      app.once('build').then(done)
+      app.start()
+    })
+
+    it("should send the connect event", (done) => {
+      app.once('connect').then(done)
+      app.start()
+    })
+
     it("should send the startup event", (done) => {
       app.once('startup').then(done)
       app.start()
@@ -242,6 +252,23 @@ describe("Application", () => {
         completed.should.be.true()
         done()
       })
+    })
+
+    it("boot stops after config/cmdline exitAfter stage", (done) => {
+      let checks = {build: false, connect: false}
+      app.once('build', () => checks.build = true)
+      app.once('connect', () => checks.connect = true)
+      app.once('exit', () => {
+        checks.should.have.property('build', true)
+        checks.should.have.property('connect', false)
+        done()
+      })
+      app.start({exitAfter: 'build'})
+    })
+
+    it("stop takes option to exit", (done) => {
+      app.once('exit', done)
+      app.stop(true)
     })
   })
 
