@@ -9,7 +9,7 @@
   "scripts": {
     "preversion": "npm test",
     "postversion": "npm run build-docs && git push && git push --tags",
-    "test": "npm run compile && NODE_ENV=test nxus_myconfig=test mocha --compilers js:babel-core/register -R spec test/lib/* --config=./test/testApp/.nxusrc",
+    "test": "npm run compile && NODE_ENV=test nxus_myconfig=test mocha --compilers js:babel-core/register -R spec test/lib/*",
     "compile": "rm -rf lib/; babel src --out-dir lib && babel test/support/ --out-dir lib/test/support/",
     "prepublish": "npm run compile",
     "postpublish": "npm run build-docs && npm run publish-docs",
@@ -40,6 +40,7 @@
     "chokidar": "^1.6.0",
     "debug-logger": "^0.4.1",
     "deep-extend": "^0.4.1",
+    "json5": "^2.1.1",
     "merge-descriptors": "^1.0.1",
     "moment": "^2.14.1",
     "morph": "^0.2.0",

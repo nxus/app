@@ -1,0 +1,10 @@
+{
+  // Comments are ok
+  // as are unquoted keys and single-quotes
+  siteName: 'test-nxus-app-json5',
+  "customConfig": "default",
+  "host": "localhost",
+  "baseUrl": "localhost:3001",
+  "appName": "App",
+  "namespace": "nxus", // trailing commas are ok
+}
