@@ -90,6 +90,7 @@ class PluginManager {
    * @return {[type]}         [description]
    */
   _loadModulesFromDirectory(dir, isLocal, matches, prefix='') {
+    
     if (!fs.existsSync(dir)) return
 
     var moduleDirs = fs.readdirSync(dir)
@@ -107,8 +108,8 @@ class PluginManager {
         // this module prefix naming matches src/NxusModule:_moduleName we hope
         let newPrefix = modName+"/"
         // Recurse for module modules
-        this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal, newPrefix)
-        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal, newPrefix)
+        this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal, null, newPrefix)
+        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal, null, newPrefix)
       } catch (e) {
         // kludgy message text match to distinguish subsidiary modules from primary
         if ((e.code === 'MODULE_NOT_FOUND') && e.message.includes(`'${modulePath}'`))
