@@ -89,7 +89,7 @@ class PluginManager {
    * @param  {[type]} matches [description]
    * @return {[type]}         [description]
    */
-  _loadModulesFromDirectory(dir, isLocal, matches) {
+  _loadModulesFromDirectory(dir, isLocal, matches, prefix='') {
     if (!fs.existsSync(dir)) return
 
     var moduleDirs = fs.readdirSync(dir)
@@ -97,17 +97,18 @@ class PluginManager {
     moduleDirs.forEach((name) => {
       if(matches) name = multimatch([name], matches)[0]
       if(!name || (name && name[0] == ".")) return
-      this.app.log.debug('Loading module', name, isLocal ? "(app)": "(dep)")
+      let modName = prefix+name
+      this.app.log.debug('Loading module', modName, isLocal ? "(app)": "(dep)")
       let modulePath = path.resolve(path.join(dir, name))
       try {
         var pkg = require(modulePath)
-        pkg._pluginInfo = {name, modulePath, isLocal}
+        pkg._pluginInfo = {name: modName, modulePath, isLocal}
         this.packages.push(pkg)
+        // this module prefix naming matches src/NxusModule:_moduleName we hope
+        let newPrefix = modName+"/"
         // Recurse for module modules
-        this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal)
-        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal)
-        //if(fs.existsSync(dir + "/" + name + "/node_modules"))
-          //this._loadModulesFromDirectory(dir + "/" + name + "/node_modules", matches)
+        this._loadModulesFromDirectory(path.join(dir, name, 'modules'), isLocal, newPrefix)
+        this._loadModulesFromDirectory(path.join(dir, name, 'lib', 'modules'), isLocal, newPrefix)
       } catch (e) {
         // kludgy message text match to distinguish subsidiary modules from primary
         if ((e.code === 'MODULE_NOT_FOUND') && e.message.includes(`'${modulePath}'`))

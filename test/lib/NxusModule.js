@@ -8,6 +8,9 @@
 
 import {NxusModule, application} from '../../lib/'
 
+import OneModule from './modules/one'
+import NestedSub from './modules/one/modules/sub'
+
 class SubModule extends NxusModule {
 
   _defaultConfig() {
@@ -40,6 +43,8 @@ describe("NxusModule", () => {
 
     it("should set itself in app modules with the config name (dashed)", () => {
       application._moduleProxies.should.have.property('sub-module')
+      // NestedSub
+      application._moduleProxies.should.have.property('one/sub')
     })
 
     it("should set defaultConfig", () => {
@@ -75,6 +80,25 @@ describe("NxusModule", () => {
   describe("_dirName", () => {
     it("should be this directory", () => {
       instance._dirName.includes("test/lib").should.equal(true)
+    })
+  })
+
+  describe("_moduleName", () => {
+    it("should be the module name dashed", () => {
+      // SubModule isn't exported so not available 
+      //SubModule._moduleName().should.equal('sub-module')
+      instance.__name.should.equal('sub-module')
+    })
+    it("should use dir name for index module", () => {
+      OneModule._moduleName().should.equal('one')
+    })
+    it("should include nested directories and use dir name for index", () => {
+      NestedSub._moduleName().should.equal('one/sub')
+    })
+    it("should include nested directories for arbitrary internal modules", () => {
+      let n = new NestedSub()
+      n.controller.__name.should.equal('one/sub/controllers/nested-controller')
+      application._moduleProxies.should.have.property('one/sub/controllers/nested-controller')
     })
   })
 
