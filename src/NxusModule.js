@@ -9,7 +9,7 @@ import deepExtend from 'deep-extend'
 
 function _filenameOf(construct) {
   for (let [k,v] of Object.entries(require.cache)) {
-    let exports = v.exports.default ? v.exports : {default: v.exports}
+    let exports = v.exports && v.exports.default ? v.exports : {default: v.exports}
     for (let [,ex] of Object.entries(exports)) {
       if (ex == construct) {
         return v.filename
@@ -28,6 +28,7 @@ const EXCLUDE_DIRNAMES = ['src', 'lib', 'test', 'modules']
 function _modulePrefix(filename) {
   let dirname = path.dirname(filename)
   let dirs = dirname.split(path.sep)
+  let isIndex = path.basename(filename) == 'index.js'
   let result = []
   let root
   while (!root && dirs.length) {
@@ -40,6 +41,9 @@ function _modulePrefix(filename) {
         result.unshift(p)
       }
     }
+  }
+  if (isIndex) {
+    result.pop()
   }
   return result.join('/')
 }
@@ -102,13 +106,10 @@ class NxusModule {
     if (filename === undefined) {
       filename = _filenameOf(this)
     }
-    let useMyName = path.basename(filename) != 'index.js'
-    let name = _modulePrefix(filename)
+    let prefix = _modulePrefix(filename)
     // this logic of ignoring class name for modules
     // is in part to match src/PluginManager:_loadModulesFromDirectory
-    if (useMyName) {
-      name = name ? name + "/" + this.name : this.name
-    }
+    let name = prefix ? prefix + "/" + this.name : this.name
     return morph.toDashed(name)
   }
 

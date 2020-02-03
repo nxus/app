@@ -44,7 +44,7 @@ describe("NxusModule", () => {
     it("should set itself in app modules with the config name (dashed)", () => {
       application._moduleProxies.should.have.property('sub-module')
       // NestedSub
-      application._moduleProxies.should.have.property('one/sub')
+      application._moduleProxies.should.have.property('one/nested-sub')
     })
 
     it("should set defaultConfig", () => {
@@ -89,11 +89,11 @@ describe("NxusModule", () => {
       //SubModule._moduleName().should.equal('sub-module')
       instance.__name.should.equal('sub-module')
     })
-    it("should use dir name for index module", () => {
+    it("should not duplicate module name when index module", () => {
       OneModule._moduleName().should.equal('one')
     })
-    it("should include nested directories and use dir name for index", () => {
-      NestedSub._moduleName().should.equal('one/sub')
+    it("should include nested directories and use module class name", () => {
+      NestedSub._moduleName().should.equal('one/nested-sub')
     })
     it("should include nested directories for arbitrary internal modules", () => {
       let n = new NestedSub()

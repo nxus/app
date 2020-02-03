@@ -1,5 +1,5 @@
 import {NxusModule} from '../../../../lib'
 
-export default class OneModule extends NxusModule {
+export default class One extends NxusModule {
   
 }
