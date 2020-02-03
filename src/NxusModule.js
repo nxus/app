@@ -55,7 +55,7 @@ class NxusModule {
   constructor(app) {
     this._dirName = path.dirname(_filenameOf(this.constructor))
     this.__name = this.constructor._moduleName()
-    this.__config_name = this.constructor._configName(this.__name)
+    this.__config_name = this.constructor._configName()
     this.log = Logger(this.__name)
 
     let userConfig = this._userConfig()
@@ -94,8 +94,8 @@ class NxusModule {
     return application
   }
 
-  static _configName(name) {
-    return morph.toSnake(name)
+  static _configName() {
+    return morph.toSnake(this._moduleName())
   }
 
   static _moduleName(filename) {

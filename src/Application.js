@@ -367,17 +367,19 @@ export default class Application extends Dispatcher {
    * @return {[type]}
    */
   _bootPlugin(plugin) {
-    var name = plugin._pluginInfo.name
-    let path = plugin._pluginInfo.modulePath
+    let pluginInfo = plugin._pluginInfo
+
+    if(plugin.default)
+      plugin = plugin.default
+
+    let name = (plugin._moduleName && plugin._moduleName()) || pluginInfo.name
     let pluginInstance = null
     let promise = null
-    //if (this.config.debug) console.log(' ------- ', plugin)
+
     if (this._pluginInstances[name] !== undefined) {
       this.log.error('Duplicate module found', name)
       process.exit()
     }
-    if(plugin.default)
-      plugin = plugin.default
 
     if(plugin.__appRef && plugin.__appRef() !== this) {
       this.log.error('Separate Nxus Core module detected in', name)
@@ -393,7 +395,7 @@ export default class Application extends Dispatcher {
         this._pluginInstances[name] = pluginInstance
         promise = Promise.resolve(pluginInstance)
       } catch(e) {
-        this.log.error('Error booting module '+name+' from '+path, e)
+        this.log.error('Error booting module '+name+' from '+pluginInfo.modulePath, e)
         this.log.error(e.stack)
         process.exit()
       }
