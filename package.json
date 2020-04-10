@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/nxus/core",
   "engines": {
-    "node": "~6"
+    "node": "~6,~8,~10~,~12"
   },
   "dependencies": {
     "async": "^2.0.1",
