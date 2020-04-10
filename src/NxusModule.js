@@ -1,17 +1,51 @@
 import morph from 'morph'
 import path from 'path'
+import fs from 'fs'
 import stackTrace from 'stack-trace'
 import ModuleProxy from './ModuleProxy'
 import {application} from './Application'
 import Logger from './Logger'
 import deepExtend from 'deep-extend'
 
-function __dirName(constructorName) {
-  for (let site of stackTrace.get()) {
-    if(site.getFunctionName() == constructorName) {
-      return path.dirname(site.getFileName())
+function _filenameOf(construct) {
+  for (let [k,v] of Object.entries(require.cache)) {
+    let exports = v.exports && v.exports.default ? v.exports : {default: v.exports}
+    for (let [,ex] of Object.entries(exports)) {
+      if (ex == construct) {
+        return v.filename
+      }
     }
   }
+  for (let site of stackTrace.get()) {
+    if(site.getFunctionName() == construct.name) {
+      return site.getFileName()
+    }
+  }
+}
+
+const EXCLUDE_DIRNAMES = ['src', 'lib', 'test', 'modules']
+
+function _modulePrefix(filename) {
+  let dirname = path.dirname(filename)
+  let dirs = dirname.split(path.sep)
+  let isIndex = path.basename(filename) == 'index.js'
+  let result = []
+  let root
+  while (!root && dirs.length) {
+    let testFile = dirs.concat(['package.json']).join(path.sep)
+    if (fs.existsSync(testFile)) {
+      root = true
+    } else {
+      let p = dirs.pop()
+      if (!EXCLUDE_DIRNAMES.includes(p)) {
+        result.unshift(p)
+      }
+    }
+  }
+  if (isIndex) {
+    result.pop()
+  }
+  return result.join('/')
 }
 
 /**
@@ -23,6 +57,7 @@ function __dirName(constructorName) {
 class NxusModule {
 
   constructor(app) {
+    this._dirName = path.dirname(_filenameOf(this.constructor))
     this.__name = this.constructor._moduleName()
     this.__config_name = this.constructor._configName()
     this.log = Logger(this.__name)
@@ -32,15 +67,18 @@ class NxusModule {
       application.setUserConfig(this.__config_name, userConfig)
     }
 
-    this._dirName = __dirName(this.constructor.name)
-
     this.__proxy = application.get(this.__name)
     this.__proxy.use(this)
   }
 
   get config() {
     let _defaultConfig = this._defaultConfig() || {}
-    if(!this._config) this._config = Object.assign({}, deepExtend(_defaultConfig, application.config[this.__config_name]))
+    if (!this._config) {
+      this._config = Object.assign(
+        {},
+        deepExtend(_defaultConfig, application.config[this.__config_name])
+      )
+    }
     return this._config
   }
 
@@ -61,15 +99,23 @@ class NxusModule {
   }
 
   static _configName() {
-    return morph.toSnake(this.name)
+    return morph.toSnake(this._moduleName())
   }
 
-  static _moduleName() {
-    return morph.toDashed(this.name)
+  static _moduleName(filename) {
+    if (filename === undefined) {
+      filename = _filenameOf(this)
+    }
+    let prefix = _modulePrefix(filename)
+    // this logic of ignoring class name for modules
+    // is in part to match src/PluginManager:_loadModulesFromDirectory
+    let name = prefix ? prefix + "/" + this.name : this.name
+    return morph.toDashed(name)
   }
 
   static getProxy() {
-    return application.get(this._moduleName())
+    // force to caller file, assuming getProxy is called in same file as class definition
+    return application.get(this._moduleName(stackTrace.get()[1].getFileName()))
   }
 
   deregister() {
